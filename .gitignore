@@ -13,3 +13,5 @@
 **/bin/*
 **/.gradle/*
 **/langium/*
+**/*.laumch
+
