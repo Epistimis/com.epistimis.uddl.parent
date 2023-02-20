@@ -100,6 +100,8 @@ In that second Eclipse,
 1. If the UDDL is editable, you should also see an outline in the Outline pane that shows the structure of the UDDL file. If you do not, the create an Issue and attach screenshots and a console log file.
 2. If the UDDL file is editable and you see an Outline, then select the edit window, and use Cmd-Shift-F on Mac or Alt-Shift-F on Windows to format the file. 
 
+If you have problems, see [Troubleshooting](TROUBLESHOOTING.md)
+
 ## Modifying the code
 
 At this point, you've got enough working that you can begin modifying code. See the issues for what needs to be done.
