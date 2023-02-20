@@ -70,7 +70,12 @@ If you do not, click the **Add Library...** button to get:
 
 Select **Plug-in Dependencies** in the dialog, then click **Next** and **Finish**
 
-3. Open /com.epistimis.uddl/src/com/epistimis/uddl/Uddl.xtext (see screenshot)
+3. Open the xtext file for each repo you downloaded. They are:
+* UDDL: /com.epistimis.uddl/src/com/epistimis/uddl/Uddl.xtext (see screenshot)
+* UDDL Query: /com.epistimis.uddl.query/src/com/epistimis/uddl/query/Query.xtext
+* FACE: /com.epistimis.face/src/com/epistimis/face/Face.xtext
+* FACE Templates: /com.epistimis.face.template/src/com/epistimis/face/template/Template.xtext
+
 ![Screenshot 2023-01-14 at 5 42 21 PM](https://user-images.githubusercontent.com/120406738/212508222-bf4b4003-a1e4-4c32-b1e8-067ce2daed04.png)
 
 then right click in the edit window to bring up the context menu and select Run As -> Generate XText Artifacts
