@@ -14,17 +14,19 @@ import org.eclipse.xtext.testing.util.ParseHelper
 //import org.example.smalljava.smallJava.SJSymbolRef
 //import org.example.smalljava.smallJava.SJVariableDeclaration
 import com.epistimis.uddl.uddl.UddlPackage
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.^extension.ExtendWith
 
-import static extension org.junit.Assert.*
+import static extension org.junit.jupiter.api.Assertions.assertEquals
 import com.epistimis.uddl.uddl.DataModel
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
+import org.eclipse.xtext.testing.extensions.InjectionExtension
 
-@RunWith(XtextRunner)
+@ExtendWith(InjectionExtension)
 @InjectWith(UddlInjectorProvider)
 class UddlScopeProviderTest {
 	@Inject extension ParseHelper<DataModel>
