@@ -27,6 +27,20 @@ to display the context menu and delete them. If they are still errors, they will
 1. If the file looks syntactically correct, close it and reopen it. This is particularly relevant for grammar changes. XText grammar changes may 
 be overlooked by edit window caches even if the runtime is restarted. Closing the file appears to flush the cache - the errors are gone when the 
 file is reopened in the editor
+1. You may need to update Maven and/or Gradle. These can get out of synch with Eclipse and cause builds to fail in strange ways. 
+* To update Gradle, select the parent project (e.g. `com.epistimis.uddl.parent`), right click to bring up the context menu, then select Gradle -> Refresh Gradle Project. See screenshot:
+
+![Screenshot 2023-02-23 at 2 01 01 PM](https://user-images.githubusercontent.com/120406738/221041367-5f170a36-d87b-42a7-923e-3864994a91bc.png)
+
+* To update Maven, select any project, right click to bring up the context menu, then select Maven -> Update Project (see screenshot):
+
+![Screenshot 2023-02-23 at 2 01 18 PM](https://user-images.githubusercontent.com/120406738/221041577-23b6b162-da2e-442e-8b3b-82f30d84b66a.png)
+
+This will bring up a dialog box listing all the projects in your workspace. Just click the 'Select All' Button, then 'OK' (see screenshot):
+
+![Screenshot 2023-02-23 at 2 01 45 PM](https://user-images.githubusercontent.com/120406738/221041866-d6b9f52b-a6e9-40fa-955c-215fa14d2fca.png)
+
+
 3. If you still have problems, delete the .metadata directory in the eclipse workspace containing the project. Just be prepared to recreate some things afterwards. To do this properly:
 * Remove all the projects from your workspace (don't delete them from disk)
 * Exit Eclipse
