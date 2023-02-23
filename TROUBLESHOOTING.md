@@ -29,3 +29,6 @@ be overlooked by edit window caches even if the runtime is restarted. Closing th
 file is reopened in the editor
 3. If you still have problems, delete the .metadata directory in the eclipse workspace containing the project. Just be prepared to recreate some 
 4. things afterwards.
+
+# Problems with Gradle
+Gradle may complain about the location of your JVM. To fix this problem, you need to make sure that JAVA_HOME is set properly. You also need to set `org.gradle.java.home` in your `~/.gradle/gradle.properties`. For Mac/Linux users, see [this](https://askubuntu.com/questions/1259159/gradle-java-home-is-set-to-an-invalid-directory) 
