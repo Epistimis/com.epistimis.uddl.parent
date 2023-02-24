@@ -44,7 +44,7 @@ to display the context menu and delete them. If they are still errors, they will
 be overlooked by edit window caches even if the runtime is restarted. Closing the file appears to flush the cache - the errors are gone when the 
 file is reopened in the editor
 1. You may need to update Maven and/or Gradle. These can get out of synch with Eclipse and cause builds to fail in strange ways. 
-* To update Gradle, select the parent project (e.g. `com.epistimis.uddl.parent`), right click to bring up the context menu, then select Gradle -> Refresh Gradle Project. See screenshot:
+* To update Gradle, select a parent project (e.g. `com.epistimis.uddl.parent`), right click to bring up the context menu, then select Gradle -> Refresh Gradle Project. See screenshot:
 
 ![Screenshot 2023-02-23 at 2 01 01 PM](https://user-images.githubusercontent.com/120406738/221041367-5f170a36-d87b-42a7-923e-3864994a91bc.png)
 
