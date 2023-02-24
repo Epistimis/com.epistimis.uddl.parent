@@ -60,7 +60,7 @@ This will bring up a dialog box listing all the projects in your workspace. Just
 3. If you still have problems, delete the .metadata directory in the eclipse workspace containing the project. Just be prepared to recreate some things afterwards. To do this properly:
 * Remove all the projects from your workspace (don't delete them from disk)
 * Exit Eclipse
-* In a terminal / command line window, change directories to the root directory of your work
+* In a terminal / command line window, change directories to the root directory of your workspace
 * Delete the `.metadata` directory in that workspace
 * Reopen Eclipse and point to that workspace directory
 * Add the projects back to your workspace
