@@ -4,7 +4,7 @@
 ## Installing Relevant Open Source Tools.
 1. Install a current version of the Java JDK. You can download [Temurin, an open source JDK from this page](https://www.eclipse.org/downloads/).
 2. Install [Gradle](https://gradle.org). There is a version installed with Eclipse but it isn't current - and you'll need the current version. It should be version 7.6. Note that the current version is 8.x. You can install the current version but you'll need to make sure you select v 7.6 in Eclipse later on.
-3. Make sure Gradle can find Java. See the [Troubleshooting Guide](TROUBLESHOOTING.md) section on [Errors that Just Won't Go Away](https://github.com/Epistimis/UDDL/blob/master/TROUBLESHOOTING.md#errors-that-just-wont-go-away) for instructions on what to do. See also the [Problems with Gradle](https://github.com/Epistimis/UDDL/blob/master/TROUBLESHOOTING.md#problems-with-gradle) section at the end.
+3. Make sure Gradle can find Java. See the [Troubleshooting Guide](TROUBLESHOOTING.md) section  [Errors that Just Won't Go Away](https://github.com/Epistimis/UDDL/blob/master/TROUBLESHOOTING.md#errors-that-just-wont-go-away)  and the section [Problems with Gradle](https://github.com/Epistimis/UDDL/blob/master/TROUBLESHOOTING.md#problems-with-gradle) for instructions on what to do.
 4. Install [Eclipse](https://www.eclipse.org). Download the installer - you will need to click through several screens to pick the installer appropriate for you. You should be downloading Eclipse IDE 2022-12. 
 When you start the installer, select **Eclipse IDE for Java and DSL Developers** (see screenshot)
 
