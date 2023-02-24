@@ -4,6 +4,22 @@ If you have problems building any of the projects in these repos, try some combi
 1. Most of these proejcts will generate warnings and infos. Address errors first. Nothing should ever make it into the master branch with compile errors,
 so you shouldn't worry about anything but the errors when building. Sometimes errors occur because of the build order. Make sure Project -> Build Automatically is checked and then try Project-> Clean -> Clean All 
 Projects. This will rebuild everything. Sometimes this will clean up residual errors.
+1. Keep dependencies, particularly dependencies between Git repos,  in mind - focus on the errors that have no dependencies - because they could be causing all the other errors. There are several things you can do in Eclipse to help identify where errors are occurring without looking at each of them individually:
+* In the Package Explorer, look for a package with a red square with an X in it. That indicates errors in that package. See screen shot:
+
+![Screenshot 2023-02-24 at 6 31 32 AM](https://user-images.githubusercontent.com/120406738/221204401-c1097427-4a7f-4340-acd2-dcbe7ae6a64a.png)
+
+* By default, the Errors pane will only show 100 errors no matter how many there are. But that may not be the 100 errors you want to look at. You can change this by changing the Filters for the Errors pane. Click on the funnel at the top right corner of the Errors pane (see screen shot):
+
+![Screenshot 2023-02-24 at 6 34 00 AM](https://user-images.githubusercontent.com/120406738/221204925-2cb84d95-289a-41f6-bc22-f1896523ed65.png)
+
+That will open up the Filters dialog. In the lower right corner of the Filters dialog, there is a checkbox `Use limits`. Uncheck that box to turn the limits off. Or change the value in the `Items per group:` field if you want a different limit.
+
+![Screenshot 2023-02-24 at 6 34 24 AM](https://user-images.githubusercontent.com/120406738/221205167-6482c2da-ecb9-4f35-8880-c59109a2217e.png)
+
+* You can sort the content of the Errors pane on the values in any of the columns. Just click on the column you want to sort on. For example, sorting on the `Path` column will group all the Errors/Warnings/Infos by project. That can help identify where the errors are coming from (see screen shot):
+
+![Screenshot 2023-02-24 at 6 41 58 AM](https://user-images.githubusercontent.com/120406738/221206668-c5c95683-1dd3-4398-80bf-4a536cefb60f.png)
 
 # Unresolved References
 1. These are typically because either there is a missing dependency in the MANIFEST.MF file *or* because the Java Build Path doesn't reference something 
