@@ -1,7 +1,7 @@
 If you have problems building any of the projects in these repos, try some combination of the following:
 
 # Focus on Errors First
-1. Most of these proejcts will generate warnings and infos. Address errors first. Nothing should ever make it into the master branch with compile errors,
+1. Most of these projects will generate warnings and infos. Address errors first. Nothing should ever make it into the master branch with compile errors,
 so you shouldn't worry about anything but the errors when building. Sometimes errors occur because of the build order. Make sure Project -> Build Automatically is checked and then try Project-> Clean -> Clean All 
 Projects. This will rebuild everything. Sometimes this will clean up residual errors.
 1. Keep dependencies, particularly dependencies between Git repos,  in mind - focus on the errors that have no dependencies - because they could be causing all the other errors. There are several things you can do in Eclipse to help identify where errors are occurring without looking at each of them individually:
