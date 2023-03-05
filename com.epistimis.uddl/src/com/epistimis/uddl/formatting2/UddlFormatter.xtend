@@ -70,7 +70,7 @@ class UddlFormatter extends AbstractFormatter2 {
 		obj.regionFor.keyword('{').prepend[newLine];
 	}
 	def void objClose(EObject obj, extension IFormattableDocument document) {
-		obj.regionFor.keyword('};').surround[noSpace].append[newLine];
+		obj.regionFor.keyword('};').surround[noSpace].append[setNewLines(1,1,2)];
 	}
 
 	def void formatContainerContents(EList<EObject> objs, extension IFormattableDocument document) {
@@ -91,7 +91,7 @@ class UddlFormatter extends AbstractFormatter2 {
 		open.append[newLine]
 		interior(open, close)[indent]
 
-		obj.regionFor.keyword('};').surround[noSpace].append[newLine];
+		obj.regionFor.keyword('};').surround[noSpace].append[setNewLines(1,1,2)];
 	}
 
 	def void formatSubobj(EObject obj, extension IFormattableDocument document) {
@@ -115,7 +115,7 @@ class UddlFormatter extends AbstractFormatter2 {
 
 	def void formatAttribute(ISemanticRegion attrStart, ISemanticRegion attrEnd ,  extension IFormattableDocument document) {
 		attrStart.prepend[newLine]
-		attrEnd.append[newLine]
+		attrEnd.append[setNewLines(1,1,2)]
 	}
 
 	def void formatAttributeElement(ISemanticRegion elem,   extension IFormattableDocument document) {
