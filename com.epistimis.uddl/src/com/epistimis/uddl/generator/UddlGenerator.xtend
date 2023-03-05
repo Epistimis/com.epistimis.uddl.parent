@@ -11,9 +11,6 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import com.epistimis.uddl.uddl.DataModel
-import com.epistimis.uddl.uddl.ConceptualView
-import com.epistimis.uddl.query.query.SelectedEntity
 
 /**
  * Generates code from your model files on save.
