@@ -170,14 +170,14 @@ ConceptualView:
 
 /** A conceptual Query is a specification that defines the content of conceptual View as a set of conceptual Characteristics projected from a selected set of related conceptual Entities. The “specification” attribute captures the specification of a Query as defined by the Query grammar.  */
 ConceptualQuery:
-	'cq' name=ID (description=STRING)? '{'
+	'cquery' name=ID (description=STRING)? '{'
 		'spec:' specification=STRING
 	'};'
 ;
 
 /** A conceptual CompositeQuery is a collection of two or more conceptual Views. The “isUnion” attribute specifies whether the composed Views are intended to be mutually exclusive or not. */
 ConceptualCompositeQuery:
-	'ccq' name=ID (description=STRING)? '{'
+	'ccquery' name=ID (description=STRING)? '{'
 		isUnion?='isUnion'
 		composition+=ConceptualQueryComposition
 		(composition+=ConceptualQueryComposition)+
