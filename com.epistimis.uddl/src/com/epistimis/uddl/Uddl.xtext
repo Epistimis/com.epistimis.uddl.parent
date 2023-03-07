@@ -151,14 +151,14 @@ ConceptualPathNode:
 // with the NameProvider?
 /** A conceptual ParticipantPathNode is a conceptual PathNode that selects a Participant that references an Entity. This provides a mechanism for reverse navigation from an Entity that participates in an Association back to the Association. */
 ConceptualParticipantPathNode:
-	'{p:' projectedParticipant=[ConceptualParticipant|QN] '}'
-	('->' node=ConceptualPathNode )?
+	'/' projectedParticipant=[ConceptualParticipant|QN] 
+	( node=ConceptualPathNode )?
 ;
 
 /** A conceptual CharacteristicPathNode is a conceptual PathNode that selects a conceptual Characteristic which is directly contained in a conceptual Entity or Association. */
 ConceptualCharacteristicPathNode:
-	'{c:' projectedCharacteristic=[ConceptualCharacteristic|QN] '}'
-	('->' node=ConceptualPathNode )?
+	'#' projectedCharacteristic=[ConceptualCharacteristic|QN] 
+	( node=ConceptualPathNode )?
 ;
 
 /** Either a ConceptualQuery or a ConceptualCompositeQuery.
@@ -543,7 +543,7 @@ LogicalParticipantPathNode:
 
 /** A logical CharacteristicPathNode is a logical PathNode that selects a logical Characteristic which is directly contained in a logical Entity or Association. */
 LogicalCharacteristicPathNode:
-	':' projectedCharacteristic=[LogicalCharacteristic|QN]  ( node=LogicalPathNode)
+	'#' projectedCharacteristic=[LogicalCharacteristic|QN]  ( node=LogicalPathNode)
 
 ;
 
@@ -773,7 +773,7 @@ PlatformParticipantPathNode:
 
 /** A platform CharacteristicPathNode is a platform PathNode that selects a platform Characteristic which is directly contained in a platform Entity or Association. */
 PlatformCharacteristicPathNode:
-	':' projectedCharacteristic=[PlatformCharacteristic|QN]  ( node=PlatformPathNode)
+	'#' projectedCharacteristic=[PlatformCharacteristic|QN]  ( node=PlatformPathNode)
 
 ;
 
