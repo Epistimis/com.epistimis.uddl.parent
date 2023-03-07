@@ -135,7 +135,7 @@ ConceptualParticipant:
 	type=[ConceptualEntity|QN]  rolename=ID ('[' (lowerBound=INT)? ':' (upperBound=INT)? ']')? (description=STRING)? (':' specializes=[ConceptualCharacteristic|QN])?
 		'{'
 			'src:' '['sourceLowerBound=INT ':' sourceUpperBound=INT ']'
-			'path:' path=ConceptualPathNode
+			('path:' path=ConceptualPathNode)?
 		'}'
 		';'
 ;
