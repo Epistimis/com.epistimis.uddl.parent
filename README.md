@@ -3,7 +3,7 @@ Universal Data Definition Language
 
 UDDL was developed as part of the Future Airborne Capability Environment (FACE) work originally commissioned by the US Navy and eventually supported by the USAF and USArmy.  Interest in UDDL generally resulted in a decision to split it out of FACE for general use.
 
-The [current specification is available](https://publications.opengroup.org/standards/face/c198) for free after to you create an [OpenGroup](https://www.opengroup.org) account.
+The [current specification is available](https://publications.opengroup.org/standards/face/c231) for free after to you create an [OpenGroup](https://www.opengroup.org) account.
 
 This code is based on that spec but is 'unofficial'. It does not use the namespace/packaging from the original spec which results in some minor modifications to OCL. It does not use the official .ecore model though the generated model should be compatible with it. Other than that, it should be functionally equivalent.
 
