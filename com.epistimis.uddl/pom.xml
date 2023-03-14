@@ -125,5 +125,12 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.epistimis.uddl.query</groupId>
+			<artifactId>com.epistimis.uddl.query</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 
 </project>
