@@ -28,6 +28,12 @@ class IndexUtilities {
 		].flatten
 	}
 
+	def getVisibleObjects(EObject context, EClass type) {
+		context.getVisibleEObjectDescriptions(type).map([
+			context.eResource.objectFromDescription(it)
+		]);
+	}
+
 	def getVisibleContainers(EObject o) {
 		val index = rdp.getResourceDescriptions(o.eResource)
 		val rd = index.getResourceDescription(o.eResource.URI)
