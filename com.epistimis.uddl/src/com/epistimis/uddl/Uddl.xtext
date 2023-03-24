@@ -295,7 +295,7 @@ LogicalEnumeratedSet:
 		'(' name=ID (description=STRING)? 
 		'['
 		label+=(LogicalEnumerationLabel | LogicalEnumeratedSet) ','? (label+=(LogicalEnumerationLabel| LogicalEnumeratedSet) ','?)*
-		'])'
+		']' ')'
 		;
 
 /** An EnumerationLabel defines a named member of an Enumerated value set. */
