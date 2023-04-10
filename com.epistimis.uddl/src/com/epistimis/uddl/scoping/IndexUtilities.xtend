@@ -63,7 +63,12 @@ class IndexUtilities {
 
 	/**
 	 * Find all visible EObjects that match this type and name. The name may be 
-	 * a leaf, RQN, or FQN
+	 * a leaf, RQN, or FQN. Note the following:
+	 * 1) We are checking the name from the leaf up. The assumption here is that
+	 * in most cases, a leaf or RQN will be used - so starting with that comparison
+	 * will return success more quickly.
+	 * 2) If the leaf is not in the name, then the name won't match at all - so 
+	 * there is no point in continuing to check.
 	 */
 	def searchAllVisibleEObjectDescriptions(EObject context, EClass type, String name) {
 
@@ -71,8 +76,13 @@ class IndexUtilities {
 			val QualifiedName qn = it.getQualifiedName();
 			for (var i = qn.getSegmentCount() - 1; i >= 0; i--) {
 				val rqn = qn.skipFirst(i).toString();
-				if (name.equalsIgnoreCase(rqn)) {
-					return true;
+				val int ndx = name.indexOf(rqn);
+				if (ndx == -1) {
+					return false; // can't possibly match, so exit without trying anything more
+				} else if (ndx == 0) {
+					return true; // matches - return success
+				} else {
+					// keep going - and try a longer QN
 				}
 			}
 			/**
