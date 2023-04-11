@@ -61,7 +61,11 @@ class UddlFormatter extends AbstractFormatter2 {
 	 * 3) '[' and ']' for lists means
 	 * 		A) all list content have 1 space between
 	 * 		B) '[', ']' and content all on the same line
-	 *
+	 *		C) Some lists contain more than a single token per list object. In those cases, the 
+	 * 			list object will be bounded by  '(' and ')' - insert a newline after each ')'. 
+	 * 			Ideally, any list that contains any list objects should default to all the list items being formatted one per line
+	 * 		D) Even simple lists can eventually get too long - we should have a configurable line break (default 80 chars) so that 
+	 * 			all lines of list tokens break before going over the line length limit.
 	 *
 	 */
 
