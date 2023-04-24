@@ -171,19 +171,31 @@ public class UddlValidator extends AbstractUddlValidator {
 			Entity ent) {
 
 		List<Characteristic> results = new ArrayList<>();
-		if (CLPExtractors.getSpecializes(ent) != null) {
+		
+		/**
+		 * First, check to see if we inherit anything. We do this first because if we later want to override
+		 * something inherited, we can.
+		 */
+		UddlElement spec = CLPExtractors.getSpecializes(ent);
+		if ( spec != null) {
 			// If this specializes, then recursively get everything from what it specializes
-			Entity ce = (Entity) ent;
+			Entity ce = (Entity) spec;
 			results.addAll(getEntityCharacteristics(ce));
 		}
+
 		/**
-		 * Now check mine
+		 * If this is an association, get the participant info next.
 		 */
-		results.addAll((Collection<? extends Characteristic>) CLPExtractors.getComposition(ent));
 		if (CLPExtractors.isAssociation(ent)) {
 			Association ca = (Association) CLPExtractors.conv2Association(ent);
 			results.addAll((Collection<? extends Characteristic>) CLPExtractors.getParticipant(ca));
 		}
+
+		/**
+		 * Now add all the locally defined characteristics
+		 */
+		results.addAll((Collection<? extends Characteristic>) CLPExtractors.getComposition(ent));
+
 		return results;
 	}
 
