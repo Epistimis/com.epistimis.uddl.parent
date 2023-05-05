@@ -17,6 +17,7 @@ import com.epistimis.uddl.uddl.PlatformParticipant
 import com.epistimis.uddl.uddl.PlatformString
 import java.util.Map
 import org.eclipse.emf.ecore.EObject
+import com.epistimis.uddl.RealizedComposableElement
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.

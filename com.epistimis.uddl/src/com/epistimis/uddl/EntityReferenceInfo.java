@@ -1,4 +1,4 @@
-package com.epistimis.uddl.generator;
+package com.epistimis.uddl;
 
 public class EntityReferenceInfo {
 

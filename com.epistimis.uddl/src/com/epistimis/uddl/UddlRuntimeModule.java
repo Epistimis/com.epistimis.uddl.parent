@@ -9,7 +9,6 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.scoping.IGlobalScopeProvider;
 import org.eclipse.xtext.scoping.impl.ImportUriGlobalScopeProvider;
 
-import com.epistimis.uddl.generator.QueryProcessor;
 import com.epistimis.uddl.scoping.IndexUtilities;
 
 /**

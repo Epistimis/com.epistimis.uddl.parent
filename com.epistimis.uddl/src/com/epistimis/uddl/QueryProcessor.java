@@ -1,4 +1,4 @@
-package com.epistimis.uddl.generator;
+package com.epistimis.uddl;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -81,16 +81,17 @@ public class QueryProcessor {
 	 * @return
 	 */
 
-//	private static <View, Entity extends UddlElement,
+//	private static <View extends UddlElement, Entity extends UddlElement,
 //	Characteristic,
 //	Association extends Entity,
 //	Participant extends Characteristic>
 //List<Entity> 	getEntities(View v, Entity ent){
 //
-//		// Set up to process with correct parser
+//		
 //	}
 //
 
+	// Set up to process with correct parser
 	public QuerySpecification processQuery(PlatformQuery query) {
 		String queryText = CLPExtractors.getSpecification(query);
 		QuerySpecification qspec = null;

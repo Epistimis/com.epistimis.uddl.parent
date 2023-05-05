@@ -11,6 +11,10 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import com.epistimis.uddl.RealizedAssociation
+import com.epistimis.uddl.RealizedDataType
+import com.epistimis.uddl.RealizedEntity
+import com.epistimis.uddl.RealizedComposableElement
 
 /**
  * Generates code from your model files on save.

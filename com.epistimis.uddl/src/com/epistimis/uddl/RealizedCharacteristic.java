@@ -1,4 +1,4 @@
-package com.epistimis.uddl.generator;
+package com.epistimis.uddl;
 
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
 import com.epistimis.uddl.uddl.PlatformComposableElement;
