@@ -18,6 +18,17 @@ import com.epistimis.uddl.uddl.ConceptualQuery
 import com.epistimis.uddl.uddl.LogicalQuery
 import com.epistimis.uddl.uddl.PlatformQuery
 import com.epistimis.uddl.uddl.UddlElement
+import com.epistimis.uddl.uddl.PlatformQueryComposition
+import com.epistimis.uddl.uddl.PlatformCompositeQuery
+import com.epistimis.uddl.uddl.LogicalQueryComposition
+import com.epistimis.uddl.uddl.LogicalCompositeQuery
+import com.epistimis.uddl.uddl.ConceptualCompositeQuery
+import com.epistimis.uddl.uddl.ConceptualQueryComposition
+import com.epistimis.uddl.uddl.ConceptualView
+import com.epistimis.uddl.uddl.PlatformView
+import com.epistimis.uddl.uddl.LogicalView
+import com.epistimis.uddl.uddl.UddlPackage
+import org.eclipse.emf.ecore.EClass
 
 /**
  * This is a set of methods that extract values from instances for use with templated methods
@@ -58,45 +69,89 @@ abstract class CLPExtractors {
 		return  ent as PlatformAssociation;
 	}
 
-	def dispatch static EList<ConceptualComposition> getComposition(ConceptualEntity ent) {
-		return ent.getComposition();
+	def dispatch static EList<ConceptualComposition> getComposition(ConceptualEntity obj) {
+		return obj.getComposition();
 	}
-	def dispatch static EList<LogicalComposition> getComposition(LogicalEntity ent) {
-		return ent.getComposition();
+	def dispatch static EList<LogicalComposition> getComposition(LogicalEntity obj) {
+		return obj.getComposition();
 	}
-	def dispatch static EList<PlatformComposition> getComposition(PlatformEntity ent) {
-		return ent.getComposition();
+	def dispatch static EList<PlatformComposition> getComposition(PlatformEntity obj) {
+		return obj.getComposition();
 	}
 
 	
-	def dispatch static EList<ConceptualParticipant> getParticipant(ConceptualAssociation ent) {
-		return ent.getParticipant();
+	def dispatch static EList<ConceptualParticipant> getParticipant(ConceptualAssociation obj) {
+		return obj.getParticipant();
 	}
-	def dispatch static EList<LogicalParticipant> getParticipant(LogicalAssociation ent) {
-		return ent.getParticipant();
+	def dispatch static EList<LogicalParticipant> getParticipant(LogicalAssociation obj) {
+		return obj.getParticipant();
 	}
-	def dispatch static EList<PlatformParticipant> getParticipant(PlatformAssociation ent) {
-		return ent.getParticipant();
-	}
-
-	def dispatch static String getSpecification(ConceptualQuery ent) {
-		return ent.specification;
-	}
-	def dispatch static String getSpecification(LogicalQuery ent) {
-		return ent.specification;
-	}
-	def dispatch static String getSpecification(PlatformQuery ent) {
-		return ent.specification;
+	def dispatch static EList<PlatformParticipant> getParticipant(PlatformAssociation obj) {
+		return obj.getParticipant();
 	}
 
-	def dispatch static Class<? extends UddlElement> getClassForQuery(ConceptualQuery ent) {
+	def dispatch static String getSpecification(ConceptualQuery obj) {
+		return obj.specification;
+	}
+	def dispatch static String getSpecification(LogicalQuery obj) {
+		return obj.specification;
+	}
+	def dispatch static String getSpecification(PlatformQuery obj) {
+		return obj.specification;
+	}
+
+	def dispatch static Class<? extends UddlElement> getClassForQuery(ConceptualQuery obj) {
 		return typeof(ConceptualEntity);
 	}
-	def dispatch static Class<? extends UddlElement> getClassForQuery(LogicalQuery ent) {
+	def dispatch static Class<? extends UddlElement> getClassForQuery(LogicalQuery obj) {
 		return typeof(LogicalEntity);
 	}
-	def dispatch static Class<? extends UddlElement> getClassForQuery(PlatformQuery ent) {
+	def dispatch static Class<? extends UddlElement> getClassForQuery(PlatformQuery obj) {
 		return typeof(PlatformEntity);
 	}
+
+	def dispatch static EList<ConceptualQueryComposition> getComposition(ConceptualCompositeQuery ent) {
+		return ent.composition;
+	}
+	def dispatch static EList<LogicalQueryComposition> getComposition(LogicalCompositeQuery ent) {
+		return ent.composition;
+	}
+	def dispatch static EList<PlatformQueryComposition> getComposition(PlatformCompositeQuery ent) {
+		return ent.composition;
+	}
+
+	def dispatch static ConceptualView getType(ConceptualQueryComposition obj) {
+		return obj.type;
+	}
+	def dispatch static LogicalView getType(LogicalQueryComposition obj) {
+		return obj.type;
+	}
+	def dispatch static PlatformView getType(PlatformQueryComposition obj) {
+		return obj.type;
+	}
+
+	
+	def dispatch static boolean isCompositeQuery(ConceptualView obj) {
+		return (obj instanceof ConceptualCompositeQuery);
+	}
+	def dispatch static boolean isCompositeQuery(LogicalView obj) {
+		return (obj instanceof LogicalCompositeQuery);
+	}
+	def dispatch static boolean isCompositeQuery(PlatformView obj) {
+		return (obj instanceof PlatformCompositeQuery);
+	}
+
+	def dispatch static EClass getRelatedPackageEntityInstance(ConceptualQuery obj) {
+		return 	UddlPackage.eINSTANCE.getConceptualEntity()
+	}
+	def dispatch static EClass getRelatedPackageEntityInstance(LogicalQuery obj) {
+		return 	UddlPackage.eINSTANCE.getLogicalEntity()
+	}
+	def dispatch static EClass getRelatedPackageEntityInstance(PlatformQuery obj) {
+		return 	UddlPackage.eINSTANCE.getPlatformEntity()
+	}
+	
+
+	
 
 }

@@ -1,9 +1,11 @@
 package com.epistimis.uddl;
 
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
@@ -28,11 +30,12 @@ import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformQuery;
 import com.epistimis.uddl.uddl.PlatformQueryComposition;
 import com.epistimis.uddl.uddl.PlatformView;
+import com.epistimis.uddl.uddl.UddlElement;
 import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
-public class QueryProcessor {
+public abstract class QueryProcessor<Characteristic extends EObject,  Entity extends UddlElement, Association extends Entity, Participant extends Characteristic, View extends UddlElement, Query extends View, CompositeQuery extends View, QueryComposition extends EObject> {
 	// @Inject
 //	private Provider<ResourceSet> resourceSetProvider;
 //
@@ -55,6 +58,34 @@ public class QueryProcessor {
 	@Inject
 	IQualifiedNameConverter qnc;
 
+//	@Inject
+//	CLPExtractors clp;
+
+	abstract protected EList<QueryComposition> getComposition(CompositeQuery ent);
+	abstract protected View getType(QueryComposition obj);
+	abstract protected boolean isCompositeQuery(View obj);
+	abstract protected EClass getRelatedPackageEntityInstance(Query obj);
+
+	/**
+	 * Get the type parameters for this generic class
+	 * @param ndx the index into the list of type parameters 
+	 * @return
+	 */
+	public Class returnedTypeParameter(int ndx) {
+		ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();
+		return (Class) parameterizedType.getActualTypeArguments()[ndx];
+	}
+	
+	public Class getCharacteristicType() 	{ return returnedTypeParameter(0); }
+	public Class getEntityType() 			{ return returnedTypeParameter(1); }
+	public Class getAssociationType() 		{ return returnedTypeParameter(2); }
+	public Class getParticipantType() 		{ return returnedTypeParameter(3); }
+	public Class getViewType() 				{ return returnedTypeParameter(4); }
+	public Class getQueryType() 			{ return returnedTypeParameter(5); }
+	public Class getCompositeQueryType() 	{ return returnedTypeParameter(6); }
+	public Class getQueryCompositionType() 	{ return returnedTypeParameter(7); }
+
+
 	public QueryProcessor() {
 		// this.reg = reg;
 //		URI queryURI = URI.createURI(QueryPackageImpl.eNS_URI);
@@ -66,33 +97,10 @@ public class QueryProcessor {
 
 	}
 
-	/**
-	 * Get all the Entities visible from the (C/L/P)View where the query spec was
-	 * defined.
-	 */
 
-	/**
-	 *
-	 * @param <Entity>
-	 * @param <Characteristic>
-	 * @param <Association>
-	 * @param <Participant>
-	 * @param ent
-	 * @return
-	 */
-
-//	private static <View extends UddlElement, Entity extends UddlElement,
-//	Characteristic,
-//	Association extends Entity,
-//	Participant extends Characteristic>
-//List<Entity> 	getEntities(View v, Entity ent){
-//
-//		
-//	}
-//
 
 	// Set up to process with correct parser
-	public QuerySpecification processQuery(PlatformQuery query) {
+	public QuerySpecification processQuery(Query query) {
 		String queryText = CLPExtractors.getSpecification(query);
 		QuerySpecification qspec = null;
 		try {
@@ -104,7 +112,8 @@ public class QueryProcessor {
 			qspec = (QuerySpecification) resource.getContents().get(0);
 
 		} catch (Exception e) {
-			// TODO: This should also check for Parse errors - like unit tests do - and print out something.
+			// TODO: This should also check for Parse errors - like unit tests do - and
+			// print out something.
 			System.out.println("Query " + qnp.getFullyQualifiedName(query).toString() + " contains a malformed query: '"
 					+ queryText + "'");
 			// TODO Auto-generated catch block
@@ -121,14 +130,16 @@ public class QueryProcessor {
 	 * @param query
 	 * @return
 	 */
-	public List<QuerySpecification> processQuery(PlatformCompositeQuery query) {
+	public List<QuerySpecification> processCompositeQuery(CompositeQuery query) {
 		List<QuerySpecification> results = new ArrayList<QuerySpecification>();
-		for (PlatformQueryComposition comp : query.getComposition()) {
-			PlatformView v = comp.getType();
-			if (v instanceof PlatformQuery) {
-				results.add(processQuery((PlatformQuery) v));
-			} else if (v instanceof PlatformCompositeQuery) {
-				results.addAll(processQuery((PlatformCompositeQuery) v));
+		for (EObject comp : CLPExtractors.getComposition(query)) {
+			// comp is actually a QueryComposition object but shows up as an EObject because
+			// of XTend dispatch
+			View v = (View) CLPExtractors.getType(comp);
+			if (CLPExtractors.isCompositeQuery(v)) {
+				results.addAll(processCompositeQuery((CompositeQuery) v));				
+			} else {
+				results.add(processQuery((Query) v));				
 			}
 		}
 		return results;
@@ -140,11 +151,10 @@ public class QueryProcessor {
 	 * working from inside out. The names will be relative to the Query instance
 	 * containing the parsed specification.
 	 */
-	public /* <Query extends UddlElement> */ List<PlatformEntity> matchQuerytoUDDL(PlatformQuery q,
-			QuerySpecification qspec) {
+	public  List<Entity> matchQuerytoUDDL(Query q, QuerySpecification qspec) {
 		Resource resource = q.eResource();
 		// Initially, we just get the Entity names
-		List<PlatformEntity> chosenEntities = new ArrayList<PlatformEntity>();
+		List<Entity> chosenEntities = new ArrayList<Entity>();
 		String queryFQN = qnp.getFullyQualifiedName(q).toString();
 		final Iterable<SelectedEntity> selectedEntities = Iterables.<SelectedEntity>filter(
 				IteratorExtensions.<EObject>toIterable(qspec.eAllContents()), SelectedEntity.class);
@@ -156,9 +166,10 @@ public class QueryProcessor {
 			 * TODO: Gets a scope that is for this container hierarchy only. For imports,
 			 * need to use IndexUtilities to get all visible IEObjectDescriptions and filter
 			 * those. That will require RQNs processing.
-			 */
+			 */	
 			IScope searchScope = entityScope(q.eContainer());
-			List<IEObjectDescription> lod = IterableExtensions.<IEObjectDescription>toList(searchScope.getElements(qnc.toQualifiedName(entityName)));
+			List<IEObjectDescription> lod = IterableExtensions
+					.<IEObjectDescription>toList(searchScope.getElements(qnc.toQualifiedName(entityName)));
 //			List<IEObjectDescription> lod = new ArrayList<IEObjectDescription>();
 //			for (IEObjectDescription desc : descriptions) {
 //				lod.add(desc);
@@ -169,56 +180,38 @@ public class QueryProcessor {
 			 */
 			switch (lod.size()) {
 			case 0: {
-					// If nothing found so far, check all visible objects
-					List<IEObjectDescription> globalDescs = ndxUtil.searchAllVisibleEObjectDescriptions(q, UddlPackage.eINSTANCE.getPlatformEntity(), entityName);
-					switch (globalDescs.size()) {
-					case 0:
-						System.out.println("No Entities found for name: " + entityName + " from Query " + queryFQN);
-						break;
-					case 1:
-						chosenEntities.add((PlatformEntity) IndexUtilities.objectFromDescription(resource,globalDescs.get(0)));
-						break;
-					default:
-						/** found multiple - so print out their names */
-						ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN,PlatformQuery.class.getName(),globalDescs);
-						break;
-					}
+				// If nothing found so far, check all visible objects
+				List<IEObjectDescription> globalDescs = ndxUtil.searchAllVisibleEObjectDescriptions(q,
+						CLPExtractors.getRelatedPackageEntityInstance(q), entityName);
+				switch (globalDescs.size()) {
+				case 0:
+					System.out.println("No Entities found for name: " + entityName + " from Query " + queryFQN);
+					break;
+				case 1:
+					chosenEntities
+							.add((Entity) IndexUtilities.objectFromDescription(resource, globalDescs.get(0)));
+					break;
+				default:
+					/** found multiple - so print out their names */
+					ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN, getQueryType().getName(),
+							globalDescs);
+					break;
 				}
+			}
 				break;
 			case 1:
 				IEObjectDescription description = lod.get(0);
-				chosenEntities.add((PlatformEntity) IndexUtilities.objectFromDescription(resource,description));
+				chosenEntities.add((Entity) IndexUtilities.objectFromDescription(resource, description));
 				break;
 			default:
 				/** found multiple - so print out their names */
-				ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN, PlatformQuery.class.getName(), lod);
+				ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN, getQueryType().getName(), lod);
 			}
 		}
 		/* at this point we have identified all the entities */
 		return chosenEntities;
 	}
-	
-	// Moved to IndexUtilities
-//	private void listNameCollisions(String queryFQN, String entityName, List<IEObjectDescription> descriptions) {
-//		System.out.println(
-//				"Query " + queryFQN + " makes ambiguous reference to " + entityName + ". It could be: ");
-//		for (IEObjectDescription d : descriptions) {
-//			// May need to use qnp.getFullyQualifiedName(d.getEObjectOrProxy())
-//			System.out.println("\t" + d.getQualifiedName().toString());
-//		}
-//		
-//	}
 
-	// Moved to IndexUtilities
-//	private EObject objectFromDescription(Resource res, IEObjectDescription desc) {
-//		if (desc == null)
-//			return null;
-//		EObject o = desc.getEObjectOrProxy();
-//		if (o.eIsProxy()) {
-//			o = res.getResourceSet().getEObject(desc.getEObjectURI(), true);
-//		}
-//		return o;
-//	}
 
 	/**
 	 * Taken from the book, SmallJavaLib.getSmallJavaObjectClass - and converted
@@ -229,38 +222,13 @@ public class QueryProcessor {
 	 * Also note that case doesn't matter
 	 * 
 	 * @param context - Check visibility to this object
-	 * @param type - Filter for only for instances of this type
-	 * @param name - Filter for only instances that match this RQN
+	 * @param type    - Filter for only for instances of this type
+	 * @param name    - Filter for only instances that match this RQN
 	 * @return A list of matching objects
 	 * 
-	 * TODO: 
+	 *         TODO:
 	 */
 	protected List<IEObjectDescription> searchAllVisibleObjects(EObject context, EClass type, String name) {
-		// Commented code now in IndexUtilities
-//		Iterable<IEObjectDescription> descriptions = ndxUtil.getVisibleEObjectDescriptions(context, type);
-//
-//		final Function1<IEObjectDescription, Boolean> _function = (IEObjectDescription it) -> {
-//			/**
-//			 * Because the passed in name may be relative, we need to check all possible
-//			 * name fragments for a match
-//			 */
-//			QualifiedName qn = it.getQualifiedName();
-//			for (int i = qn.getSegmentCount() - 1; i >= 0; i--) {
-//				String rqn = qn.skipFirst(i).toString();
-//				if (name.equalsIgnoreCase(rqn)) {
-//					return true;
-//				}
-//			}
-//			/**
-//			 * If we get here, there wasn't a match on this description
-//			 */
-//			return false;
-//		};
-//		Iterable<IEObjectDescription> filteredDescs = IterableExtensions.<IEObjectDescription>filter(descriptions, _function);
-//		List<IEObjectDescription> lod = new ArrayList<IEObjectDescription>();
-//		for (IEObjectDescription desc : filteredDescs) {
-//			lod.add(desc);
-//		}
 		List<IEObjectDescription> lod = ndxUtil.searchAllVisibleEObjectDescriptions(context, type, name);
 		return lod;
 	}
@@ -272,13 +240,13 @@ public class QueryProcessor {
 	 * @param context
 	 * @return
 	 */
-	protected /* <Query extends UddlElement,Entity extends UddlElement > */ IScope entityScope(EObject context) {
+	protected  IScope entityScope(EObject context) {
 		/*
 		 * the object will either be the original query or a containing PDM - so
 		 * containers will always be a (C/L/P)DM or a DataModel
 		 */
-		final Iterable<PlatformEntity> entities = IterableExtensions.<PlatformEntity>filter(
-				IteratorExtensions.<EObject>toIterable(context.eAllContents()), PlatformEntity.class);
+		final Iterable<Entity> entities = IterableExtensions.<Entity>filter(
+				IteratorExtensions.<EObject>toIterable(context.eAllContents()), getEntityType());
 		EObject container = context.eContainer();
 		if (container != null) {
 			return Scopes.scopeFor(entities, entityScope(container));

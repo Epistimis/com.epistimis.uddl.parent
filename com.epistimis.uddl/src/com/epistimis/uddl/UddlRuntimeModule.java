@@ -38,8 +38,8 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		return IndexUtilities.class;
 	}
 
-	public Class<? extends QueryProcessor> bindQueryProcessor() {
-		return QueryProcessor.class;
+	public Class<? extends PlatformQueryProcessor> bindPlatformQueryProcessor() {
+		return PlatformQueryProcessor.class;
 	}
 
 	public Class<? extends IQualifiedNameConverter> bindIQualifiedNameConverter() {
