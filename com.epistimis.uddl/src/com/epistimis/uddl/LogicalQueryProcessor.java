@@ -1,11 +1,15 @@
 package com.epistimis.uddl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
 import com.epistimis.uddl.uddl.LogicalAssociation;
 import com.epistimis.uddl.uddl.LogicalCharacteristic;
 import com.epistimis.uddl.uddl.LogicalCompositeQuery;
+import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalParticipant;
 import com.epistimis.uddl.uddl.LogicalQuery;
@@ -31,6 +35,21 @@ public class LogicalQueryProcessor extends
 
 	protected EClass getRelatedPackageEntityInstance(LogicalQuery obj) {
 		return 	UddlPackage.eINSTANCE.getLogicalEntity();
+	}
+
+
+	protected List<LogicalCharacteristic> getCharacteristics(LogicalEntity obj) {
+		
+		List<LogicalCharacteristic> characteristics = new ArrayList<>();
+		for (LogicalComposition pc: obj.getComposition()) {
+			characteristics.add(pc);
+		}
+		if (obj instanceof LogicalAssociation) {
+			for (LogicalParticipant pp: ((LogicalAssociation)obj).getParticipant()) {
+				characteristics.add(pp);
+			}
+		}
+		return characteristics;
 	}
 
 }

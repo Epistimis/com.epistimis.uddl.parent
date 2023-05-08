@@ -9,6 +9,12 @@ import com.epistimis.uddl.uddl.PlatformComposableElement;
 
 public class RealizedComposableElement {
 
+	/**
+	 * This is, essentially, a compiler name table. It contains the results of processing all the composable elements in the model to
+	 * get the net realization.  This can be used as is, or can be used by the QueryProcessor when selecting Entities, Associations, and Compositions.
+	 * 
+	 * Note that this contains Platform level info
+	 */
 	public static Map<PlatformComposableElement,RealizedComposableElement> allComposableElements = new HashMap<PlatformComposableElement, RealizedComposableElement>();
 
 	public RealizedComposableElement(PlatformComposableElement pce) {

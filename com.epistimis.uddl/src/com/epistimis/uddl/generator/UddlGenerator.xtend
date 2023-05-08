@@ -33,6 +33,7 @@ class UddlGenerator extends AbstractGenerator {
 
 		/**
 		 * Collect, for each pentity, all the realization info for each PlatformComposition it contains
+		 * The focus here is identifying exactly what has been down-selected and what hasn't. 
 		 */
 		for (PlatformComposableElement elem : elements) {
 			/**

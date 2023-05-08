@@ -108,13 +108,13 @@ class TypescriptDataStructureGenerator extends CommonDataStructureGenerator {
 
 	override String compositionElement(PlatformComposition composition, int ndx) {
 		'''
-			«nDent(1)»«getCompositionVisibility» «composition.rolename»: «IF composition.upperBound > 1»«composition.type.genTypeName»[]«ELSE»«composition.type.genTypeName»«ENDIF»;   // «composition.description»
+		 «nDent(ndx)»«getCompositionVisibility» «composition.rolename»: «IF composition.upperBound > 1»«composition.type.genTypeName»[]«ELSE»«composition.type.genTypeName»«ENDIF»;   // «composition.description»
 		'''
 	}
 
 	override String participantElement(PlatformParticipant participant, int ndx) {
 		'''
-			«nDent(1)»«getCompositionVisibility» «participant.rolename»: «IF participant.upperBound > 1»«participant.type.genTypeName»[]«ELSE»«participant.type.genTypeName»«ENDIF»;   // «participant.description»
+		«nDent(ndx)»«getCompositionVisibility» «participant.rolename»: «IF participant.upperBound > 1»«participant.type.genTypeName»[]«ELSE»«participant.type.genTypeName»«ENDIF»;   // «participant.description»
 		'''
 	}
 

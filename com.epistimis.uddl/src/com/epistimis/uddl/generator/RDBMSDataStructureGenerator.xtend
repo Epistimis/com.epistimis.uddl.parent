@@ -115,13 +115,13 @@ class RDBMSDataStructureGenerator extends CommonDataStructureGenerator {
 
 	override String compositionElement(PlatformComposition composition, int ndx) {
 		'''
-			«compositionVisibility» «composition.type.name» «composition.rolename»«IF composition.upperBound > 1»«arrStart»«composition.upperBound»«arrEnd»«ENDIF»«elemEnd» «singleLineCmtStart» «composition.description»
+		«nDent(ndx)»«compositionVisibility» «composition.type.name» «composition.rolename»«IF composition.upperBound > 1»«arrStart»«composition.upperBound»«arrEnd»«ENDIF»«elemEnd» «singleLineCmtStart» «composition.description»
 		'''
 	}
 
 	override String participantElement(PlatformParticipant participant, int ndx) {
 		'''
-			«compositionVisibility» «participant.type.name» «participant.rolename»«IF participant.upperBound > 1»«arrStart»«participant.upperBound»«arrEnd»«ENDIF»«elemEnd» «singleLineCmtStart» «participant.description»
+		«nDent(ndx)»«compositionVisibility» «participant.type.name» «participant.rolename»«IF participant.upperBound > 1»«arrStart»«participant.upperBound»«arrEnd»«ENDIF»«elemEnd» «singleLineCmtStart» «participant.description»
 		'''
 	}
 

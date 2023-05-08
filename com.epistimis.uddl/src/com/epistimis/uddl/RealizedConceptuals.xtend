@@ -15,6 +15,7 @@ import com.epistimis.uddl.uddl.PlatformComposition
 import com.epistimis.uddl.uddl.PlatformDataType
 import com.epistimis.uddl.uddl.PlatformEntity
 import com.epistimis.uddl.uddl.PlatformParticipant
+import com.epistimis.uddl.uddl.UddlFactory
 import java.util.HashSet
 import java.util.Set
 import java.util.stream.Collectors
@@ -25,6 +26,8 @@ import java.util.stream.Collectors
  * all the composition elements they could
  */
 class RealizedConceptuals {
+	
+	UddlFactory factory = UddlFactory.eINSTANCE;
 
 	def dispatch Set<String> constituentObservables(ConceptualObservable elem) {
 
@@ -280,4 +283,129 @@ class RealizedConceptuals {
 		return constituents;
 	}
 
+	/**
+	 * effectiveConceptualEntity will return a conceptual entity that is the equivalent of the
+	 * Platform/Logical realization but just at a conceptual level.
+	 * 
+	 * NOTE: As implemented, the composition rolenames are those from the Conceptual level 
+	 * even if the Platform/Logical realizations renamed the roles. This has the advantage of 
+	 * keeping consistency for the semantics even if code gen uses a different name.
+	 */
+
+
+
+	/**
+	 * Return the Conceptual equivalent of this PlatformEntity. This accounts for any 
+	 * down-selecting that might occur (compositions not realized)
+	 */
+	def dispatch ConceptualEntity effectiveConceptualEntity(PlatformEntity elem) {
+		var ConceptualEntity ce = factory.createConceptualEntity();
+		return populateFromPlatformEntity(ce, elem);
+	}
+
+	/**
+	 * Return the Conceptual equivalent of this PlatformAssociation. This accounts for any 
+	 * down-selecting that might occur (compositions not realized)
+	 */
+	def dispatch ConceptualEntity effectiveConceptualEntity(PlatformAssociation elem) {
+		var ConceptualAssociation ca = factory.createConceptualAssociation();
+		populateFromPlatformEntity(ca, elem);
+	
+		for (PlatformParticipant part: elem.participant) {
+			// TODO: Creating a new 'effective' replacement when following an association risks 
+			// a recursive infinite loop. Preventing this requires tracking 
+			// the original ConceptualEntity and the 'effective' replacement. Note
+			// that there might be more than 1 'effective' replacement because different
+			// realizations could down-select different compositions. 
+			//var ConceptualComposition cc = factory.createConceptualComposition();
+			//cc.type = effectiveConceptualEntity(pp.type);
+			//cc.rolename = pp?.realizes?.realizes.rolename;
+			ca.participant.add(part?.realizes?.realizes);
+		}	
+		
+		return ca;
+	}
+
+	def ConceptualEntity populateFromPlatformEntity(ConceptualEntity ce, PlatformEntity elem) {
+		ce.name = elem.name;
+		ce.description = elem.description;
+		ce.basisEntity.addAll(elem?.realizes?.realizes.basisEntity);
+
+		for (PlatformComposition comp: elem.composition) {
+			// TODO: Creating a new 'effective' replacement when following a composition type risks 
+			// a combinatorial explosion of replacements. Preventing this requires tracking 
+			// the original ConceptualEntity and the 'effective' replacement. Note
+			// that there might be more than 1 'effective' replacement because different
+			// realizations could down-select different compositions. 
+			var ConceptualComposition cc = factory.createConceptualComposition();
+			cc.type = effectiveConceptualEntity(comp.type);
+			cc.rolename = comp?.realizes?.realizes.rolename;
+			ce.composition.add(cc); //comp?.realizes?.realizes);
+		}
+		if (elem.specializes !== null) {
+			ce.specializes = effectiveConceptualEntity(elem.specializes);		
+		}		
+		
+		return ce;
+		
+	}
+	
+
+	/**
+	 * Return the Conceptual equivalent of this LogicalEntity. This accounts for any 
+	 * down-selecting that might occur (compositions not realized)
+	 */
+	def dispatch ConceptualEntity effectiveConceptualEntity(LogicalEntity elem) {
+		var ConceptualEntity ce = factory.createConceptualEntity();
+		return populateFromLogicalEntity(ce, elem);
+	}
+
+	/**
+	 * Return the Conceptual equivalent of this LogicalAssociation. This accounts for any 
+	 * down-selecting that might occur (compositions not realized)
+	 */
+	def dispatch ConceptualEntity effectiveConceptualEntity(LogicalAssociation elem) {
+		var ConceptualAssociation ca = factory.createConceptualAssociation();
+		populateFromLogicalEntity(ca, elem);
+	
+		for (LogicalParticipant part: elem.participant) {
+			// TODO: Creating a new 'effective' replacement when following an association risks 
+			// a recursive infinite loop. Preventing this requires tracking 
+			// the original ConceptualEntity and the 'effective' replacement. Note
+			// that there might be more than 1 'effective' replacement because different
+			// realizations could down-select different compositions. 
+			// var ConceptualComposition cc = factory.createConceptualComposition();
+			// cc.type = effectiveConceptualEntity(part.type);
+			// cc.rolename = part?.realizes.rolename;
+			ca.participant.add(part?.realizes);
+		}	
+		
+		return ca;
+	}
+
+
+	def dispatch ConceptualEntity populateFromLogicalEntity(ConceptualEntity ce, LogicalEntity elem) {
+		
+		ce.name = elem.name;
+		ce.description = elem.description;
+		ce.basisEntity.addAll(elem?.realizes.basisEntity);
+
+		for (LogicalComposition comp: elem.composition) {
+			// TODO: Creating a new 'effective' replacement when following a composition type risks 
+			// a combinatorial explosion of replacements. Preventing this requires tracking 
+			// the original ConceptualEntity and the 'effective' replacement. Note
+			// that there might be more than 1 'effective' replacement because different
+			// realizations could down-select different compositions. 
+			var ConceptualComposition cc = factory.createConceptualComposition();
+			cc.type = effectiveConceptualEntity(comp.type);
+			cc.rolename = comp?.realizes.rolename;
+			ce.composition.add(cc); //comp?.realizes);
+		}
+		if (elem.specializes !== null) {
+			ce.specializes = effectiveConceptualEntity(elem.specializes);		
+		}		
+		
+		return ce;
+	}
+	
 }

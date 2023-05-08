@@ -9,6 +9,9 @@ public class RealizedCharacteristic {
 	 * If a (P/L/C) Composition element specializes, it must specialize a Composition element from an Entity at the same (P/L/C)
 	 * level.  Only realization can bring Compositions from C->L  or L->P.  Specialization also means that the specialized element
 	 * is not inherited 'as is' - rather, the specialization overrides whatever would have been inherited.
+	 * 
+	 * The FACE spec itself does not support overriding. Specialization just adds composition elements. So the override capability here
+	 * is overkill for now.
 	 */
 
 	/**

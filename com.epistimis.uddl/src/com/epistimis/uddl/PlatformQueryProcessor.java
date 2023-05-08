@@ -1,11 +1,15 @@
 package com.epistimis.uddl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
 import com.epistimis.uddl.uddl.PlatformAssociation;
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
 import com.epistimis.uddl.uddl.PlatformCompositeQuery;
+import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
 import com.epistimis.uddl.uddl.PlatformQuery;
@@ -30,6 +34,20 @@ public class PlatformQueryProcessor extends
 
 	protected EClass getRelatedPackageEntityInstance(PlatformQuery obj) {
 		return UddlPackage.eINSTANCE.getPlatformEntity();
+	}
+
+	protected List<PlatformCharacteristic> getCharacteristics(PlatformEntity obj) {
+		
+		List<PlatformCharacteristic> characteristics = new ArrayList<>();
+		for (PlatformComposition pc: obj.getComposition()) {
+			characteristics.add(pc);
+		}
+		if (obj instanceof PlatformAssociation) {
+			for (PlatformParticipant pp: ((PlatformAssociation)obj).getParticipant()) {
+				characteristics.add(pp);
+			}
+		}
+		return characteristics;
 	}
 
 }

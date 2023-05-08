@@ -3,7 +3,9 @@ package com.epistimis.uddl;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -21,9 +23,14 @@ import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
 import com.epistimis.uddl.CLPExtractors;
+import com.epistimis.uddl.query.query.ProjectedCharacteristicExpression;
+import com.epistimis.uddl.query.query.ProjectedCharacteristicList;
 import com.epistimis.uddl.query.query.QueryIdentifier;
 import com.epistimis.uddl.query.query.QuerySpecification;
+import com.epistimis.uddl.query.query.QueryStatement;
 import com.epistimis.uddl.query.query.SelectedEntity;
+import com.epistimis.uddl.query.query.SelectedEntityAlias;
+import com.epistimis.uddl.query.query.SelectedEntityCharacteristicWildcardReference;
 import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.PlatformCompositeQuery;
 import com.epistimis.uddl.uddl.PlatformEntity;
@@ -34,6 +41,26 @@ import com.epistimis.uddl.uddl.UddlElement;
 import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
+
+/***
+ * Processing Queries requires the following:
+ * 1) Identify all the entities referenced in the query (matchQuerytoUDDL)
+ * 2) Identify all the characteristics referenced in the query (selectCharacteristicsFromUDDL)
+ * 3) Process the joins (which will also determine cardinality of the result)
+ * 
+ * 
+ * @author stevehickman
+ *
+ * @param <Characteristic>
+ * @param <Entity>
+ * @param <Association>
+ * @param <Participant>
+ * @param <View>
+ * @param <Query>
+ * @param <CompositeQuery>
+ * @param <QueryComposition>
+ */
+
 
 public abstract class QueryProcessor<Characteristic extends EObject,  Entity extends UddlElement, Association extends Entity, Participant extends Characteristic, View extends UddlElement, Query extends View, CompositeQuery extends View, QueryComposition extends EObject> {
 	// @Inject
@@ -65,7 +92,7 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 	abstract protected View getType(QueryComposition obj);
 	abstract protected boolean isCompositeQuery(View obj);
 	abstract protected EClass getRelatedPackageEntityInstance(Query obj);
-
+	abstract protected List<Characteristic> getCharacteristics(Entity ent);
 	/**
 	 * Get the type parameters for this generic class
 	 * @param ndx the index into the list of type parameters 
@@ -100,16 +127,16 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 
 
 	// Set up to process with correct parser
-	public QuerySpecification processQuery(Query query) {
+	public QueryStatement processQuery(Query query) {
 		String queryText = CLPExtractors.getSpecification(query);
-		QuerySpecification qspec = null;
+		QueryStatement qspec = null;
 		try {
 			// See https://www.eclipse.org/forums/index.php?t=msg&th=173070/ for explanation
 			ResourceSet resourceSet = new ResourceSetImpl();
 			Resource resource = resourceSet.createResource(URI.createURI("temp.quddl"));
 			ByteArrayInputStream bais = new ByteArrayInputStream(queryText.getBytes());
 			resource.load(bais, null);
-			qspec = (QuerySpecification) resource.getContents().get(0);
+			qspec = (QueryStatement) resource.getContents().get(0);
 
 		} catch (Exception e) {
 			// TODO: This should also check for Parse errors - like unit tests do - and
@@ -151,16 +178,26 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 	 * working from inside out. The names will be relative to the Query instance
 	 * containing the parsed specification.
 	 */
-	public  List<Entity> matchQuerytoUDDL(Query q, QuerySpecification qspec) {
+	public  Map<String,Entity> matchQuerytoUDDL(Query q, QueryStatement qstmt) {
 		Resource resource = q.eResource();
 		// Initially, we just get the Entity names
-		List<Entity> chosenEntities = new ArrayList<Entity>();
+		Map<String,Entity> chosenEntities = new HashMap<String,Entity>();
 		String queryFQN = qnp.getFullyQualifiedName(q).toString();
 		final Iterable<SelectedEntity> selectedEntities = Iterables.<SelectedEntity>filter(
-				IteratorExtensions.<EObject>toIterable(qspec.eAllContents()), SelectedEntity.class);
+				IteratorExtensions.<EObject>toIterable(qstmt.eAllContents()), SelectedEntity.class);
 		for (SelectedEntity se : selectedEntities) {
+
 			QueryIdentifier qid = (QueryIdentifier) se.getEntityType();
 			String entityName = qid.getId();
+			SelectedEntityAlias sea = se.getSelectedEntityAlias();
+			String alias = entityName;
+			if (sea != null) {
+				String aliasID = ((QueryIdentifier) se.getSelectedEntityAlias()).getId();
+				if (aliasID.trim().length() > 0) {
+					alias = aliasID;
+				}
+				
+			}
 
 			/**
 			 * TODO: Gets a scope that is for this container hierarchy only. For imports,
@@ -189,7 +226,7 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 					break;
 				case 1:
 					chosenEntities
-							.add((Entity) IndexUtilities.objectFromDescription(resource, globalDescs.get(0)));
+							.put(alias,(Entity) IndexUtilities.objectFromDescription(resource, globalDescs.get(0)));
 					break;
 				default:
 					/** found multiple - so print out their names */
@@ -201,7 +238,7 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 				break;
 			case 1:
 				IEObjectDescription description = lod.get(0);
-				chosenEntities.add((Entity) IndexUtilities.objectFromDescription(resource, description));
+				chosenEntities.put(alias,(Entity) IndexUtilities.objectFromDescription(resource, description));
 				break;
 			default:
 				/** found multiple - so print out their names */
@@ -212,6 +249,36 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 		return chosenEntities;
 	}
 
+	/**
+	 * Match selected characteristics to  specific characteristics of matched Entities
+	 * @param q The query - needed for context
+	 * @param qspec The query specification
+	 * @param matchedEntities Entities previously matched to this query
+	 */
+	public List<Characteristic> selectCharacteristicsFromUDDL(Query q, QueryStatement qstmt, List<Entity> matchedEntities) {
+		Resource resource = q.eResource();
+		// Initially, we just get the Entity names
+		List<Characteristic> selectedCharacteristics = new ArrayList<Characteristic>();
+		String queryFQN = qnp.getFullyQualifiedName(q).toString();
+		ProjectedCharacteristicList pcl = qstmt.getProjectedCharacteristicList();
+		if (pcl.getAll().length() > 0) {
+			// All characteristics have been selected
+			for (Entity ent: matchedEntities) {
+				selectedCharacteristics.addAll(getCharacteristics(ent));
+			}	
+		}
+		else {
+			for (ProjectedCharacteristicExpression pce:  pcl.getCharacteristic()) {
+				if (pce instanceof SelectedEntityCharacteristicWildcardReference) {
+					SelectedEntityCharacteristicWildcardReference secwr = (SelectedEntityCharacteristicWildcardReference)pce;
+					QueryIdentifier qi = (QueryIdentifier) secwr.getSelectedEntity();
+					// qi is the entity name or alias
+				}
+			}
+		}
+		return selectedCharacteristics;
+		
+	}
 
 	/**
 	 * Taken from the book, SmallJavaLib.getSmallJavaObjectClass - and converted

@@ -1,11 +1,15 @@
 package com.epistimis.uddl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
 import com.epistimis.uddl.uddl.ConceptualAssociation;
 import com.epistimis.uddl.uddl.ConceptualCharacteristic;
 import com.epistimis.uddl.uddl.ConceptualCompositeQuery;
+import com.epistimis.uddl.uddl.ConceptualComposition;
 import com.epistimis.uddl.uddl.ConceptualEntity;
 import com.epistimis.uddl.uddl.ConceptualParticipant;
 import com.epistimis.uddl.uddl.ConceptualQuery;
@@ -31,6 +35,20 @@ public class ConceptualQueryProcessor extends
 
 	protected EClass getRelatedPackageEntityInstance(ConceptualQuery obj) {
 		return 	UddlPackage.eINSTANCE.getConceptualEntity();
+	}
+
+	protected List<ConceptualCharacteristic> getCharacteristics(ConceptualEntity obj) {
+		
+		List<ConceptualCharacteristic> characteristics = new ArrayList<>();
+		for (ConceptualComposition pc: obj.getComposition()) {
+			characteristics.add(pc);
+		}
+		if (obj instanceof ConceptualAssociation) {
+			for (ConceptualParticipant pp: ((ConceptualAssociation)obj).getParticipant()) {
+				characteristics.add(pp);
+			}
+		}
+		return characteristics;
 	}
 
 }
