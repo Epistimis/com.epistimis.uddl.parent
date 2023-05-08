@@ -2,6 +2,7 @@ package com.epistimis.uddl;
 
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.ParameterizedType;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,31 +23,26 @@ import org.eclipse.xtext.scoping.Scopes;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
-import com.epistimis.uddl.CLPExtractors;
+import com.epistimis.uddl.query.query.ExplicitSelectedEntityCharacteristicReference;
+import com.epistimis.uddl.query.query.ProjectedCharacteristicAlias;
 import com.epistimis.uddl.query.query.ProjectedCharacteristicExpression;
 import com.epistimis.uddl.query.query.ProjectedCharacteristicList;
 import com.epistimis.uddl.query.query.QueryIdentifier;
 import com.epistimis.uddl.query.query.QuerySpecification;
 import com.epistimis.uddl.query.query.QueryStatement;
 import com.epistimis.uddl.query.query.SelectedEntity;
-import com.epistimis.uddl.query.query.SelectedEntityAlias;
+import com.epistimis.uddl.query.query.SelectedEntityCharacteristicReference;
 import com.epistimis.uddl.query.query.SelectedEntityCharacteristicWildcardReference;
 import com.epistimis.uddl.scoping.IndexUtilities;
-import com.epistimis.uddl.uddl.PlatformCompositeQuery;
-import com.epistimis.uddl.uddl.PlatformEntity;
-import com.epistimis.uddl.uddl.PlatformQuery;
-import com.epistimis.uddl.uddl.PlatformQueryComposition;
-import com.epistimis.uddl.uddl.PlatformView;
 import com.epistimis.uddl.uddl.UddlElement;
-import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
 /***
  * Processing Queries requires the following:
- * 1) Identify all the entities referenced in the query (matchQuerytoUDDL)
- * 2) Identify all the characteristics referenced in the query (selectCharacteristicsFromUDDL)
- * 3) Process the joins (which will also determine cardinality of the result)
+ * 1) Identify all the entities referenced in the query (matchQuerytoUDDL) 
+ * 2) Identify all the characteristics referenced in the query (selectCharacteristicsFromUDDL) 
+ * 3) Process the joins (which will determine cardinality of the result)
  * 
  * 
  * @author stevehickman
@@ -61,8 +57,7 @@ import com.google.inject.Inject;
  * @param <QueryComposition>
  */
 
-
-public abstract class QueryProcessor<Characteristic extends EObject,  Entity extends UddlElement, Association extends Entity, Participant extends Characteristic, View extends UddlElement, Query extends View, CompositeQuery extends View, QueryComposition extends EObject> {
+public abstract class QueryProcessor<Characteristic extends EObject, Entity extends UddlElement, Association extends Entity, Participant extends Characteristic, View extends UddlElement, Query extends View, CompositeQuery extends View, QueryComposition extends EObject> {
 	// @Inject
 //	private Provider<ResourceSet> resourceSetProvider;
 //
@@ -88,30 +83,86 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 //	@Inject
 //	CLPExtractors clp;
 
+	/**
+	 * Get the individual QueryCompositions from this CompositeQuery
+	 * @param ent
+	 * @return
+	 */
 	abstract protected EList<QueryComposition> getComposition(CompositeQuery ent);
+
+	/**
+	 * Get the type from a QueryComposition - this will be a View (Query or CompositeQuery)
+	 * @param obj
+	 * @return
+	 */
 	abstract protected View getType(QueryComposition obj);
+
+	/**
+	 * Determine if this View is composite or not
+	 * @param obj
+	 * @return
+	 */
 	abstract protected boolean isCompositeQuery(View obj);
+
+	/**
+	 * Get the PackageEntity instance related to this query
+	 * @param obj
+	 * @return
+	 */
 	abstract protected EClass getRelatedPackageEntityInstance(Query obj);
-	abstract protected List<Characteristic> getCharacteristics(Entity ent);
+
+	/**
+	 * Get the Characteristic's rolename
+	 * @param obj
+	 * @return
+	 */
+	abstract protected String getCharacteristicRolename(Characteristic obj);//	abstract protected Characteristic getCharacteristicByRolename(Entity ent, String roleName) throws CharacteristicNotFoundException;
+
+	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
+			"Entity {0} does not have a characteristic with rolename {1}");
+
 	/**
 	 * Get the type parameters for this generic class
-	 * @param ndx the index into the list of type parameters 
+	 * 
+	 * @param ndx the index into the list of type parameters
 	 * @return
 	 */
 	public Class returnedTypeParameter(int ndx) {
 		ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();
 		return (Class) parameterizedType.getActualTypeArguments()[ndx];
 	}
-	
-	public Class getCharacteristicType() 	{ return returnedTypeParameter(0); }
-	public Class getEntityType() 			{ return returnedTypeParameter(1); }
-	public Class getAssociationType() 		{ return returnedTypeParameter(2); }
-	public Class getParticipantType() 		{ return returnedTypeParameter(3); }
-	public Class getViewType() 				{ return returnedTypeParameter(4); }
-	public Class getQueryType() 			{ return returnedTypeParameter(5); }
-	public Class getCompositeQueryType() 	{ return returnedTypeParameter(6); }
-	public Class getQueryCompositionType() 	{ return returnedTypeParameter(7); }
 
+	public Class getCharacteristicType() {
+		return returnedTypeParameter(0);
+	}
+
+	public Class getEntityType() {
+		return returnedTypeParameter(1);
+	}
+
+	public Class getAssociationType() {
+		return returnedTypeParameter(2);
+	}
+
+	public Class getParticipantType() {
+		return returnedTypeParameter(3);
+	}
+
+	public Class getViewType() {
+		return returnedTypeParameter(4);
+	}
+
+	public Class getQueryType() {
+		return returnedTypeParameter(5);
+	}
+
+	public Class getCompositeQueryType() {
+		return returnedTypeParameter(6);
+	}
+
+	public Class getQueryCompositionType() {
+		return returnedTypeParameter(7);
+	}
 
 	public QueryProcessor() {
 		// this.reg = reg;
@@ -123,8 +174,6 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 //		queryResFactory = queryRSP.get(IResourceFactory.class);
 
 	}
-
-
 
 	// Set up to process with correct parser
 	public QueryStatement processQuery(Query query) {
@@ -164,9 +213,9 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 			// of XTend dispatch
 			View v = (View) CLPExtractors.getType(comp);
 			if (CLPExtractors.isCompositeQuery(v)) {
-				results.addAll(processCompositeQuery((CompositeQuery) v));				
+				results.addAll(processCompositeQuery((CompositeQuery) v));
 			} else {
-				results.add(processQuery((Query) v));				
+				results.add(processQuery((Query) v));
 			}
 		}
 		return results;
@@ -178,39 +227,35 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 	 * working from inside out. The names will be relative to the Query instance
 	 * containing the parsed specification.
 	 */
-	public  Map<String,Entity> matchQuerytoUDDL(Query q, QueryStatement qstmt) {
+	public Map<String, Entity> matchQuerytoUDDL(Query q, QueryStatement qstmt) {
 		Resource resource = q.eResource();
 		// Initially, we just get the Entity names
-		Map<String,Entity> chosenEntities = new HashMap<String,Entity>();
+		Map<String, Entity> chosenEntities = new HashMap<String, Entity>();
 		String queryFQN = qnp.getFullyQualifiedName(q).toString();
+		/**
+		 * NOTE: This filter picks up *all* SelectedEntity instances. That means both the first one
+		 * and all those in JOIN statements. So we know that we've got them all after this.
+		 */
 		final Iterable<SelectedEntity> selectedEntities = Iterables.<SelectedEntity>filter(
 				IteratorExtensions.<EObject>toIterable(qstmt.eAllContents()), SelectedEntity.class);
 		for (SelectedEntity se : selectedEntities) {
 
 			QueryIdentifier qid = (QueryIdentifier) se.getEntityType();
 			String entityName = qid.getId();
-			SelectedEntityAlias sea = se.getSelectedEntityAlias();
 			String alias = entityName;
-			if (sea != null) {
-				String aliasID = ((QueryIdentifier) se.getSelectedEntityAlias()).getId();
-				if (aliasID.trim().length() > 0) {
-					alias = aliasID;
-				}
-				
+			QueryIdentifier sea = (QueryIdentifier) se.getSelectedEntityAlias();
+			if (sea != null && (sea.getId().trim().length() > 0)) {
+				alias = sea.getId();
 			}
 
 			/**
 			 * TODO: Gets a scope that is for this container hierarchy only. For imports,
 			 * need to use IndexUtilities to get all visible IEObjectDescriptions and filter
 			 * those. That will require RQNs processing.
-			 */	
+			 */
 			IScope searchScope = entityScope(q.eContainer());
 			List<IEObjectDescription> lod = IterableExtensions
 					.<IEObjectDescription>toList(searchScope.getElements(qnc.toQualifiedName(entityName)));
-//			List<IEObjectDescription> lod = new ArrayList<IEObjectDescription>();
-//			for (IEObjectDescription desc : descriptions) {
-//				lod.add(desc);
-//			}
 
 			/**
 			 * There should be only 1 for each entityName - otherwise, we have ambiguity
@@ -225,20 +270,19 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 					System.out.println("No Entities found for name: " + entityName + " from Query " + queryFQN);
 					break;
 				case 1:
-					chosenEntities
-							.put(alias,(Entity) IndexUtilities.objectFromDescription(resource, globalDescs.get(0)));
+					chosenEntities.put(alias,
+							(Entity) IndexUtilities.objectFromDescription(resource, globalDescs.get(0)));
 					break;
 				default:
 					/** found multiple - so print out their names */
-					ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN, getQueryType().getName(),
-							globalDescs);
+					ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN, getQueryType().getName(), globalDescs);
 					break;
 				}
 			}
 				break;
 			case 1:
 				IEObjectDescription description = lod.get(0);
-				chosenEntities.put(alias,(Entity) IndexUtilities.objectFromDescription(resource, description));
+				chosenEntities.put(alias, (Entity) IndexUtilities.objectFromDescription(resource, description));
 				break;
 			default:
 				/** found multiple - so print out their names */
@@ -250,34 +294,55 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 	}
 
 	/**
-	 * Match selected characteristics to  specific characteristics of matched Entities
-	 * @param q The query - needed for context
-	 * @param qspec The query specification
+	 * Match selected characteristics to specific characteristics of matched
+	 * Entities
+	 * 
+	 * @param q               The query - needed for context
+	 * @param qspec           The query specification
 	 * @param matchedEntities Entities previously matched to this query
+	 * @throws Exception
 	 */
-	public List<Characteristic> selectCharacteristicsFromUDDL(Query q, QueryStatement qstmt, List<Entity> matchedEntities) {
+	public Map<String, Characteristic> selectCharacteristicsFromUDDL(Query q, QueryStatement qstmt,
+			Map<String, Entity> matchedEntities) throws CharacteristicNotFoundException {
 		Resource resource = q.eResource();
 		// Initially, we just get the Entity names
-		List<Characteristic> selectedCharacteristics = new ArrayList<Characteristic>();
+		Map<String, Characteristic> selectedCharacteristics = new HashMap<String, Characteristic>();
 		String queryFQN = qnp.getFullyQualifiedName(q).toString();
 		ProjectedCharacteristicList pcl = qstmt.getProjectedCharacteristicList();
 		if (pcl.getAll().length() > 0) {
 			// All characteristics have been selected
-			for (Entity ent: matchedEntities) {
-				selectedCharacteristics.addAll(getCharacteristics(ent));
-			}	
-		}
-		else {
-			for (ProjectedCharacteristicExpression pce:  pcl.getCharacteristic()) {
+			for (Entity ent : matchedEntities.values()) {
+
+				for (Characteristic c : getCharacteristics(ent)) {
+					selectedCharacteristics.put(getCharacteristicRolename(c), c);
+				}
+			}
+		} else {
+			for (ProjectedCharacteristicExpression pce : pcl.getCharacteristic()) {
 				if (pce instanceof SelectedEntityCharacteristicWildcardReference) {
-					SelectedEntityCharacteristicWildcardReference secwr = (SelectedEntityCharacteristicWildcardReference)pce;
+					SelectedEntityCharacteristicWildcardReference secwr = (SelectedEntityCharacteristicWildcardReference) pce;
 					QueryIdentifier qi = (QueryIdentifier) secwr.getSelectedEntity();
 					// qi is the entity name or alias
+					Entity ent = matchedEntities.get(qi.getId());
+					for (Characteristic c : getCharacteristics(ent)) {
+						selectedCharacteristics.put(getCharacteristicRolename(c), c);
+					}
+				} else {
+					// pce must be
+					ExplicitSelectedEntityCharacteristicReference esecr = (ExplicitSelectedEntityCharacteristicReference) pce;
+					SelectedEntityCharacteristicReference secr = esecr.getSelectedEntityCharacteristicReference();
+					ProjectedCharacteristicAlias alias = esecr.getProjectedCharacteristicAlias();
+					String entityOrAlias = ((QueryIdentifier) secr.getSelectedEntity()).getId();
+					Entity ent = matchedEntities.get(entityOrAlias);
+					Characteristic c = getCharacteristicByRolename(ent,
+							((QueryIdentifier) secr.getCharacteristic()).getId());
+					selectedCharacteristics.put(getCharacteristicRolename(c), c);
+
 				}
 			}
 		}
 		return selectedCharacteristics;
-		
+
 	}
 
 	/**
@@ -307,19 +372,87 @@ public abstract class QueryProcessor<Characteristic extends EObject,  Entity ext
 	 * @param context
 	 * @return
 	 */
-	protected  IScope entityScope(EObject context) {
+	protected IScope entityScope(EObject context) {
 		/*
 		 * the object will either be the original query or a containing PDM - so
 		 * containers will always be a (C/L/P)DM or a DataModel
 		 */
-		final Iterable<Entity> entities = IterableExtensions.<Entity>filter(
-				IteratorExtensions.<EObject>toIterable(context.eAllContents()), getEntityType());
+		final Iterable<Entity> entities = IterableExtensions
+				.<Entity>filter(IteratorExtensions.<EObject>toIterable(context.eAllContents()), getEntityType());
 		EObject container = context.eContainer();
 		if (container != null) {
 			return Scopes.scopeFor(entities, entityScope(container));
 		} else {
 			return Scopes.scopeFor(entities, IScope.NULLSCOPE);
 		}
+	}
+
+	/**
+	 * Get all the characteristics
+	 * @param obj
+	 * @return the list of characteristics. 
+	 */
+	protected List<Characteristic> getCharacteristics(Entity obj ) {
+		List<Characteristic> characteristics = new ArrayList<>();
+		getCharacteristicsAndRecurse(obj,characteristics);
+		return characteristics;
+	}
+	
+	/**
+	 * This actually implements collecting the characteristics. It handles the recursion
+	 * @param obj
+	 * @param the list of characteristics. Starts empty and gets filled.
+	 */
+	private void getCharacteristicsAndRecurse(Entity obj, List<Characteristic> characteristics) {
+
+		for (EObject pc : CLPExtractors.getComposition(obj)) {
+			characteristics.add((Characteristic) pc);
+		}
+		if (CLPExtractors.isAssociation(obj)) {
+			for (EObject pp : CLPExtractors.getParticipant(obj)) {
+				characteristics.add((Characteristic) pp);
+			}
+		}
+		// Now check for specialization
+		UddlElement specializes = CLPExtractors.getSpecializes(obj);
+		if (specializes != null) {
+			getCharacteristicsAndRecurse((Entity) specializes, characteristics);
+		}
+
+	}
+
+	/**
+	 * Return the named characteristic - which could be a composition or a
+	 * participant
+	 * 
+	 * @param ent      The Entity containing the characteristic
+	 * @param roleName The rolename of the characteristic to find
+	 * @return The found characteristic
+	 */
+	protected Characteristic getCharacteristicByRolename(Entity ent, String roleName)
+			throws CharacteristicNotFoundException {
+		// Look for the characteristic in this Entity and, if not found, go up the
+		// specializes chain until we find it
+		for (EObject obj : CLPExtractors.getComposition(ent)) {
+			Characteristic comp = (Characteristic) obj;
+			if (getCharacteristicRolename(comp).equals(roleName))
+				return comp;
+		}
+		if (CLPExtractors.isAssociation(ent)) {
+			for (EObject obj : CLPExtractors.getParticipant(ent)) {
+				Characteristic part = (Characteristic) obj;
+				if (getCharacteristicRolename(part).equals(roleName))
+					return part;
+
+			}
+		}
+		// If we get here, we haven't found it yet - check for specializes
+		if (CLPExtractors.getSpecializes(ent) != null) {
+			return getCharacteristicByRolename((Entity) CLPExtractors.getSpecializes(ent), roleName);
+		}
+		// If we get here, it wasn't found
+		Object[] args = { ent, roleName };
+		throw new CharacteristicNotFoundException(CharacteristicNotFoundMsgFmt.format(args));
 	}
 
 	public void setupParsing() {

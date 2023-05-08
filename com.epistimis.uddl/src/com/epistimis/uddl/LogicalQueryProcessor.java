@@ -51,5 +51,6 @@ public class LogicalQueryProcessor extends
 		}
 		return characteristics;
 	}
+	protected String getCharacteristicRolename(LogicalCharacteristic obj) { return obj.getRolename(); }
 
 }

@@ -36,18 +36,6 @@ public class PlatformQueryProcessor extends
 		return UddlPackage.eINSTANCE.getPlatformEntity();
 	}
 
-	protected List<PlatformCharacteristic> getCharacteristics(PlatformEntity obj) {
-		
-		List<PlatformCharacteristic> characteristics = new ArrayList<>();
-		for (PlatformComposition pc: obj.getComposition()) {
-			characteristics.add(pc);
-		}
-		if (obj instanceof PlatformAssociation) {
-			for (PlatformParticipant pp: ((PlatformAssociation)obj).getParticipant()) {
-				characteristics.add(pp);
-			}
-		}
-		return characteristics;
-	}
+	protected String getCharacteristicRolename(PlatformCharacteristic obj) { return obj.getRolename(); }
 
 }

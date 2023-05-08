@@ -50,5 +50,6 @@ public class ConceptualQueryProcessor extends
 		}
 		return characteristics;
 	}
+	protected String getCharacteristicRolename(ConceptualCharacteristic obj) { return obj.getRolename(); }
 
 }
