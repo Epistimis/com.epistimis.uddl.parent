@@ -524,7 +524,7 @@ LogicalAssociation:
 
 /** A logical Participant is the mechanism that allows a logical Association to be constructed between two or more logical Entities. The “type” of a logical Participant is the logical Entity being used to construct the logical Association. The “sourceLowerBound” and “sourceUpperBound” attributes define the multiplicity of the logical Association relative to the Participant. A “sourceUpperBound” multiplicity of –1 represents an unbounded sequence. The “path” attribute of the Participant describes the chain of entity characteristics to traverse to reach the subject of the association beginning with the entity referenced by the “type” attribute. */
 LogicalParticipant:
-	type=[LogicalAssociation|QN]  rolename=ID ('[' lowerBound=INT ':' upperBound=INT ']')? (description=STRING)? (':' specializes=[LogicalCharacteristic|QN])?  '->' realizes=[ConceptualParticipant|QN] '{'
+	type=[LogicalEntity|QN]  rolename=ID ('[' lowerBound=INT ':' upperBound=INT ']')? (description=STRING)? (':' specializes=[LogicalCharacteristic|QN])?  '->' realizes=[ConceptualParticipant|QN] '{'
 		'source:' '[' sourceLowerBound=INT ':' sourceUpperBound=INT ']'
 		('path:' path=LogicalPathNode )?
 	'};'
@@ -754,7 +754,7 @@ PlatformAssociation:
 
 /** A platform Participant is the mechanism that allows a platform Association to be constructed between two or more platform Entities. The “type” of a platform Participant is the platform Entity being used to construct the platform Association. The “sourceLowerBound” and “sourceUpperBound” attributes define the multiplicity of the platform Association relative to the Participant. A “sourceUpperBound” multiplicity of –1 represents an unbounded sequence. The “path” attribute of the Participant describes the chain of entity characteristics to traverse to reach the subject of the association beginning with the entity referenced by the “type” attribute.  */
 PlatformParticipant:
-	type=[PlatformAssociation|QN]  rolename=ID ('[' lowerBound=INT ':' upperBound=INT ']')? (description=STRING)? (':' specializes=[PlatformCharacteristic|QN])?  '->' realizes=[LogicalParticipant|QN] '{'
+	type=[PlatformEntity|QN]  rolename=ID ('[' lowerBound=INT ':' upperBound=INT ']')? (description=STRING)? (':' specializes=[PlatformCharacteristic|QN])?  '->' realizes=[LogicalParticipant|QN] '{'
 		'source:' '[' sourceLowerBound=INT ':' sourceUpperBound=INT ']'
 		('path:' path=PlatformPathNode )?
 	'};'
