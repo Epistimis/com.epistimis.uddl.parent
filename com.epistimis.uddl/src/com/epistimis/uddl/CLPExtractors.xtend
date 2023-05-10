@@ -1,34 +1,45 @@
 package com.epistimis.uddl
 
-import org.eclipse.emf.common.util.EList;
-
-import com.epistimis.uddl.uddl.ConceptualAssociation;
-import com.epistimis.uddl.uddl.ConceptualComposition;
-import com.epistimis.uddl.uddl.ConceptualEntity;
-import com.epistimis.uddl.uddl.ConceptualParticipant;
-import com.epistimis.uddl.uddl.LogicalAssociation;
-import com.epistimis.uddl.uddl.LogicalComposition;
-import com.epistimis.uddl.uddl.LogicalEntity;
-import com.epistimis.uddl.uddl.LogicalParticipant;
-import com.epistimis.uddl.uddl.PlatformAssociation;
-import com.epistimis.uddl.uddl.PlatformComposition;
-import com.epistimis.uddl.uddl.PlatformEntity;
-import com.epistimis.uddl.uddl.PlatformParticipant;
-import com.epistimis.uddl.uddl.ConceptualQuery
-import com.epistimis.uddl.uddl.LogicalQuery
-import com.epistimis.uddl.uddl.PlatformQuery
-import com.epistimis.uddl.uddl.UddlElement
-import com.epistimis.uddl.uddl.PlatformQueryComposition
-import com.epistimis.uddl.uddl.PlatformCompositeQuery
-import com.epistimis.uddl.uddl.LogicalQueryComposition
-import com.epistimis.uddl.uddl.LogicalCompositeQuery
+import com.epistimis.uddl.uddl.ConceptualAssociation
+import com.epistimis.uddl.uddl.ConceptualCharacteristic
 import com.epistimis.uddl.uddl.ConceptualCompositeQuery
+import com.epistimis.uddl.uddl.ConceptualComposition
+import com.epistimis.uddl.uddl.ConceptualEntity
+import com.epistimis.uddl.uddl.ConceptualParticipant
+import com.epistimis.uddl.uddl.ConceptualQuery
 import com.epistimis.uddl.uddl.ConceptualQueryComposition
 import com.epistimis.uddl.uddl.ConceptualView
-import com.epistimis.uddl.uddl.PlatformView
+import com.epistimis.uddl.uddl.LogicalAssociation
+import com.epistimis.uddl.uddl.LogicalCharacteristic
+import com.epistimis.uddl.uddl.LogicalCompositeQuery
+import com.epistimis.uddl.uddl.LogicalComposition
+import com.epistimis.uddl.uddl.LogicalEntity
+import com.epistimis.uddl.uddl.LogicalParticipant
+import com.epistimis.uddl.uddl.LogicalQuery
+import com.epistimis.uddl.uddl.LogicalQueryComposition
 import com.epistimis.uddl.uddl.LogicalView
+import com.epistimis.uddl.uddl.PlatformAssociation
+import com.epistimis.uddl.uddl.PlatformCharacteristic
+import com.epistimis.uddl.uddl.PlatformCompositeQuery
+import com.epistimis.uddl.uddl.PlatformComposition
+import com.epistimis.uddl.uddl.PlatformEntity
+import com.epistimis.uddl.uddl.PlatformParticipant
+import com.epistimis.uddl.uddl.PlatformQuery
+import com.epistimis.uddl.uddl.PlatformQueryComposition
+import com.epistimis.uddl.uddl.PlatformView
+import com.epistimis.uddl.uddl.UddlElement
 import com.epistimis.uddl.uddl.UddlPackage
+import java.text.MessageFormat
+import java.util.HashMap
+import java.util.List
+import java.util.Map
+import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.naming.QualifiedName
+import java.util.ArrayList
+import java.util.Collection
 
 /**
  * This is a set of methods that extract values from instances for use with templated methods
@@ -37,6 +48,7 @@ import org.eclipse.emf.ecore.EClass
  */
 abstract class CLPExtractors {
 
+	static IQualifiedNameProvider qnp = new UddlQNP();
 	
 	def dispatch static ConceptualEntity getSpecializes(ConceptualEntity ent) {
 		return  ent.getSpecializes();
@@ -110,13 +122,13 @@ abstract class CLPExtractors {
 		return typeof(PlatformEntity);
 	}
 
-	def dispatch static EList<ConceptualQueryComposition> getComposition(ConceptualCompositeQuery ent) {
+	def dispatch static EList<ConceptualQueryComposition> getQueryComposition(ConceptualCompositeQuery ent) {
 		return ent.composition;
 	}
-	def dispatch static EList<LogicalQueryComposition> getComposition(LogicalCompositeQuery ent) {
+	def dispatch static EList<LogicalQueryComposition> getQueryComposition(LogicalCompositeQuery ent) {
 		return ent.composition;
 	}
-	def dispatch static EList<PlatformQueryComposition> getComposition(PlatformCompositeQuery ent) {
+	def dispatch static EList<PlatformQueryComposition> getQueryComposition(PlatformCompositeQuery ent) {
 		return ent.composition;
 	}
 
@@ -150,6 +162,121 @@ abstract class CLPExtractors {
 	def dispatch static EClass getRelatedPackageEntityInstance(PlatformQuery obj) {
 		return 	UddlPackage.eINSTANCE.getPlatformEntity()
 	}
+
+	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
+			"Entity {0} does not have a characteristic with rolename {1}");
+
+	def dispatch static String getCharacteristicRolename(ConceptualCharacteristic obj) { return obj.getRolename(); }
+	def dispatch static String getCharacteristicRolename(LogicalCharacteristic obj) { return obj.getRolename(); }
+	def dispatch static String getCharacteristicRolename(PlatformCharacteristic obj) { return obj.getRolename(); }
+
+	/**
+	 * Get all the characteristics
+	 * @param obj
+	 * @return the list of characteristics. 
+	 */
+	def static <Entity extends UddlElement,Characteristic extends EObject>  List<Characteristic> getCharacteristics(Entity obj ) {
+		var List<Characteristic> characteristics = new ArrayList();
+		CLPExtractors.getCharacteristicsAndRecurse(obj,characteristics);
+		return characteristics;
+	}
+	
+	/**
+	 * This actually implements collecting the characteristics. It handles the recursion
+	 * @param obj
+	 * @param the list of characteristics. Starts empty and gets filled.
+	 */
+	def static <Entity extends UddlElement,Characteristic extends EObject> void getCharacteristicsAndRecurse(Entity obj, List<Characteristic> characteristics) {
+
+		for (EObject pc : CLPExtractors.getComposition(obj)) {
+			characteristics.add( pc as Characteristic);
+		}
+		if (CLPExtractors.isAssociation(obj)) {
+			for (EObject pp : CLPExtractors.getParticipant(obj)) {
+				characteristics.add( pp as Characteristic);
+			}
+		}
+		// Now check for specialization
+		val UddlElement specializes = CLPExtractors.getSpecializes(obj);
+		if (specializes !== null) {
+			getCharacteristicsAndRecurse( specializes as Entity, characteristics);
+		}
+
+	}
+
+	/**
+	 * Return the named characteristic - which could be a composition or a
+	 * participant
+	 * 
+	 * @param ent      The Entity containing the characteristic
+	 * @param roleName The rolename of the characteristic to find
+	 * @return The found characteristic
+	 */
+	def static <Entity extends UddlElement,Characteristic extends EObject> Characteristic getCharacteristicByRolename(Entity ent, String roleName)
+			throws CharacteristicNotFoundException {
+		// Look for the characteristic in this Entity and, if not found, go up the
+		// specializes chain until we find it
+		for (EObject obj : CLPExtractors.getComposition(ent)) {
+			val Characteristic comp =  obj as Characteristic;
+			if (getCharacteristicRolename(comp).equals(roleName))
+				return comp;
+		}
+		if (CLPExtractors.isAssociation(ent)) {
+			for (EObject obj : CLPExtractors.getParticipant(ent)) {
+				val Characteristic part = obj as Characteristic;
+				if (getCharacteristicRolename(part).equals(roleName))
+					return part;
+
+			}
+		}
+		// If we get here, we haven't found it yet - check for specializes
+		if (CLPExtractors.getSpecializes(ent) != null) {
+			return getCharacteristicByRolename( CLPExtractors.getSpecializes(ent) as Entity, roleName);
+		}
+		// If we get here, it wasn't found
+		val Object[] args = #[ ent, roleName ];
+		throw new CharacteristicNotFoundException(CharacteristicNotFoundMsgFmt.format(args));
+	}
+	
+	/**
+	 * Given a string containing a (possibly qualified) rolename, return a map of all Characteristics that contain that rolename in their
+	 * FQN somewhere. In some ways this is the inverse of Scopes.scopeFor. A Scope determines what can be found from the current context 
+	 * point using the specified name and reference type.  That means that RQNs are relative to this point. 
+	 * 
+	 * What we want here is anything where the specified RQN is a part of the name of something contained in or referenced by the context object -
+	 * and the name may not give a complete enough path to be reachable just using the RQN from this context point.
+	 * 
+	 * Net result: We can't just use Scopes.scopeFor to find what we want.
+	 */
+	def static <Entity extends UddlElement,Characteristic extends EObject, Composition extends Characteristic> Map<QualifiedName,Characteristic> getFQRoleName(Entity ent,String roleName) {
+		// The simple approach just looks at what is contained in the specified entity. It does not follow references to other entities.
+		var Map<QualifiedName, Characteristic> result = new HashMap();
+		try {
+			val Characteristic c = getCharacteristicByRolename(ent,roleName);
+			result.put(qnp.getFullyQualifiedName(c),c);
+		
+		} catch (CharacteristicNotFoundException excp) {
+			// do nothing
+		}
+		// We also need to scan all the Compositions that have Entity types and drill down into those
+		val EList<? extends EObject> comps = CLPExtractors.getComposition(ent);
+		for (EObject obj: comps) {
+			val Composition comp = obj as Composition;
+			//if (CLPExtractors.iscomp.type is Entity)
+			 
+		}
+		
+		return result;
+		
+		// TODO: follow participants
+	}
+	
+	/**
+	 * Navigating via associations is what ParticipantPathNode and CharacteristicPathNode are all about. Any attempt to navigate should use the
+	 * same code that is used for them.
+	 */
+	
+//	def static <Entity extends UddlElement,Characteristic extends EObject> Map<QualifiedName,Characteristic> navigateRQN(Entity ent,QualifiedName rolePath) {
 	
 
 	
