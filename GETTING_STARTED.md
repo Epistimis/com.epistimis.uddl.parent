@@ -57,7 +57,7 @@ Then click **Open**. This will then populate the dialog like this:
 
 You should see the parent project and 8 nested projects. They should all be selected. Then click **Finish**. 
 
-2. The repository does not store every file that the project uses. Some need to be generated. Before you do anything else, you must make sure the **Java Build Path** is properly set up for every project. Right click on the project in the project explorer and select **Properties** from the context menu:
+2. The repository does not store every file that the project uses. Some need to be generated. Before you do anything else, you must make sure the **Java Build Path** is properly set up for *every* project. Right click on each project in the Project Explorer and select **Properties** from the context menu:
 
 ![Screenshot 2023-01-15 at 8 15 32 AM](https://user-images.githubusercontent.com/120406738/212552934-e319f454-ee76-425e-ac69-535771c5e519.png)
 
@@ -71,7 +71,7 @@ If you do not, click the **Add Library...** button to get:
 
 Select **Plug-in Dependencies** in the dialog, then click **Next** and **Finish**
 
-3. Open the xtext file for each repo you downloaded. They are:
+3. Open the xtext file for each repo you downloaded. They are located as follows:
 * UDDL: /com.epistimis.uddl/src/com/epistimis/uddl/Uddl.xtext (see screenshot)
 * UDDL Query: /com.epistimis.uddl.query/src/com/epistimis/uddl/query/Query.xtext
 * FACE: /com.epistimis.face/src/com/epistimis/face/Face.xtext
@@ -83,6 +83,7 @@ then right click in the edit window to bring up the context menu and select Run 
 
 ![Screenshot 2023-01-14 at 5 42 44 PM](https://user-images.githubusercontent.com/120406738/212508587-4423c56a-28e9-41de-920d-46c2eced07ca.png)
 
+You may see a dialog box with a warning indicating there are errors. If you do, just click 'Proceed' 
 You should see results in the Console pane similar to those in the screenshot. ***If you do not, create an issue and include the content of your console window so I can figure out what happened***
 
 # Start the Editor you just created
