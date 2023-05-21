@@ -98,7 +98,7 @@ Select Eclipse Application and then click the 'New' icon (the leftmost icon in t
 You can use the defaults (rename it if you want) - just click **Run**. This will launch a second Eclipse. 
 
 In that second Eclipse, 
-1. create a new blank (not Java) project (File -> New -> Project or File->New->Other->General->Project)  and  click **Next**. 
+1. create a new blank (not Java) project (File -> New -> Project or File->New->Other->General->Project)  and  click **Next**. (If you have the option to create a Uddl Project, you can do that.)
 1. Give it a name and click **Finish**. 
 1. Then copy (do not link) the following file from the first Eclipse to the new project: 
 ```
