@@ -22,16 +22,13 @@ class UddlFileTemplateProvider implements IFileTemplateProvider {
 	}
 }
 
-@FileTemplate(label="Hello World", icon="file_template.png", description="Create a hello world for Uddl.")
+@FileTemplate(label="Sample File", icon="file_template.png", description="Basic data model")
 final class HelloWorldFile {
-	val helloName = combo("Hello Name:", #["Xtext", "World", "Foo", "Bar"], "The name to say 'Hello' to")
-
 	override generateFiles(IFileGenerator generator) {
 		generator.generate('''«folder»/«name».uddl''', '''
-			/*
-			 * This is an example model
-			 */
-			Hello «helloName»!
+			dm Name "Description"		{
+				
+			}
 		''')
 	}
 }
