@@ -39,10 +39,10 @@ Workflow {
 		language = StandardLanguage {
 			name = "com.epistimis.uddl.Uddl"
 			fileExtensions = "uddl"
-
-		    fragment = io.typefox.xtext2langium.Xtext2LangiumFragment {
-		        outputPath = './langium'
-		    }
+//
+//		    fragment = io.typefox.xtext2langium.Xtext2LangiumFragment {
+//		        outputPath = './langium'
+//		    }
 			// rename refactoring
 			fragment = refactoring.RefactorElementNameFragment2 {}
 			fragment = org.eclipse.xtext.xtext.generator.ui.codemining.CodeMiningFragment {}

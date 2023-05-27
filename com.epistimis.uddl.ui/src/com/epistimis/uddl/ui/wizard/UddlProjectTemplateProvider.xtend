@@ -60,12 +60,19 @@ final class HelloWorldProject {
 			projectNatures += #[JavaCore.NATURE_ID, "org.eclipse.pde.PluginNature", XtextProjectHelper.NATURE_ID]
 			builderIds += #[JavaCore.BUILDER_ID, XtextProjectHelper.BUILDER_ID]
 			folders += "src"
-			addFile('''src/«path»/Model.uddl''', '''
+			addFile('''src/«path»/DataModel.uddl''', '''
 				/*
 				 * This is an example model
 				 */
-				Hello «name»!
+				dm Data_Model "Description of the data model" {
+					
+					/*
+					 * Can contain the the Conceptual Logical and Platform Data of the Model.
+					 */
+									 
+				}
 			''')
+						
 		])
 	}
 }
