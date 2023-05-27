@@ -64,12 +64,7 @@ final class HelloWorldProject {
 				/*
 				 * This is an example model
 				 */
-				dm DataModel "description of the data model" {
-					/*
-					*Can contain Conceptual, Logical and Platform Data Model
-					*/
-					
-				}
+				Hello «name»!
 			''')
 		])
 	}
