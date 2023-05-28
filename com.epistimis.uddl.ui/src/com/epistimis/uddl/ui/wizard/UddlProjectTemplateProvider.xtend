@@ -34,14 +34,14 @@ and a parameter to set the package the file is created in.</p>")
 final class HelloWorldProject {
 	val advanced = check("Advanced:", false)
 	val advancedGroup = group("Properties")
-	val name = combo("Name:", #["Xtext", "World", "Foo", "Bar"], "The name to say 'Hello' to", advancedGroup)
-	val path = text("Package:", "mydsl", "The package path to place the files in", advancedGroup)
+	val name = combo("Name:", #["Data Model", "Logical Data Model", "Platform Data Model", "Conceptual Data Model"], "Name of the data Model", advancedGroup)
+	val path = text("Package:", "", advancedGroup)
 
 	override protected updateVariables() {
 		name.enabled = advanced.value
 		path.enabled = advanced.value
 		if (!advanced.value) {
-			name.value = "Xtext"
+			name.value = "Data Model"
 			path.value = "uddl"
 		}
 	}
@@ -60,12 +60,85 @@ final class HelloWorldProject {
 			projectNatures += #[JavaCore.NATURE_ID, "org.eclipse.pde.PluginNature", XtextProjectHelper.NATURE_ID]
 			builderIds += #[JavaCore.BUILDER_ID, XtextProjectHelper.BUILDER_ID]
 			folders += "src"
-			addFile('''src/«path»/Model.uddl''', '''
+			folders += "src-gen"
+			
+			if (name.value == "Data Model"){
+				addFile('''src/«path»/DataModel.uddl''', '''
 				/*
 				 * This is an example model
 				 */
-				Hello «name»!
+				dm DataModel "description of the data model" {
+					/*
+					 *Add Conceptual,Logical or Platform Data Model here
+					*/
+					
+				}
 			''')
+			}
+			
+			else if (name.value == "Conceptual Data Model"){
+				addFile('''src/«path»/ConceptualModel.uddl''', '''
+				/*
+				 * This is an example model
+				 */
+				 dm DataModel "description of the data model"{
+				 	
+				 	cdm ConceptualModel "description of the Conceptual model" {
+				 		/*
+						 *Add Conceptual elements or Conceptual Data Models Here
+						*/
+				 	}
+				 }
+				
+			''')
+			}
+			
+			else if (name.value == "Logical Data Model"){
+				addFile('''src/«path»/LogicalDataModel.uddl''', '''
+				/*
+				 * This is an example model
+				 */
+				dm DataModel "description of the data model"{
+					
+					ldm LogicalDataModel "description of the Logical data model" {
+						/*
+						 *Add Logical elements or Logical Data Models Here
+						*/					
+				    }
+				}
+			''')
+			}
+			
+			else if(name.value == "Platform Data Model"){
+				addFile('''src/«path»/PlatformDataModel.uddl''', '''
+				/*
+				 * This is an example model
+				 */
+				dm DataModel "description of the data model"{
+					
+					pdm PlatformDataModel "description of the Platform model" {
+						/*
+						 *Add Platform elements or Platform data Models here
+						*/
+					}
+				}
+			''')
+			}
+			
+			else{
+				addFile('''src/«path»/DataModel.uddl''', '''
+				/*
+				 * This is an example model
+				 */
+				dm DataModel "description of the data model" {
+					/*
+					 *Add Conceptual,Logical or Platform Data Model here
+					*/
+					
+				}
+			''')
+			}
+			
 		])
 	}
 }
