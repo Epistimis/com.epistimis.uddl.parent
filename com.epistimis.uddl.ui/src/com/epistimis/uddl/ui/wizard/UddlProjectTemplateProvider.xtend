@@ -69,7 +69,8 @@ final class HelloWorldProject {
 				 */
 				dm DataModel "description of the data model" {
 					/*
-					 *Add Conceptual,Logical or Platform Data Model here
+					 *Add Conceptual,Logical or Platform Data Model her
+				
 					*/
 					
 				}
