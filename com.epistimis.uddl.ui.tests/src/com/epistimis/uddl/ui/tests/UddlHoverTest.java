@@ -17,31 +17,29 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @InjectWith(UddlUiInjectorProvider.class)
 public class UddlHoverTest extends AbstractHoverTest {
 	@Test
-	public void hoverOverKeyword() {
+	public void hoverOverDataModel() {
 		String model =
-				"dm TestRule \"This is a test description\"		{\r\n"
+				"dm TestRuleDm \"This is a test description\"		{\r\n"
 				+ "	\r\n"
 				+ "}";
 		hasHoverOver(model, "dm", "A DataModel is a container for ConceptualDataModels, LogicalDataModels, and PlatformDataModels"
 				);
-	}
-
-	@Test
-	public void hoverOverRuleHeader() {
-		String model =
-				"dm TestRule \"This is a test description\"		{\r\n"
-				+ "	\r\n"
-				+ "}";
 		hasHoverOver(model, "TestRule", "TestRule");
+		hasHoverOver(model, "TestRule", "This is a test description");
 	}
 	
 	@Test
-	public void hoverOverRuleDescription() {
+	public void hoverOverConceptualDataModel() {
 		String model =
-				"dm TestRule \"This is a test description\"		{\r\n"
-				+ "	\r\n"
+				"dm TestRuleDm \"This is a test description\"		{\r\n"
+				+ "	cdm TestRuleCdm \"Test description Cdm\" {\r\n"
+				+ "		\r\n"
+				+ "	}\r\n"
 				+ "}";
-		hasHoverOver(model, "TestRule", "This is a test description");
+		hasHoverOver(model, "cdm", "A ConceptualDataModel is a container for CDM Elements (including nested CDMs)."
+				);
+		hasHoverOver(model, "TestRuleCdm", "TestRuleCdm");
+		hasHoverOver(model, "TestRuleCdm", "Test description Cdm");
 	}
 
 }
