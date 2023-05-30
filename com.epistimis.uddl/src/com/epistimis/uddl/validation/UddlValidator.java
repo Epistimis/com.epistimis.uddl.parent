@@ -204,8 +204,12 @@ public class UddlValidator extends AbstractUddlValidator {
 	public void checkCharacteristicCount(ConceptualEntity ent) {
 		List<ConceptualCharacteristic> chars = getEntityCharacteristics(ent);
 		if (chars.size() < 2) {
-			error("Entity '" + ent.getName() + "' should have at least 2 characteristics",
-					UddlPackage.eINSTANCE.getConceptualEntity_Composition(), ENTITY_NEEDS_2_ELEMENTS, ent.getName());
+			/**
+			 * Since we don't know if this ent has any composition elements declared locally, we just
+			 * attach the error to the name attribute
+			 */
+			error("Entity '" + ent.getName() + "' should have at least 2 characteristics",ent,
+					UddlPackage.eINSTANCE.getUddlElement_Name(), ENTITY_NEEDS_2_ELEMENTS, ent.getName());
 		}
 	}
 
@@ -213,8 +217,12 @@ public class UddlValidator extends AbstractUddlValidator {
 	public void checkCharacteristicCount(LogicalEntity ent) {
 		List<ConceptualCharacteristic> chars = getEntityCharacteristics(ent);
 		if (chars.size() < 2) {
-			error("Entity '" + ent.getName() + "' should have at least 2 characteristics",
-					UddlPackage.eINSTANCE.getLogicalEntity_Composition(), ENTITY_NEEDS_2_ELEMENTS, ent.getName());
+			/**
+			 * Since we don't know if this ent has any composition elements declared locally, we just
+			 * attach the error to the name attribute
+			 */
+			error("Entity '" + ent.getName() + "' should have at least 2 characteristics",ent,
+					UddlPackage.eINSTANCE.getUddlElement_Name(), ENTITY_NEEDS_2_ELEMENTS, ent.getName());
 		}
 	}
 
@@ -222,8 +230,12 @@ public class UddlValidator extends AbstractUddlValidator {
 	public void checkCharacteristicCount(PlatformEntity ent) {
 		List<ConceptualCharacteristic> chars = getEntityCharacteristics(ent);
 		if (chars.size() < 2) {
-			error("Entity '" + ent.getName() + "' should have at least 2 characteristics",
-					UddlPackage.eINSTANCE.getPlatformEntity_Composition(), ENTITY_NEEDS_2_ELEMENTS, ent.getName());
+			/**
+			 * Since we don't know if this ent has any composition elements declared locally, we just
+			 * attach the error to the name attribute
+			 */
+			error("Entity '" + ent.getName() + "' should have at least 2 characteristics",ent,
+					UddlPackage.eINSTANCE.getUddlElement_Name(), ENTITY_NEEDS_2_ELEMENTS, ent.getName());
 		}
 	}
 }
