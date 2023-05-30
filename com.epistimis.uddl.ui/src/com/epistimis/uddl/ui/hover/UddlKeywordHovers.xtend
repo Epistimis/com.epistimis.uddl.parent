@@ -13,24 +13,20 @@ import org.eclipse.xtext.Keyword
  */
 class UddlKeywordHovers {
 	@Inject UddlGrammarAccess ga;
-	
+
 	def hoverText(Keyword k) {
-		
-		val result = switch(k) {
-			case ga.dataModelAccess.dmKeyword_0: '''
-				A DataModel is a container for ConceptualDataModels, LogicalDataModels, and PlatformDataModels
-				'''
-			case ga.conceptualDataModelAccess.cdmKeyword_0: '''
-				A ConceptualDataModel is a container for CDM Elements (including nested CDMs).
-				'''
-			case ga.logicalDataModelAccess.ldmKeyword_0: '''
-				A LogicalDataModel is a container for LDM Elements (including nested LDMs).
-				'''
-			case ga.platformDataModelAccess.pdmKeyword_0: '''
-				A PlatformDataModel is a container for PDM Elements (including nested PDMs).
-				'''
+
+		val result = switch (k) {
+			case ga.dataModelAccess.dmKeyword_0:
+				UddlKeywordHoverText.dmKeywordHover
+			case ga.conceptualDataModelAccess.cdmKeyword_0:
+				UddlKeywordHoverText.cdmKeywordHover
+			case ga.logicalDataModelAccess.ldmKeyword_0:
+				UddlKeywordHoverText.ldmKeywordHover
+			case ga.platformDataModelAccess.pdmKeyword_0:
+				UddlKeywordHoverText.pdmKeywordHover
 		}
-		
+
 		result.toString;
 	}
 }

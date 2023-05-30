@@ -23,16 +23,16 @@ public class UddlUiModule extends AbstractUddlUiModule {
 	public UddlUiModule(AbstractUIPlugin plugin) {
 		super(plugin);
 	}
-	
+
 	public Class<? extends IEObjectHover> bindIEObjectHover() {
 		return UddlDispatchingEObjectTextHover.class;
 	}
-	
+
 	public Class<? extends IEObjectHoverProvider> bindIEObjectHoverProvider() {
 		return UddlEObjectHoverProvider.class;
 	}
-	
-    public Class<? extends IEObjectDocumentationProvider> bindIEObjectDocumentationProvider() {
-        return UddlEObjectDocumentationProvider.class;
-    }
+
+	public Class<? extends IEObjectDocumentationProvider> bindIEObjectDocumentationProvider() {
+		return UddlEObjectDocumentationProvider.class;
+	}
 }
