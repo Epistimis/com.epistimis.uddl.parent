@@ -37,6 +37,8 @@ import com.epistimis.uddl.uddl.UddlElement;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
+
+
 /***
  * Processing Queries requires the following: 1) Identify all the entities
  * referenced in the query (matchQuerytoUDDL) 2) Identify all the
@@ -79,8 +81,8 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	@Inject
 	IQualifiedNameConverter qnc;
 
-//	@Inject
-//	CLPExtractors clp;
+	@Inject
+	CLPExtractors clp;
 
 	/**
 	 * Get the individual QueryCompositions from this CompositeQuery
@@ -140,6 +142,13 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 		return (Class<?>) parameterizedType.getActualTypeArguments()[ndx];
 	}
 
+	/**
+	 * Methods to return each of the parameter types - these warnings must remain because the alternative
+	 * is a compile error when these values get used.
+	 * @return
+	 */
+	
+	
 	public Class getCharacteristicType() {
 		return returnedTypeParameter(0);
 	}
@@ -180,6 +189,11 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 //		// Now register the file type so we don't need a file extension
 //		reg.getContentTypeToFactoryMap().put("quddl", queryRSP);
 //		queryResFactory = queryRSP.get(IResourceFactory.class);
+		
+		// For some reason, dependency injection isn't working - why? Is it because this is a generic class?
+//		qnp = new UddlQNP();
+//		qnc = new IQualifiedNameConverter.DefaultImpl();
+//		ndxUtil = new IndexUtilities();
 
 	}
 
@@ -199,6 +213,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 			Map<String, Characteristic> selectedChars = selectCharacteristicsFromUDDL(query, qs, matchedEntities);
 			return selectedChars;
 		} catch (Exception excp) {
+			excp.printStackTrace();
 			return new HashMap<String, Characteristic>();
 		}
 	}
@@ -224,7 +239,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 
 	// Set up to process with correct parser
 	public QueryStatement parseQuery(Query query) {
-		String queryText = CLPExtractors.getSpecification(query);
+		String queryText = clp.getSpecification(query);
 		QueryStatement qspec = null;
 		try {
 			// See https://www.eclipse.org/forums/index.php?t=msg&th=173070/ for explanation
@@ -255,11 +270,11 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 */
 	public Map<Query, QueryStatement> parseCompositeQuery(CompositeQuery query) {
 		Map<Query, QueryStatement> results = new HashMap<>();
-		for (EObject comp : CLPExtractors.getComposition(query)) {
+		for (EObject comp : clp.getComposition(query)) {
 			// comp is actually a QueryComposition object but shows up as an EObject because
 			// of XTend dispatch
-			View v = (View) CLPExtractors.getType(comp);
-			if (CLPExtractors.isCompositeQuery(v)) {
+			View v = (View) clp.getType(comp);
+			if (clp.isCompositeQuery(v)) {
 				results.putAll(parseCompositeQuery((CompositeQuery) v));
 			} else {
 				Query q = (Query) v;
@@ -313,7 +328,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 			case 0: {
 				// If nothing found so far, check all visible objects
 				List<IEObjectDescription> globalDescs = ndxUtil.searchAllVisibleEObjectDescriptions(q,
-						CLPExtractors.getRelatedPackageEntityInstance(q), entityName);
+						clp.getRelatedPackageEntityInstance(q), entityName);
 				switch (globalDescs.size()) {
 				case 0:
 					System.out.println("No Entities found for name: " + entityName + " from Query " + queryFQN);
@@ -353,12 +368,12 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 */
 	public Map<String, Characteristic> selectCharacteristicsFromUDDL(Query q, QueryStatement qstmt,
 			Map<String, Entity> matchedEntities) throws CharacteristicNotFoundException {
-		Resource resource = q.eResource();
+		//Resource resource = q.eResource();
 		// Initially, we just get the Entity names
 		Map<String, Characteristic> selectedCharacteristics = new HashMap<String, Characteristic>();
-		String queryFQN = qnp.getFullyQualifiedName(q).toString();
+		//String queryFQN = qnp.getFullyQualifiedName(q).toString();
 		ProjectedCharacteristicList pcl = qstmt.getProjectedCharacteristicList();
-		if (pcl.getAll().length() > 0) {
+		if (pcl.getAll() != null) {
 			// All characteristics have been selected
 			for (Entity ent : matchedEntities.values()) {
 
@@ -377,15 +392,31 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 						selectedCharacteristics.put(getCharacteristicRolename(c), c);
 					}
 				} else {
-					// pce must be
+					// pce must be an ExplicitSelectedEntityCharacteristicReference
 					ExplicitSelectedEntityCharacteristicReference esecr = (ExplicitSelectedEntityCharacteristicReference) pce;
 					SelectedEntityCharacteristicReference secr = esecr.getSelectedEntityCharacteristicReference();
 					ProjectedCharacteristicAlias alias = esecr.getProjectedCharacteristicAlias();
-					String entityOrAlias = ((QueryIdentifier) secr.getSelectedEntity()).getId();
-					Entity ent = matchedEntities.get(entityOrAlias);
-					Characteristic c = getCharacteristicByRolename(ent,
-							((QueryIdentifier) secr.getCharacteristic()).getId());
-					selectedCharacteristics.put(getCharacteristicRolename(c), c);
+					QueryIdentifier se = (QueryIdentifier) secr.getSelectedEntity();
+					if (se == null) {
+						// If no selected entity, that means the characteristic only exists in one of the entities specified
+						// in the query. Figure out which one it is.
+						for (Entity ent : matchedEntities.values()) {
+							try {
+								Characteristic c = getCharacteristicByRolename(ent,
+										((QueryIdentifier) secr.getCharacteristic()).getId());
+								selectedCharacteristics.put(getCharacteristicRolename(c), c);								
+							} catch (CharacteristicNotFoundException e) {
+								// Not found in that ent - try the next one
+							}
+						}
+						
+					} else {
+						String entityOrAlias = ((QueryIdentifier) secr.getSelectedEntity()).getId();
+						Entity ent = matchedEntities.get(entityOrAlias);
+						Characteristic c = getCharacteristicByRolename(ent,
+								((QueryIdentifier) secr.getCharacteristic()).getId());
+						selectedCharacteristics.put(getCharacteristicRolename(c), c);						
+					}
 
 				}
 			}
@@ -444,7 +475,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 */
 	protected List<Characteristic> getCharacteristics(Entity obj) {
 		List<Characteristic> characteristics = new ArrayList<>();
-		CLPExtractors.getCharacteristicsAndRecurse(obj, characteristics);
+		clp.getCharacteristicsAndRecurse(obj, characteristics);
 		return characteristics;
 	}
 
@@ -458,7 +489,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 */
 	protected Characteristic getCharacteristicByRolename(Entity ent, String roleName)
 			throws CharacteristicNotFoundException {
-		return CLPExtractors.getCharacteristicByRolename(ent, roleName);
+		return clp.getCharacteristicByRolename(ent, roleName);
 	}
 
 	public void setupParsing() {

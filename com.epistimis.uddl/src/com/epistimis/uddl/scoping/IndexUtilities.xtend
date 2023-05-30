@@ -2,16 +2,16 @@ package com.epistimis.uddl.scoping
 
 import com.epistimis.uddl.uddl.UddlPackage
 import com.google.inject.Inject
+import java.text.MessageFormat
+import java.util.List
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.resource.IContainer
-import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
-import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.IEObjectDescription
-import java.util.List
-import org.eclipse.xtext.naming.IQualifiedNameProvider
-import java.text.MessageFormat
+import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
 
 /**
  * This is modified from the book (See https://github.com/LorenzoBettini/packtpub-xtext-book-2nd-examples)

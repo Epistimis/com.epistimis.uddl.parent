@@ -29,7 +29,9 @@ import com.epistimis.uddl.uddl.PlatformQueryComposition
 import com.epistimis.uddl.uddl.PlatformView
 import com.epistimis.uddl.uddl.UddlElement
 import com.epistimis.uddl.uddl.UddlPackage
+import com.google.inject.Inject
 import java.text.MessageFormat
+import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
 import java.util.Map
@@ -38,18 +40,19 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.QualifiedName
-import java.util.ArrayList
-import java.util.Collection
 
 /**
  * This is a set of methods that extract values from instances for use with templated methods
  * @author stevehickman
  *
  */
-abstract class CLPExtractors {
+class CLPExtractors {
 
-	static IQualifiedNameProvider qnp = new UddlQNP();
-	
+	@Inject IQualifiedNameProvider qnp; // = new UddlQNP();
+
+	def dispatch static ConceptualEntity getSpecializes(EObject ent) {
+		return null;
+	}	
 	def dispatch static ConceptualEntity getSpecializes(ConceptualEntity ent) {
 		return  ent.getSpecializes();
 	}
@@ -60,7 +63,13 @@ abstract class CLPExtractors {
 		return ent.getSpecializes();
 	}
 	
-	
+
+	/**
+	 * Type checking defaults to false
+	 */
+	def dispatch static boolean isAssociation(EObject ent) {
+		return false;
+	}
 	def dispatch static boolean isAssociation(ConceptualEntity ent) {
 		return  (ent instanceof ConceptualAssociation);
 	}
@@ -142,7 +151,13 @@ abstract class CLPExtractors {
 		return obj.type;
 	}
 
-	
+
+	/**
+	 * Type checking defaults to false
+	 */
+	def dispatch static boolean isCompositeQuery(EObject ent) {
+		return false;
+	}	
 	def dispatch static boolean isCompositeQuery(ConceptualView obj) {
 		return (obj instanceof ConceptualCompositeQuery);
 	}
@@ -166,9 +181,9 @@ abstract class CLPExtractors {
 	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
 			"Entity {0} does not have a characteristic with rolename {1}");
 
-	def dispatch static String getCharacteristicRolename(ConceptualCharacteristic obj) { return obj.getRolename(); }
-	def dispatch static String getCharacteristicRolename(LogicalCharacteristic obj) { return obj.getRolename(); }
-	def dispatch static String getCharacteristicRolename(PlatformCharacteristic obj) { return obj.getRolename(); }
+	def dispatch  String getCharacteristicRolename(ConceptualCharacteristic obj) { return obj.getRolename(); }
+	def dispatch  String getCharacteristicRolename(LogicalCharacteristic obj) { return obj.getRolename(); }
+	def dispatch  String getCharacteristicRolename(PlatformCharacteristic obj) { return obj.getRolename(); }
 
 	/**
 	 * Get all the characteristics
@@ -212,7 +227,7 @@ abstract class CLPExtractors {
 	 * @param roleName The rolename of the characteristic to find
 	 * @return The found characteristic
 	 */
-	def static <Entity extends UddlElement,Characteristic extends EObject> Characteristic getCharacteristicByRolename(Entity ent, String roleName)
+	def  <Entity extends UddlElement,Characteristic extends EObject> Characteristic getCharacteristicByRolename(Entity ent, String roleName)
 			throws CharacteristicNotFoundException {
 		// Look for the characteristic in this Entity and, if not found, go up the
 		// specializes chain until we find it
@@ -248,7 +263,7 @@ abstract class CLPExtractors {
 	 * 
 	 * Net result: We can't just use Scopes.scopeFor to find what we want.
 	 */
-	def static <Entity extends UddlElement,Characteristic extends EObject, Composition extends Characteristic> Map<QualifiedName,Characteristic> getFQRoleName(Entity ent,String roleName) {
+	def  <Entity extends UddlElement,Characteristic extends EObject, Composition extends Characteristic> Map<QualifiedName,Characteristic> getFQRoleName(Entity ent,String roleName) {
 		// The simple approach just looks at what is contained in the specified entity. It does not follow references to other entities.
 		var Map<QualifiedName, Characteristic> result = new HashMap();
 		try {

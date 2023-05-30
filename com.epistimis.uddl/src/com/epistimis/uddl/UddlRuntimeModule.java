@@ -6,8 +6,6 @@ package com.epistimis.uddl;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
-import org.eclipse.xtext.scoping.IGlobalScopeProvider;
-import org.eclipse.xtext.scoping.impl.ImportUriGlobalScopeProvider;
 
 import com.epistimis.uddl.scoping.IndexUtilities;
 
@@ -38,14 +36,26 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		return IndexUtilities.class;
 	}
 
-	public Class<? extends PlatformQueryProcessor> bindPlatformQueryProcessor() {
-		return PlatformQueryProcessor.class;
-	}
 
 	public Class<? extends IQualifiedNameConverter> bindIQualifiedNameConverter() {
 		return IQualifiedNameConverter.DefaultImpl.class;
 	}
 
+	public Class<? extends ConceptualQueryProcessor> bindConceptualQueryProcessor() {
+		return ConceptualQueryProcessor.class;
+	}
+	public Class<? extends LogicalQueryProcessor> bindLogicalQueryProcessor() {
+		return LogicalQueryProcessor.class;
+	}
+	public Class<? extends PlatformQueryProcessor> bindPlatformQueryProcessor() {
+		return PlatformQueryProcessor.class;
+	}
+
+	public Class<? extends com.epistimis.uddl.CLPExtractors> bindCLPExtractors() {
+		return CLPExtractors.class;
+	}
+	
+	
 	/**
 	 * Enable this if there are performance issues with name resolution. And then
 	 * look at the strategy to see what should be excluded from the index
