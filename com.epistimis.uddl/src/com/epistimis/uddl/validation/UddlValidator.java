@@ -200,6 +200,10 @@ public class UddlValidator extends AbstractUddlValidator {
 		return results;
 	}
 
+	/**
+	 * Every entity must have at least 2 characteristics.
+	 * @param ent
+	 */
 	@Check(CheckType.EXPENSIVE)
 	public void checkCharacteristicCount(ConceptualEntity ent) {
 		List<ConceptualCharacteristic> chars = getEntityCharacteristics(ent);
@@ -213,6 +217,10 @@ public class UddlValidator extends AbstractUddlValidator {
 		}
 	}
 
+	/**
+	 * Every entity must have at least 2 characteristics.
+	 * @param ent
+	 */
 	@Check(CheckType.EXPENSIVE)
 	public void checkCharacteristicCount(LogicalEntity ent) {
 		List<ConceptualCharacteristic> chars = getEntityCharacteristics(ent);
@@ -226,6 +234,10 @@ public class UddlValidator extends AbstractUddlValidator {
 		}
 	}
 
+	/**
+	 * Every entity must have at least 2 characteristics.
+	 * @param ent
+	 */
 	@Check(CheckType.EXPENSIVE)
 	public void checkCharacteristicCount(PlatformEntity ent) {
 		List<ConceptualCharacteristic> chars = getEntityCharacteristics(ent);
