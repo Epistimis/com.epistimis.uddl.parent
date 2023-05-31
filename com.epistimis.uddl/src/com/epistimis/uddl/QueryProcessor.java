@@ -190,22 +190,17 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 //		reg.getContentTypeToFactoryMap().put("quddl", queryRSP);
 //		queryResFactory = queryRSP.get(IResourceFactory.class);
 		
-		// For some reason, dependency injection isn't working - why? Is it because this is a generic class?
-//		qnp = new UddlQNP();
-//		qnc = new IQualifiedNameConverter.DefaultImpl();
-//		ndxUtil = new IndexUtilities();
-
 	}
 
 	/**
-	 * Get the net result of the query. For now this just returns a map of the
-	 * selected characteristics. TODO: This needs to return a structure that
+	 * Get the characteristics selected in the query. 
+	 * TODO: This needs to return a structure that
 	 * includes cardinality info for templates to use.
 	 * 
 	 * @param query
 	 * @return
 	 */
-	public Map<String, Characteristic> processQuery(Query query) {
+	public Map<String, Characteristic> getSelectedCharacteristics(Query query) {
 
 		try {
 			QueryStatement qs = parseQuery(query);
@@ -218,7 +213,12 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 		}
 	}
 
-	public Map<String, Characteristic> processCompositeQuery(CompositeQuery query) {
+	/**
+	 * Get the characteristics selected in the query. 
+	 * @param query
+	 * @return
+	 */
+	public Map<String, Characteristic> getCompositeQuerySelectedCharacteristics(CompositeQuery query) {
 		Map<String, Characteristic> result = new HashMap<>();
 		Map<Query, QueryStatement> qs = parseCompositeQuery(query);
 		qs.forEach((q, qstmt) -> {
@@ -238,6 +238,11 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	}
 
 	// Set up to process with correct parser
+	/**
+	 * Parse a query and return a QueryStatement object
+	 * @param query The UDDL query containing the specification string.
+	 * @return A QueryStatement object
+	 */
 	public QueryStatement parseQuery(Query query) {
 		String queryText = clp.getSpecification(query);
 		QueryStatement qspec = null;
