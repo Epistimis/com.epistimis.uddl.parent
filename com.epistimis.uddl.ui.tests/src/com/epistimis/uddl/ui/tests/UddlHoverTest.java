@@ -3,7 +3,6 @@
  */
 package com.epistimis.uddl.ui.tests;
 
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.extensions.InjectionExtension;
 import org.eclipse.xtext.testing.util.ParseHelper;
@@ -14,6 +13,7 @@ import com.epistimis.uddl.uddl.ConceptualDataModel;
 import com.epistimis.uddl.uddl.DataModel;
 import com.epistimis.uddl.uddl.LogicalDataModel;
 import com.epistimis.uddl.uddl.PlatformDataModel;
+import com.epistimis.uddl.uddl.UddlElement;
 import com.epistimis.uddl.ui.hover.UddlKeywordHoverText;
 import com.google.inject.Inject;
 
@@ -27,58 +27,61 @@ public class UddlHoverTest extends AbstractHoverTest {
 	@Inject
 	ParseHelper<DataModel> parseHelper;
 
-	String dmKeyword = "dm";
-	String cdmKeyword = "cdm";
-	String ldmKeyword = "ldm";
-	String pdmKeyword = "pdm";
+	String dataModel = """
+			dm TestNameDm  "Test description for DataModel" {
+				cdm TestNameCdm "Test description for ConceptualDataModel" {
 
-	String dmName = "TestNameDm";
-	String cdmName = "TestNameCdm";
-	String ldmName = "TestNameLdm";
-	String pdmName = "TestNamePdm";
+				}
+				ldm TestNameLdm "Test description for LogicalDataModel" {
 
-	String dmDescription = "Test description for DataModel";
-	String cdmDescription = "Test description for ConceptualDataModel";
-	String ldmDescription = "Test description for LogicDataModel";
-	String pdmDescription = "Test description for PlatformDataModel";
+				}
+			    pdm TestNamePdm "Test description for PlatformDataModel" {
+
+			    }
+			}
+			""";
 
 	@Test
 	public void hoverOverDataModel() throws Exception {
-		String model = String.format("%s %s \"%s\" { }", dmKeyword, dmName, dmDescription);
-		DataModel parseDm = parseHelper.parse(model);
-		hasHoverOver(model, dmKeyword, UddlKeywordHoverText.dmKeywordHover);
-		hasHoverOver(model, dmName, parseDm.getName());
-		hasHoverOver(model, dmName, parseDm.getDescription());
+		DataModel parseDm = parseHelper.parse(dataModel);
+		assertHoverOverKeyword(dataModel, "dm", UddlKeywordHoverText.dmKeywordHover);
+		assertHoverOverUddlElementName(dataModel, parseDm);
 	}
 
 	@Test
 	public void hoverOverConceptualDataModel() throws Exception {
-		String model = String.format("%s %s \"%s\" { " + "%s %s \"%s\" { " + " } " + "}", dmKeyword, dmName,
-				dmDescription, cdmKeyword, cdmName, cdmDescription);
-		ConceptualDataModel parseCdm = parseHelper.parse(model).getCdm().get(0);
-		hasHoverOver(model, cdmKeyword, UddlKeywordHoverText.cdmKeywordHover);
-		hasHoverOver(model, cdmName, parseCdm.getName());
-		hasHoverOver(model, cdmName, parseCdm.getDescription());
+		ConceptualDataModel parseCdm = parseHelper.parse(dataModel).getCdm().get(0);
+		assertHoverOverKeyword(dataModel, "cdm", UddlKeywordHoverText.cdmKeywordHover);
+		assertHoverOverUddlElementName(dataModel, parseCdm);
 	}
 
 	@Test
 	public void hoverOverLogicDataModel() throws Exception {
-		String model = String.format("%s %s \"%s\" { " + "%s %s \"%s\" { " + " } " + "}", dmKeyword, dmName,
-				dmDescription, ldmKeyword, ldmName, ldmDescription);
-		LogicalDataModel parseLdm = parseHelper.parse(model).getLdm().get(0);
-		hasHoverOver(model, ldmKeyword, UddlKeywordHoverText.ldmKeywordHover);
-		hasHoverOver(model, ldmName, parseLdm.getName());
-		hasHoverOver(model, ldmName, parseLdm.getDescription());
+		LogicalDataModel parseLdm = parseHelper.parse(dataModel).getLdm().get(0);
+		assertHoverOverKeyword(dataModel, "ldm", UddlKeywordHoverText.ldmKeywordHover);
+		assertHoverOverUddlElementName(dataModel, parseLdm);
 	}
 
 	@Test
 	public void hoverOverPlatformDataModel() throws Exception {
-		String model = String.format("%s %s \"%s\" { " + "%s %s \"%s\" { " + " } " + "}", dmKeyword, dmName,
-				dmDescription, pdmKeyword, pdmName, pdmDescription);
-		PlatformDataModel parseLdm = parseHelper.parse(model).getPdm().get(0);
-		hasHoverOver(model, pdmKeyword, UddlKeywordHoverText.pdmKeywordHover);
-		hasHoverOver(model, pdmName, parseLdm.getName());
-		hasHoverOver(model, pdmName, parseLdm.getDescription());
+		PlatformDataModel parseLdm = parseHelper.parse(dataModel).getPdm().get(0);
+		assertHoverOverKeyword(dataModel, "pdm", UddlKeywordHoverText.pdmKeywordHover);
+		assertHoverOverUddlElementName(dataModel, parseLdm);
+	}
+
+	/**
+	 * Assert hover over a UddlElement name
+	 */
+	public void assertHoverOverUddlElementName(String dataModel, UddlElement element) throws Exception {
+		hasHoverOver(dataModel, element.getName(), element.getName());
+		hasHoverOver(dataModel, element.getName(), element.getDescription());
+	}
+
+	/**
+	 * Assert hover over keyword
+	 */
+	public void assertHoverOverKeyword(String dataModel, String keyword, String expectedHoverText) throws Exception {
+		hasHoverOver(dataModel, keyword, expectedHoverText);
 	}
 
 }
