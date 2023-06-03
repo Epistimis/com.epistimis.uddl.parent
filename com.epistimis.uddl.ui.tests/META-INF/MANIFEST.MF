@@ -6,7 +6,8 @@ Bundle-Vendor: Epistimis LLC
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: com.epistimis.uddl.ui.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
-Require-Bundle: com.epistimis.uddl.ui,
+Require-Bundle: com.epistimis.uddl,
+ com.epistimis.uddl.ui,
  org.eclipse.xtext.testing,
  org.eclipse.xtext.ui.testing,
  org.eclipse.xtext.xbase.testing,
