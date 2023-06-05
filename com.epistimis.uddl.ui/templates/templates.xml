@@ -1,56 +1,54 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><templates>
 
 <template id = "1" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalAffineConversion" deleted="false" description="An AffineConversion is a relationship between two ConvertibleElements in the form mx+b" enabled="true" name="ACONV">aconv ${name} "${description}" {
-	${source:CrossReference(LogicalAssociation.source)}	-(
-		${conversionFactor} , ${offset} 
-	) -&gt; ${destination:CrossReference(LogicalAssociation.destination)}
+	 ${cursor}
 };</template>
 
-<template id = "2" autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformArray" deleted="false" description="An Array is used to represent an array of Octets. This can be used to realize a StandardMeasurementSystem." enabled="true" name="ARR">arr [ ${size} ] ${name} "${description}" -&gt;
-${realizes:CrossReference(PlatformDataType.realizes)} ;</template>
+<template id = "2" autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformArray" deleted="false" description="An Array is used to represent an array of Octets. This can be used to realize a StandardMeasurementSystem." enabled="true" name="ARR">arr [ ${size} ] ${name} "${description}" -&gt; ${cursor}
+ ;</template>
 
 <template id = "3" autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualBasisEntity" deleted="false" description="A BasisEntity represents a unique domain concept and establishes a basis which can be used by conceptual Entities." enabled="true" name="BASIS">basis ${name} "${description}" ;</template>
 
-<template id = "4" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalBoolean" deleted="false" description="A Boolean is a value type representing the two values TRUE and FALSE." enabled="true" name="BOOL">bool ${name} "${description}" ;</template><template id = "5" autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformBoolean" deleted="false" description="A Boolean is a data type that represents the values TRUE and FALSE." enabled="true" name="BOOL">bool ${name}	"${description}" -&gt; 
-${realizes:CrossReference(PlatformDataType.realizes)} ; </template>
+<template id = "4" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalBoolean" deleted="false" description="A Boolean is a value type representing the two values TRUE and FALSE." enabled="true" name="BOOL">bool ${name} "${description}" ;</template>
 
-<template id = "5" autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualAssociation" deleted="false" description="A conceptual Association represents a relationship between two or more conceptual Entities. The conceptual Entities participating in the conceptual Association may be specified locally or in its generalized types. In addition, there may be one or more conceptual ComposableElements that characterize the relationship. Conceptual Associations are conceptual Entities that may also participate in other conceptual Associations." enabled="true" name="CASSOC">cassoc ${name} "${description}" : ${specializes:CrossReference(ConceptualEntity.specializes)}{
- basis: [ ${ConceptualBasisEntity:CrossReference(ConceptualAssociation.ConceptualBasisEntity)}]
- participants: [${type:CrossReference(ConceptualParticipant.type)}  ]
+<template id = "5" autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformBoolean" deleted="false" description="A Boolean is a data type that represents the values TRUE and FALSE." enabled="true" name="BOOL">bool ${name}	"${description}" -&gt;  ${cursor}
+ ; </template>
+
+<template id = "5" autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualAssociation" deleted="false" description="A conceptual Association represents a relationship between two or more conceptual Entities. The conceptual Entities participating in the conceptual Association may be specified locally or in its generalized types. In addition, there may be one or more conceptual ComposableElements that characterize the relationship. Conceptual Associations are conceptual Entities that may also participate in other conceptual Associations." enabled="true" name="CASSOC">cassoc ${name} "${description}" :{
+ 	${cursor}
  };
  
 </template>
 
 <template id = "6" autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualCompositeQuery" deleted="false" description="A conceptual CompositeQuery is a collection of two or more conceptual Views. The “isUnion” attribute specifies whether the composed Views are intended to be mutually exclusive or not." enabled="true" name="CCQUERY">ccquery ${name} "${description}" {
 	isUnion 
-${type:CrossReference(ConceptualQueryComposition.type)}
+	${cursor}
+
 };</template>
 
 <template id = "7" autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualDataModel" deleted="false" description="A ConceptualDataModel is a container for CDM Elements." enabled="true" name="CDM">cdm ${name}  "${description}"  {
 	${cursor}
 }</template>
 
-<template id = "8" autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualEntity" deleted="false" description="A conceptual Entity represents a domain concept in terms of its Observables and other composed conceptual Entities. Since a conceptual Entity is built only from conceptual ComposableElements, it is independent of any specific data representation, units, or reference frame." enabled="true" name="CENTITY">centity ${name} "${description}" : ${specializes:CrossReference(ConceptualEntity.specializes)} 
+<template id = "8" autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualEntity" deleted="false" description="A conceptual Entity represents a domain concept in terms of its Observables and other composed conceptual Entities. Since a conceptual Entity is built only from conceptual ComposableElements, it is independent of any specific data representation, units, or reference frame." enabled="true" name="CENTITY">centity ${name} "${description}" :
 {
-	${:CrossReference(ConceptualComposition.type)} 
-	basis: [ ${basisEntity:CrossReference(ConceptualEntity.basisEntity)} ]	
+	${cursor}	
 };
 
 	</template>
 	
-	<template id = "9" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalCharacter" deleted="false" description="A Character is a value type representing characters from any character set." enabled="true" name="CHAR">char ${name} "${description}" ;</template><template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformCharType" deleted="false" description="A Char is a data type that represents characters from any single byte character set." enabled="true" name="CHAR">char ${name} "${description}" -&gt; 
-${realizes:CrossReference(PlatformDataType.realizes)} ;</template><template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalConversion" deleted="false" description="A Conversion is a relationship between two ConvertibleElements that describes how to transform measured quantities between two Units." enabled="true" name="CONV">conv ${name} "${description}" { 
-	${source:CrossReference('LogicalConversion.source')} -&gt;
-	${destination:CrossReference(LogicalConversion.destination)}
-	}; 
+	<template id = "9" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalCharacter" deleted="false" description="A Character is a value type representing characters from any character set." enabled="true" name="CHAR">char ${name} "${description}" ;</template>
+	
+	<template id = "57" autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformCharType" deleted="false" description="A Char is a data type that represents characters from any single byte character set." enabled="true" name="CHAR">char ${name} "${description}" -&gt; ${cursor}
+ ;</template>
+ 
+ <template id = "58" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalConversion" deleted="false" description="A Conversion is a relationship between two ConvertibleElements that describes how to transform measured quantities between two Units." enabled="true" name="CONV">conv ${name} "${description}" 
+	${cursor}
+	
 </template>
 
 <template id = "10" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalCoordinateSystem" deleted="false" description="A CoordinateSystem is a system which uses one or more coordinates to uniquely determine the position of a point in an N-dimensional space. The coordinate system is comprised of multiple CoordinateSystemAxis which completely span the space. Coordinates are quantified relative to the CoordinateSystemAxis. It is not required that the dimensions be ordered or continuous." enabled="true" name="COORD">coord ${name} "${description}" {
-	axis: "${axisRelationshipDescription}"  
-	angleEq: "${angleEquation}"
-	distanceEq: "${distanceEquation}"  [
-		${axis:CrossReference(LogicalCoordinateSystem.axis)}
-	]
+	${cursor}
 };</template>
 
 <template id = "11" autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualQuery" deleted="false" description="A conceptual Query is a specification that defines the content of conceptual View as a set of conceptual Characteristics projected from a selected set of related conceptual Entities. The “specification” attribute captures the specification of a Query as defined by the Query grammar." enabled="true" name="CQUERY">cquery ${name} "${description}" { 
@@ -68,18 +66,18 @@ ${realizes:CrossReference(PlatformDataType.realizes)} ;</template><template auto
 <template id = "13" autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualDomain" deleted="false" description="A Domain represents a space defined by a set of BasisEntities relating to well understood concepts by practitioners within a particular domain." enabled="true" name="DOMAIN">domain ${name} "${description}"  ;</template>
 
 <template id = "15" autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformDouble" deleted="false" description="A Double is a real data type that represents an IEEE double precision floating-point number." enabled="true" name="DOUBLE">double	${name} "${description}" -&gt; 
-${realizes:CrossReference(PlatformDataType.realizes)}  ; </template>
+	${cursor}
+ ; </template>
 
-<template id = "16" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalEnumerationConstraint" deleted="false" description="An EnumerationConstraint identifies a subset of enumerated values (EnumerationLabel) considered valid for an Enumerated value type of a MeasurementAxis." enabled="true" name="EC">ec  ${name} "${description}" [
-	 ${allowedValue:CrossReference(LogicalEnumerationConstraint.allowedValue)}
-]</template>
+<template id = "16" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalEnumerationConstraint" deleted="false" description="An EnumerationConstraint identifies a subset of enumerated values (EnumerationLabel) considered valid for an Enumerated value type of a MeasurementAxis." enabled="true" name="EC">ec  ${name} "${description}" ${cursor} </template>
 
-<template id = "17" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalEnumerated" deleted="false" description="An Enumerated is a value type representing a set of named values, each with specific meaning." enabled="true" name="ENUM">enum	${name} "${description}" stdRef: "${standardReference}" [
-	
-];</template>
+<template id = "17" autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalEnumerated" deleted="false" description="An Enumerated is a value type representing a set of named values, each with specific meaning." enabled="true" name="ENUM">enum	${name} "${description}" 
+	${cursor}
+;</template>
 
 <template id = "18" autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformEnumeration" deleted="false" description=" An Enumeration is a data type that represents an ordered list of identifiers." enabled="true" name="ENUM">enum ${name} "${description}" -&gt; 
-${realizes:CrossReference(PlatformDataType.realizes)} ;</template>
+	${cursor}
+ ;</template>
 
 <template id = "19" autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformFloat" deleted="false" description="A Float is a real data type that represents an IEEE single precision floating-point number." enabled="true" name="FLOAT">float ${name} "${description}" -&gt;
 ${realizes:CrossReference(PlatformDataType.realizes)} ;</template>
