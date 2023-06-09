@@ -54,45 +54,38 @@ public class UddlQNP  extends DefaultDeclarativeQualifiedNameProvider {
 		ConceptualEntity ce = (ConceptualEntity) obj.eContainer();
 
 		return getFullyQualifiedName(ce).append(obj.getRolename());	
-//		return QualifiedName.create(ce.getName(),obj.getRolename());		
 	}
 
 	public  QualifiedName qualifiedName(ConceptualQueryComposition obj) {
 		ConceptualCompositeQuery ce = (ConceptualCompositeQuery) obj.eContainer();
 		return getFullyQualifiedName(ce).append(obj.getRolename());	
-//		return QualifiedName.create(ce.getName(),obj.getRolename());		
 	}
 	
 	/* Logical */
 	public  QualifiedName qualifiedName(LogicalCharacteristic obj) {
 		LogicalEntity ce = (LogicalEntity) obj.eContainer();
 		return getFullyQualifiedName(ce).append(obj.getRolename());	
-//		return QualifiedName.create(ce.getName(),obj.getRolename());		
 	}
 
 	public  QualifiedName qualifiedName(LogicalMeasurementAttribute obj) {
 		LogicalMeasurement ce = (LogicalMeasurement) obj.eContainer();
 		return getFullyQualifiedName(ce).append(obj.getRolename());	
-//		return QualifiedName.create(ce.getName(),obj.getRolename());		
 	}
 
 	public  QualifiedName qualifiedName(LogicalQueryComposition obj) {
 		LogicalCompositeQuery ce = (LogicalCompositeQuery) obj.eContainer();
 		return getFullyQualifiedName(ce).append(obj.getRolename());	
-//		return QualifiedName.create(ce.getName(),obj.getRolename());		
 	}
 		
 	/* Platform */
 	public  QualifiedName qualifiedName(PlatformCharacteristic obj) {
 		PlatformEntity ce = (PlatformEntity) obj.eContainer();
 		return getFullyQualifiedName(ce).append(obj.getRolename());	
-//		return QualifiedName.create(ce.getName(),obj.getRolename());		
 	}
 	
 	public  QualifiedName qualifiedName(PlatformQueryComposition obj) {
 		PlatformCompositeQuery ce = (PlatformCompositeQuery) obj.eContainer();
 		return getFullyQualifiedName(ce).append(obj.getRolename());	
-//		return QualifiedName.create(ce.getName(),obj.getRolename());		
 	}
 
 	public  QualifiedName qualifiedName(PlatformStructMember obj) {
