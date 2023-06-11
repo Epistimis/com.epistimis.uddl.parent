@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalAffineConversion" deleted="false" description="An AffineConversion is a relationship between two ConvertibleElements in the form mx+b" enabled="true" id="1" name="ACONV">aconv ${name} "${description}" {
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template oriautoinsert="true" context="com.epistimis.uddl.Uddl.LogicalAffineConversion" deleted="false" description="An AffineConversion is a relationship between two ConvertibleElements in the form mx+b" enabled="true" id="1" name="ACONV">aconv ${name} "${description}" {
 	${source:CrossReference(LogicalAssociation.source)} -(${conversionFactor},  ${offset}
 	)-&gt; ${destination:CrossReference(LogicalAssociation.destination)}	
 };
@@ -166,4 +166,70 @@ ${cursor}
 ${cursor} 
 </template><template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformUShort" deleted="false" description="A UShort is an integer data type that represents integer values in the range 0 to (2^16 – 1)." enabled="true" id="53" name="USHORT">ushort ${name}	"${description}" -&gt; ${realizes:CrossReference(LogicalElement.realizes)} ;
 ${cursor}
- </template></templates>
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualComposition" deleted="false" description="A conceptual Composition is the mechanism that allows conceptual Entities to be constructed from other conceptual ComposableElements. The “type” of a Composition is the ComposableElement being used to construct the conceptual Entity" enabled="true" id="54" name="CCOMP">${type:CrossReference(ConceptualComposableElement.type)} ${rolename}[
+ ${lowerBound} : ${upperBound} 
+	"${description}" : ${specializes:CrossReference(ConceptualCharacteristic.specializes)};
+ ]
+ ${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualParticipant" deleted="false" description="A conceptual Composition is the mechanism that allows conceptual Entities to be constructed from other conceptual ComposableElements. The “type” of a Composition is the ComposableElement being used to construct the conceptual Entity" enabled="true" id="55" name="CPART">${type:CrossReference(ConceptualEntity.type)} ${rolename}[
+ ${lowerBound} : ${upperBound} ]
+	"${description}" : ${specializes:CrossReference(ConceptualCharacteristic.specializes)}{
+		src: [${sourceLowerBound} : ${sourceUpperBound}]
+		path: ${path:CrossReference(ConceptualPathNode.path)}
+	};
+ ${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualQueryComposition" deleted="false" description="A conceptual QueryComposition is the mechanism that allows a conceptual CompositeQuery to be constructed from conceptual Queries and other conceptual CompositeQueries. The “rolename” attribute defines the name of the composed conceptual View within the scope of the composing conceptual CompositeQuery. The “type” of a conceptual QueryComposition is the conceptual View being used to construct the conceptual CompositeQuery." enabled="true" id="80" name="CQCOMP">${type:CrossReference(ConceptualQueryComposition.type)} ${rolename};
+ ${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualQueryComposition" deleted="false" description="EXTENSION: allowing label to be a LogicalEnumeratedSet enables taxonomy definitions via enumerations" enabled="true" id="81" name="LENUMSET">(
+	${name} "${description}"[
+		${cursor}
+	]
+ )
+ </template>
+  <template autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualQueryComposition" deleted="false" description="EXTENSION: allowing label to be a LogicalEnumeratedSet enables taxonomy definitions via enumerations" enabled="true" id="81" name="LENUMSET">(
+	${name} "${description}"[
+		${cursor}
+	]
+ )
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalEnumerationLabel" deleted="false" description="An EnumerationLabel defines a named member of an Enumerated value set." enabled="true" id="82" name="LENUMLABEL">
+	${name} "${description}";
+		${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalReferencePoint" deleted="false" description="A ReferencePoint is an identifiable point (landmark) that can be used to provide a basis for locating and/or orienting a MeasurementSystem." enabled="true" id="84" name="LREFPOINT">(
+	${name} "${description}"
+	landmark: ${landmark:CrossReference(LogicalLandmark.landmark)}[
+		${cursor}
+		]
+ )
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalReferencePointPart" deleted="false" description="A ReferencePointPart is a value for one ValueTypeUnit in a ValueTypeUnit set that is used to identify a specific point along an axis." enabled="true" id="86" name="LREFPOINTPART">(
+ ${axis:CrossReference(LogicalReferencePointPart.axis)} "${value}" ${valueTypeUnit:CrossReference(LogicalValueTypeUnit.valueTypeUnit)}
+ )
+ ${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalComposition" deleted="false" description="A logical Composition is the mechanism that allows logical Entities to be constructed from other logical ComposableElements. The “type” of a Composition is the ComposableElement being used to construct the logical Entity. The “lowerBound” and “upperBound” define the multiplicity of the composed logical Entity. An “upperBound” multiplicity of –1 represents an unbounded sequence." enabled="true" id="87" name="LCOMP">${type:CrossReference(LogicalComposableElement.type)} ${rolename}[
+ ${lowerBound} : ${upperBound}] "${description}":
+ 	${specializes:CrossReference(LogicalCharacteristic.specializes)} -&gt; 
+		${realizes:CrossReference(ConceptualComposition.realizes)}; 
+${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalParticipant" deleted="false" description="A logical Participant is the mechanism that allows a logical Association to be constructed between two or more logical Entities. The “type” of a logical Participant is the logical Entity being used to construct the logical Association. The “sourceLowerBound” and “sourceUpperBound” attributes define the multiplicity of the logical Association relative to the Participant. A “sourceUpperBound” multiplicity of –1 represents an unbounded sequence. The “path” attribute of the Participant describes the chain of entity characteristics to traverse to reach the subject of the association beginning with the entity referenced by the “type” attribute." enabled="true" id="88" name="LPART">${type:CrossReference(LogicalEntity.type)} ${rolename}[
+ ${lowerBound} : ${upperBound}] "${description}":
+ 	${specializes:CrossReference(LogicalCharacteristic.specializes)} -&gt; 
+		${realizes:CrossReference(ConceptualComposition.realizes)}{
+			source: [${sourceLowerBound} : ${sourceUpperBound}]
+			path: ${path:CrossReference(LogicalPathNode.path)}
+		};
+${cursor}
+ </template>
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalQueryComposition" deleted="false" description="A logical QueryComposition is the mechanism that allows a logical CompositeQuery to be constructed from logical Queries and other logical CompositeQueries. The “rolename” attribute defines the name of the composed logical View within the scope of the composing logical CompositeQuery. The “type” of a logical QueryComposition is the logical View being used to construct the logical CompositeQuery." enabled="true" id="89" name="LQCOMP">${type:CrossReference(LogicalEntity.type)} ${rolename}-&gt; 
+		${realizes:CrossReference(ConceptualComposition.realizes)}
+${cursor}
+ </template>
+  
+ </templates>
