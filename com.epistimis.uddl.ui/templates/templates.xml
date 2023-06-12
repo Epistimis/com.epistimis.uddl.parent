@@ -231,5 +231,50 @@ ${cursor}
 		${realizes:CrossReference(ConceptualComposition.realizes)}
 ${cursor}
  </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformBoundedString" deleted="false" description="BoundedString is a data type that represents a variable length sequence of Char (all 8-bit quantities except NULL). The length is a non-negative integer, and is available at run-time. The “maxLength” attribute defines the maximum length of the BoundedString, an integer value greater than 0" enabled="true" id="90" name="PBSTRING">string[${maxLenght}] ${name} "${description}" -&gt; 
+	${realizes:CrossReference(LogicalElement.realizes)};
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformCharArray" deleted="false" description="A CharArray is a data type that represents a fixed length sequence of Char (all 8-bit quantities except NULL). The length is a positive integer, and is available at run-time. The “length” attribute defines the length of the CharArray, an integer value greater than 0" enabled="true" id="90" name="PCARRAY">char[${Lenght}] ${name} "${description}" -&gt; 
+	${realizes:CrossReference(LogicalElement.realizes)};
+${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformFixed" deleted="false" description="A Fixed is a real data type that represents a fixed-point decimal number of up to 31 significant digits. The “digits” attribute defines the total number of digits, a non-negative integer value less than or equal to 31. The “scale” attribute defines the position of the decimal point in the number, and cannot be greater than “digits”." enabled="true" id="91" name="PFIXED">fixed[${digits} . ${scale} ] ${name} "${description}" -&gt; 
+	${realizes:CrossReference(LogicalElement.realizes)};
+${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformSequence" deleted="false" description="A Sequence is used to represent a sequence of Octets. This can be used to realize a StandardMeasurementSystem." enabled="true" id="92" name="PSEQ">seq[${maxSize}] ${name} "${description}" -&gt; 
+	${realizes:CrossReference(LogicalElement.realizes)};
+${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformStructMember" deleted="false" description="A StructMember is the mechanism that allows Structs to be constructed from other PlatformDataTypes. The “type” of a StructMember is the PlatformDataType being used to construct the Struct. If “type” is a Primitive, the “precision” attribute specifies a measure of the detail in which a quantity is captured." enabled="true" id="93" name="PSMEM">${type:CrossReference(PlatformDataType.type)} ${rolename} -&gt; 
+	${realizes:CrossReference(LogicalMeasurementAttribute.realizes)};
+${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformComposition" deleted="false" description="A platform Composition is the mechanism that allows platform Entities to be constructed from other platform ComposableElements. The “type” of a Composition is the ComposableElement being used to construct the platform Entity. The “lowerBound” and “upperBound” define the multiplicity of the composed platform Entity. An “upperBound” multiplicity of –1 represents an unbounded sequence. If “type” is a Primitive, the “precision” attribute specifies a measure of the detail in which a quantity is captured." enabled="true" id="94" name="PCOMP">${type:CrossReference(PlatformComposableElement.type)} ${rolename} [${lowerBound} : ${upperBound}] 
+ "${description}" : ${specializes:(CrossReference(PlatformCharacteristic.specializes))} -&gt; 
+	${realizes:CrossReference(LogicalComposition.realizes)}{
+		prec: ${precision}
+	};
+${cursor}
+ </template>
+  <template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformParticipant" deleted="false" description="A platform Participant is the mechanism that allows a platform Association to be constructed between two or more platform Entities. The “type” of a platform Participant is the platform Entity being used to construct the platform Association. The “sourceLowerBound” and “sourceUpperBound” attributes define the multiplicity of the platform Association relative to the Participant. A “sourceUpperBound” multiplicity of –1 represents an unbounded sequence. The “path” attribute of the Participant describes the chain of entity characteristics to traverse to reach the subject of the association beginning with the entity referenced by the “type” attribute." enabled="true" id="95" name="PPART">${type:CrossReference(PlatformEntity.type)} ${rolename} [${lowerBound} : ${upperBound}] 
+ "${description}" : ${specializes:(CrossReference(PlatformCharacteristic.specializes))} -&gt; 
+	${realizes:CrossReference(LogicalParticipant.realizes)}{
+		source: [${sourceLowerBound} : ${sourceUpperBound} ]
+		path: ${path}
+	};
+${cursor}
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformQuery" deleted="false" description="A platform Query is a specification that defines the content of platform View as a set of platform Characteristics projected from a selected set of related platform Entities. The “specification” attribute captures the specification of a Query as defined by the Query grammar." enabled="true" id="96" name="PQUERY">pquery ${name} "${description}"  -&gt; 
+	${realizes:CrossReference(LogicalQuery.realizes)}{
+		isUnion
+		${cursor}
+	};
+
+ </template>
+ <template autoinsert="true" context="com.epistimis.uddl.Uddl.PlatformQueryComposition" deleted="false" description="A platform QueryComposition is the mechanism that allows a platform CompositeQuery to be constructed from platform Queries and other platform CompositeQueries. The “rolename” attribute defines the name of the composed platform View within the scope of the composing platform CompositeQuery. The “type” of a platform QueryComposition is the platform View being used to construct the platform CompositeQuery." enabled="true" id="96" name="PQCOMP">${type:CrossReference(PlatformView.type)} ${rolename} -&gt;
+	${realizes:CrossReference(LogicalQueryComposition.realizes)}
+	${cursor}
+ </template>
   
  </templates>
