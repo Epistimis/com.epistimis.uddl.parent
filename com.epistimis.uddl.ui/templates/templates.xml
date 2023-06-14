@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template oriautoinsert="true" context="com.epistimis.uddl.Uddl.LogicalAffineConversion" deleted="false" description="An AffineConversion is a relationship between two ConvertibleElements in the form mx+b" enabled="true" id="1" name="ACONV">aconv ${name} "${description}" {
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalAffineConversion" deleted="false" description="An AffineConversion is a relationship between two ConvertibleElements in the form mx+b" enabled="true" id="1" name="ACONV">aconv ${name} "${description}" {
 	${source:CrossReference(LogicalAssociation.source)} -(${conversionFactor},  ${offset}
 	)-&gt; ${destination:CrossReference(LogicalAssociation.destination)}	
 };
