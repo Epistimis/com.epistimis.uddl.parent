@@ -177,7 +177,7 @@ ${cursor}
  ${lowerBound} : ${upperBound} ]
 	"${description}" : ${specializes:CrossReference(ConceptualCharacteristic.specializes)}{
 		src: [${sourceLowerBound} : ${sourceUpperBound}]
-		path: ${path:CrossReference(ConceptualPathNode.path)}
+		path: ${ConceptualPathNode}
 	};
  ${cursor}
  </template>
@@ -185,12 +185,6 @@ ${cursor}
  ${cursor}
  </template>
  <template autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualQueryComposition" deleted="false" description="EXTENSION: allowing label to be a LogicalEnumeratedSet enables taxonomy definitions via enumerations" enabled="true" id="81" name="LENUMSET">(
-	${name} "${description}"[
-		${cursor}
-	]
- )
- </template>
-  <template autoinsert="true" context="com.epistimis.uddl.Uddl.ConceptualQueryComposition" deleted="false" description="EXTENSION: allowing label to be a LogicalEnumeratedSet enables taxonomy definitions via enumerations" enabled="true" id="81" name="LENUMSET">(
 	${name} "${description}"[
 		${cursor}
 	]
@@ -223,7 +217,7 @@ ${cursor}
  	${specializes:CrossReference(LogicalCharacteristic.specializes)} -&gt; 
 		${realizes:CrossReference(ConceptualComposition.realizes)}{
 			source: [${sourceLowerBound} : ${sourceUpperBound}]
-			path: ${path:CrossReference(LogicalPathNode.path)}
+			path: ${LogicalPathNode}
 		};
 ${cursor}
  </template>
