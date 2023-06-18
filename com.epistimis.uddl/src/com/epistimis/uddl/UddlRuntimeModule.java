@@ -55,6 +55,9 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		return CLPExtractors.class;
 	}
 	
+	public Class<? extends com.epistimis.uddl.LogicalEnumeratedProcessor> bindLogicalEnumeratedProcessor() {
+		return LogicalEnumeratedProcessor.class;
+	}
 	
 	/**
 	 * Enable this if there are performance issues with name resolution. And then
