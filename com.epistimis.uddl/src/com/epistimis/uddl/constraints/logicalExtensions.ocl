@@ -1,4 +1,7 @@
 import  '../../../../../model/generated/Uddl.ecore'
+include 'helpers.ocl'
+include 'conceptual.ocl'
+
 /**
  * This contains more general capability for the EXTENSIONS at the logical level
  */
@@ -47,6 +50,11 @@ package uddl
         self.oclAsType(LogicalEnumerationLabel).flattenLabels()
       endif    	
  
+    /*
+     * An LogicalEnumeratedBase's name is not an IDL reserved word.
+     */                        
+    inv nameIsNotReservedWord:
+      not UddlElement::isReservedWord(self.name)
       
   context LogicalEnumeratedSet
   /**
@@ -55,6 +63,11 @@ package uddl
    	 def: flattenLabels(): Collection(LogicalEnumeratedBase) =
   	    self.label->closure(e: LogicalEnumeratedBase | if e.oclIsTypeOf(LogicalEnumeratedSet) then e.oclAsType(LogicalEnumeratedSet).label else Bag{e} endif)->including(self.oclAsType(LogicalEnumeratedBase))
  
+     /*
+     * An LogicalEnumeratedSet's name is not an IDL reserved word.
+     */                        
+    inv nameIsNotReservedWord:
+      not UddlElement::isReservedWord(self.name)
    	 	
   context LogicalEnumerationLabel
     /*

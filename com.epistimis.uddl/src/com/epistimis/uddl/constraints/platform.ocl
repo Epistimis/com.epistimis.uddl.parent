@@ -22,7 +22,7 @@ package uddl
 
   context PlatformEntity
     /*
-     * Helper method that gets the Characteristics contained in an PlatformEntity.
+     * Helper method that gets the Characteristics contained in a PlatformEntity.
      * (Platform Characteristics are ordered with Participants first,
      * then Compositions.)
      */
@@ -40,7 +40,7 @@ package uddl
       endif
       
     /*
-     * Helper method that gets the Characteristics of an PlatformEntity,
+     * Helper method that gets the Characteristics of a PlatformEntity,
      * including those from specialized Entities.
      * (Platform Characteristics are ordered with the Characteristics 
      * of the "top-most" PlatformEntity in a generalization hierarchy first,
@@ -58,7 +58,7 @@ package uddl
                                               c2.specializes = c1))
 
     /*
-     * A PlatformCharacteristic's rolename is unique within an PlatformEntity.
+     * A PlatformCharacteristic's rolename is unique within a PlatformEntity.
      */
     inv characteristicsHaveUniqueRolenames:
       self.getAllCharacteristics()->isUnique(rolename)
@@ -73,7 +73,7 @@ package uddl
           ->forAll(c | self.realizes.composition->exists(c2 | c = c2))
           
     /*
-     * An PlatformEntity does not contain two Compositions that realize the same
+     * A PlatformEntity does not contain two Compositions that realize the same
      * logical PlatformComposition unless their types are different IDLTypes
      * and their multiplicities are equal.
      */
@@ -88,7 +88,7 @@ package uddl
                                         c1.upperBound = c2.upperBound)
     
     /*
-     * If an PlatformEntity specializes, its specialization is
+     * If a PlatformEntity specializes, its specialization is
      * consistent with its realization's specialization.
      */
     inv specializationConsistentWithRealization:
@@ -96,7 +96,7 @@ package uddl
       self.specializes.realizes = self.realizes.specializes
            
     /*
-     * An PlatformEntity has at least one PlatformCharacteristic defined
+     * A PlatformEntity has at least one PlatformCharacteristic defined
      * locally (not through generalization), unless the
      * PlatformEntity is in the "middle" of a generalization hierarchy.
      */
@@ -121,7 +121,7 @@ package uddl
                             ->exists(ae2 | ae = ae2))
                             
     /*
-     * Participants in an PlatformAssociation realize unique Participants.
+     * Participants in a PlatformAssociation realize unique Participants.
      */
     inv participantsRealizeUniquely:
       self.participant->forAll(p1, p2 | p1 <> p2 implies
@@ -236,7 +236,7 @@ package uddl
       endif
       
     /*
-     * A PlatformComposition whose type is an PlatformNumber has
+     * A PlatformComposition whose type is a PlatformNumber has
      * its precision greater than zero.
      */
     inv composedIDLNumberHasPrecisionSet:
@@ -522,14 +522,14 @@ package uddl
       
   context PlatformDataType       
     /*
-     * Helper method that determines if an PlatformDataType realizes a MeasurementAxis.
+     * Helper method that determines if a PlatformDataType realizes a MeasurementAxis.
      */
     def: realizesMeasurementAxis() : Boolean =
       self.realizes.oclIsTypeOf(LogicalMeasurementAxis)
 
 
     /*
-     * Helper method that gets the MeasurementAxis realized by an PlatformDataType.
+     * Helper method that gets the MeasurementAxis realized by a PlatformDataType.
      * Returns null if the PlatformDataType does not realize a MeasurementAxis.
      */
     def: realizedMeasurementAxis() : LogicalMeasurementAxis =
@@ -540,13 +540,13 @@ package uddl
       endif
     
     /*
-     * Helper method that determines if an PlatformDataType realizes a Measurement.
+     * Helper method that determines if a PlatformDataType realizes a Measurement.
      */
     def: realizesMeasurement() : Boolean =
       self.realizes.oclIsTypeOf(LogicalMeasurement)
       
     /*
-     * Helper method that gets the Measurement realized by an PlatformDataType.
+     * Helper method that gets the Measurement realized by a PlatformDataType.
      * Returns null if the PlatformDataType does not realize a Measurement.
      */
     def: realizedMeasurement() : LogicalMeasurement =
@@ -557,7 +557,7 @@ package uddl
       endif
     
     /*
-     * A ValueTypeUnit is realized by an PlatformPrimitive.
+     * A ValueTypeUnit is realized by a PlatformPrimitive.
      */    
     inv vtuRealizedByIDLPrimitive:
       self.realizes.oclIsTypeOf(LogicalValueTypeUnit)
@@ -565,7 +565,7 @@ package uddl
       self.oclIsKindOf(PlatformPrimitive)
     
     /*
-     * An PlatformArray or PlatformSequence realizes a
+     * A PlatformArray or PlatformSequence realizes a
      * Measurement based on a StandardMeasurementSystem.
      */
     inv idlCollectionRealizesStandardMeasurement:
@@ -576,8 +576,8 @@ package uddl
     
     /*
      * If a MeasurementAxis has one ValueTypeUnit (VTU), then
-     * it is realized by an PlatformPrimitive; if it has multiple VTUs, then
-     * it is realized by an PlatformStruct with one PlatformStructMember per VTU.
+     * it is realized by a PlatformPrimitive; if it has multiple VTUs, then
+     * it is realized by a PlatformStruct with one PlatformStructMember per VTU.
      * If PlatformStruct "A" realizes MeasurementAxis "B",
      * then A has the same number of IDLCompositions as B has VTUs,
      * and every PlatformStructMember in A realizes a unique VTU in V.
@@ -602,14 +602,14 @@ package uddl
       endif
     
     /*
-     * A Measurement is realized by an PlatformStruct with one PlatformStructMember
+     * A Measurement is realized by a PlatformStruct with one PlatformStructMember
      * per MeasurementAxis. (Each PlatformStructMember's type realizes a unique axis
      * in the Measurement; every axis is realized.)
      * There are two exceptions:
      *   - If a Measurement has one axis with one ValueTypeUnit (VTU)
-     *      and no MeasurementAttributes, it is realized by an PlatformPrimitive.
+     *      and no MeasurementAttributes, it is realized by a PlatformPrimitive.
      *   - If a Measurement has one axis with multiple VTUs
-     *      and no MeasurementAttributes, it is realized by an PlatformStruct
+     *      and no MeasurementAttributes, it is realized by a PlatformStruct
      *      with one PlatformStructMember for each VTU in the axis.
      *      (Each PlatformStructMember's type realizes a unique VTU in the axis;
      *      every VTU is realized.) Each PlatformStructMember's type is consistent
@@ -651,7 +651,7 @@ package uddl
       
   context PlatformStruct
     /*
-     * A Measurement with MeasurementAttributes is realized by an PlatformStruct
+     * A Measurement with MeasurementAttributes is realized by a PlatformStruct
      * with one PlatformStructMember per MeasurementAttribute. (Each PlatformStructMember
      * (that realizes) realizes a unique attribute in the Measurement;
      * every attribute is realized.)
@@ -667,7 +667,7 @@ package uddl
       
   context PlatformStructMember
     /*
-     * If an PlatformStructMember realizes a MeasurementAttribute, then
+     * If a PlatformStructMember realizes a MeasurementAttribute, then
      * the PlatformStructMember's type is consistent with its realization's type.
      */
     inv typeConsistentWithRealization:
@@ -675,7 +675,7 @@ package uddl
       self.type.oclAsType(PlatformDataType).realizes = self.realizes.type
   
     /*
-     * An PlatformStructMember whose type is an PlatformNumber has
+     * A PlatformStructMember whose type is a PlatformNumber has
      * a precision greater than zero.
      */
     inv composedIDLNumberHasPrecisionSet:
