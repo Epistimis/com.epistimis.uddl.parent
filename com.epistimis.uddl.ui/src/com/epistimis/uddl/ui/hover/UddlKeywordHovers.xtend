@@ -25,6 +25,7 @@ class UddlKeywordHovers {
 				UddlKeywordHoverText.ldmKeywordHover
 			case ga.platformDataModelAccess.pdmKeyword_0:
 				UddlKeywordHoverText.pdmKeywordHover
+			default: "<need to implement hover for :" + k.toString + " for feature " + k.eContainingFeature.toString + ">"
 		}
 
 		result.toString;
