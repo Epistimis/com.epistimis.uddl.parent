@@ -63,9 +63,12 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	}
 
 	/**
-	 * From start, walk up containment hierarchy
+	 * From start, walk up containment hierarchy. This needs the 
 	 * 
-	 * @param start
+	 * @param start The starting point in the taxonomy 
+	 * @param realType The base type of this taxonomy. Needed because
+	 * eContainment can continue walking up through unrelated types. We need to
+	 * stop when we exit this type.
 	 * @return
 	 */
 	public  Collection<Base> collectAncestors(Base start, Class realType) {
@@ -100,6 +103,11 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	/**
 	 * Is the test value anywhere in the ancestry of start. In other words,
 	 * is 'start' contained in the 'test' hierarchy?
+	 * 
+	 * If this returns true, it also means that 'start' is a valid value for 
+	 * the 'test' label (if you treat 'test' as defining a set of values, then 'start'
+	 * can be one of them.
+	 * 
 	 * @param start
 	 * @param test
 	 * @return
@@ -110,14 +118,16 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	}
 
 	/**
-	 * The invalidValue is not in the taxonomic hierarchy starting at the container
+	 * Standardized error message for use when 
+	 * the invalidValue is not in the taxonomic hierarchy starting at the container
 	 * @param container
 	 * @param invalidValue
 	 */
-	public static  void invalidValue(String container, String invalidValue) {
-		System.out.println(MessageFormat.format("Container {0} contains an invalid value: {1}",
-				container, invalidValue));
-		
+	public static String msgInvalidValue(String container, String invalidValue) {
+		String msg = MessageFormat.format("Container {0} contains an invalid value: {1}",
+				container, invalidValue);
+		System.out.println(msg);
+		return msg;
 	}
 
 	/**
@@ -139,7 +149,7 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 		}
 
 		/** If we get here, this isn't a purpose */
-		invalidValue(name,inst.toString());
+		msgInvalidValue(name,inst.toString());
 		return null;
 	}
 
@@ -205,7 +215,7 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 			if (isCastableToBase(tp)) {
 				results.add((Base) tp);
 			} else {
-				invalidValue(qnp.getFullyQualifiedName(tp).toString(),tp.toString());			
+				msgInvalidValue(qnp.getFullyQualifiedName(tp).toString(),tp.toString());			
 			}
 		}
 		return results;
