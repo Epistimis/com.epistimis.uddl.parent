@@ -1,4 +1,4 @@
-grammar com.epistimis.uddl.Uddl with org.eclipse.xtext.common.Terminals
+grammar com.epistimis.uddl.Uddl with org.eclipse.xtext.common.Terminals //org.eclipse.xtext.xbase.annotations.XbaseWithAnnotations //org.eclipse.xtext.xbase.Xbase //org.eclipse.xtext.common.Terminals
 
 generate uddl "http://www.epistimis.com/uddl/Uddl"
 
@@ -19,6 +19,7 @@ DataModel:
 terminal fragment DEC:  ('0'..'9')+;
 
 // TODO: This needs code to process the +|- when creating int or float?
+/** INT override causing ambiguity with XBase */
 @Override
 terminal INT returns ecore::EInt:  ('+'|'-')? DEC;
 //LONG returns ecore::ELong: INT ("L"|"l");
@@ -28,11 +29,17 @@ terminal FLOAT returns ecore::EFloat : ('+'|'-')? DEC '.' DEC;
 QN:
     ID ('.' ID)*;
 
-Import:
-    'import' importedNamespace=QualifiedNameWithWildcard;
+///**
+// * Use 'include' because 'import' is an XBase keyword
+// */
+//Include:
+//    'include' importedNamespace=QualifiedNameWithWildcard;
 
-QualifiedNameWithWildcard:
-    QN '.*'?;
+/**
+ * Already defined in XBase
+ */
+//QualifiedNameWithWildcard:
+//    QN '.*'?;
 
  // Metamodel concepts starts here
  

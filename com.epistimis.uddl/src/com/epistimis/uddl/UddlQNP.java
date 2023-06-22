@@ -3,6 +3,7 @@ package com.epistimis.uddl;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider;
 import org.eclipse.xtext.naming.QualifiedName;
+//import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider;
 
 import com.epistimis.uddl.uddl.ConceptualCharacteristic;
 import com.epistimis.uddl.uddl.ConceptualCompositeQuery;
@@ -21,7 +22,7 @@ import com.epistimis.uddl.uddl.PlatformQueryComposition;
 import com.epistimis.uddl.uddl.PlatformStruct;
 import com.epistimis.uddl.uddl.PlatformStructMember;
 
-public class UddlQNP  extends DefaultDeclarativeQualifiedNameProvider {
+public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // XbaseQualifiedNameProvider
 	
 	/**
 	 * Determine the QualifiedName of obj relative to ctx
