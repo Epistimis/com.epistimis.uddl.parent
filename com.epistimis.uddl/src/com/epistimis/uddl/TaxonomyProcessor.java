@@ -71,7 +71,8 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	 * stop when we exit this type.
 	 * @return
 	 */
-	public  Collection<Base> collectAncestors(Base start, Class realType) {
+	public  Collection<Base> collectAncestors(Base start) {
+		Class realType = getBaseType();
 		List<Base> ancestors = new ArrayList<>();
 		EObject current = start;
 		while ((current != null) && realType.isInstance(current)) {
@@ -113,7 +114,7 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	 * @return
 	 */
 	public  boolean containedIn(Base start, String test) {
-		Collection<Base> ancestors = collectAncestors(start, getBaseType());
+		Collection<Base> ancestors = collectAncestors(start);
 		return ancestors.stream().anyMatch(a -> getBaseName(a).equalsIgnoreCase(test));
 	}
 
@@ -252,7 +253,7 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 		 * Get the entire lineage of both - if the hierarchyToCheck is an ancestor of
 		 * the testedHierarchy, then yes
 		 */
-		Collection<Base> tHAncestors = collectAncestors(testedHierarchy, getBaseType());
+		Collection<Base> tHAncestors = collectAncestors(testedHierarchy);
 		if (tHAncestors.contains(hierarchyToCheck))
 			return TriBool.TRUE;
 
@@ -260,7 +261,7 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 		 * If the testedHierarchy is an ancestor of the hierarchyToCheck, then
 		 * MAYBE (because we might be dealing with something in the hierarchyToCheck)
 		 */
-		Collection<Base> hTCAncestors = collectAncestors(hierarchyToCheck, getBaseType());
+		Collection<Base> hTCAncestors = collectAncestors(hierarchyToCheck);
 		if (hTCAncestors.contains(testedHierarchy))
 			return TriBool.SOMETIMES;
 
