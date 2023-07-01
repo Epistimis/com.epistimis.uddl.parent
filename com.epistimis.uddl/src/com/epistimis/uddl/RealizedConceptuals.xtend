@@ -384,7 +384,7 @@ class RealizedConceptuals {
 	}
 
 
-	def dispatch ConceptualEntity populateFromLogicalEntity(ConceptualEntity ce, LogicalEntity elem) {
+	def ConceptualEntity populateFromLogicalEntity(ConceptualEntity ce, LogicalEntity elem) {
 		
 		ce.name = elem.name;
 		ce.description = elem.description;

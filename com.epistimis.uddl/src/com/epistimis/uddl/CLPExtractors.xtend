@@ -245,7 +245,7 @@ class CLPExtractors {
 			}
 		}
 		// If we get here, we haven't found it yet - check for specializes
-		if (CLPExtractors.getSpecializes(ent) != null) {
+		if (CLPExtractors.getSpecializes(ent) !== null) {
 			return getCharacteristicByRolename( CLPExtractors.getSpecializes(ent) as Entity, roleName);
 		}
 		// If we get here, it wasn't found
@@ -273,10 +273,10 @@ class CLPExtractors {
 		} catch (CharacteristicNotFoundException excp) {
 			// do nothing
 		}
-		// We also need to scan all the Compositions that have Entity types and drill down into those
+		// TODO: We also need to scan all the Compositions that have Entity types and drill down into those
 		val EList<? extends EObject> comps = CLPExtractors.getComposition(ent);
 		for (EObject obj: comps) {
-			val Composition comp = obj as Composition;
+			//val Composition comp = obj as Composition;
 			//if (CLPExtractors.iscomp.type is Entity)
 			 
 		}
