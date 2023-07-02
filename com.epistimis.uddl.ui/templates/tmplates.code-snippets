@@ -85,7 +85,7 @@
 },
 
 "ConceptualParticipant": {
-	"prefix": "participant",
+	"prefix":"participant",
 	"body": [
 		"${1:type} ${2:rolename}[${3:lowerBound} : ${4:upperBound}]",
 		"'${5:description}' : ${6:ConceptualCharacteristic}{",
