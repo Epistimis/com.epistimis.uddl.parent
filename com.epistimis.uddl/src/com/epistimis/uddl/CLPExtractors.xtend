@@ -40,6 +40,9 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.QualifiedName
+import com.epistimis.uddl.uddl.ConceptualComposableElement
+import com.epistimis.uddl.uddl.LogicalComposableElement
+import com.epistimis.uddl.uddl.PlatformComposableElement
 
 /**
  * This is a set of methods that extract values from instances for use with templated methods
@@ -144,12 +147,33 @@ class CLPExtractors {
 	def dispatch static ConceptualView getType(ConceptualQueryComposition obj) {
 		return obj.type;
 	}
+	def dispatch static ConceptualComposableElement getType(ConceptualComposition obj) {
+		return obj.type;
+	}
+	def dispatch static ConceptualComposableElement getType(ConceptualParticipant obj) {
+		return obj.type;
+	}
+
 	def dispatch static LogicalView getType(LogicalQueryComposition obj) {
 		return obj.type;
 	}
+	def dispatch static LogicalComposableElement getType(LogicalComposition obj) {
+		return obj.type;
+	}
+	def dispatch static LogicalComposableElement getType(LogicalParticipant obj) {
+		return obj.type;
+	}
+
 	def dispatch static PlatformView getType(PlatformQueryComposition obj) {
 		return obj.type;
 	}
+	def dispatch static PlatformComposableElement getType(PlatformComposition obj) {
+		return obj.type;
+	}
+	def dispatch static PlatformComposableElement getType(PlatformParticipant obj) {
+		return obj.type;
+	}
+
 
 
 	/**

@@ -147,8 +147,6 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * is a compile error when these values get used.
 	 * @return
 	 */
-	
-	
 	public Class getCharacteristicType() {
 		return returnedTypeParameter(0);
 	}
