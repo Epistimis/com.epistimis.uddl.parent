@@ -133,6 +133,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 
 	/**
 	 * Get the type parameters for this generic class
+	 * See also https://stackoverflow.com/questions/4213972/java-generics-get-class-of-generic-methods-return-type
 	 * 
 	 * @param ndx the index into the list of type parameters
 	 * @return
