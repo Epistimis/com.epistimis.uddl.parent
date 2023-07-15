@@ -31,6 +31,14 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		// TODO Auto-generated method stub
 		return UddlQNP.class;
 	}
+	/** 
+	 * Inject this if you want the additional methods provided by this QNP
+	 * @return
+	 */
+	public Class<? extends UddlQNP> bindIUddlQNP() {
+		// TODO Auto-generated method stub
+		return UddlQNP.class;
+	}
 
 	public Class<? extends IndexUtilities> bindIndexUtilities() {
 		return IndexUtilities.class;
