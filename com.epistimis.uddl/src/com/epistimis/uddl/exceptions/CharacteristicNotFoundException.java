@@ -1,4 +1,4 @@
-package com.epistimis.uddl;
+package com.epistimis.uddl.exceptions;
 
 public class CharacteristicNotFoundException extends Exception {
 
