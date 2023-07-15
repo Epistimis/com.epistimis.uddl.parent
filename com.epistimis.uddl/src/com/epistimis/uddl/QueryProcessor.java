@@ -382,7 +382,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 				case 0:
 					String msg = MessageFormat.format("No Entities found for name: {0} from Query {1}", entityName,queryFQN);
 					throw new NamedObjectNotFoundException(msg);
-					break;
+					//break;
 				case 1:
 					chosenEntities.put(alias,
 							(Entity) IndexUtilities.objectFromDescription(resource, globalDescs.get(0)));
