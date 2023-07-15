@@ -2,6 +2,7 @@ package com.epistimis.uddl
 
 import com.epistimis.uddl.uddl.ConceptualAssociation
 import com.epistimis.uddl.uddl.ConceptualCharacteristic
+import com.epistimis.uddl.uddl.ConceptualComposableElement
 import com.epistimis.uddl.uddl.ConceptualCompositeQuery
 import com.epistimis.uddl.uddl.ConceptualComposition
 import com.epistimis.uddl.uddl.ConceptualEntity
@@ -11,6 +12,7 @@ import com.epistimis.uddl.uddl.ConceptualQueryComposition
 import com.epistimis.uddl.uddl.ConceptualView
 import com.epistimis.uddl.uddl.LogicalAssociation
 import com.epistimis.uddl.uddl.LogicalCharacteristic
+import com.epistimis.uddl.uddl.LogicalComposableElement
 import com.epistimis.uddl.uddl.LogicalCompositeQuery
 import com.epistimis.uddl.uddl.LogicalComposition
 import com.epistimis.uddl.uddl.LogicalEntity
@@ -20,6 +22,7 @@ import com.epistimis.uddl.uddl.LogicalQueryComposition
 import com.epistimis.uddl.uddl.LogicalView
 import com.epistimis.uddl.uddl.PlatformAssociation
 import com.epistimis.uddl.uddl.PlatformCharacteristic
+import com.epistimis.uddl.uddl.PlatformComposableElement
 import com.epistimis.uddl.uddl.PlatformCompositeQuery
 import com.epistimis.uddl.uddl.PlatformComposition
 import com.epistimis.uddl.uddl.PlatformEntity
@@ -31,18 +34,14 @@ import com.epistimis.uddl.uddl.UddlElement
 import com.epistimis.uddl.uddl.UddlPackage
 import com.google.inject.Inject
 import java.text.MessageFormat
-import java.util.ArrayList
 import java.util.HashMap
-import java.util.List
 import java.util.Map
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.QualifiedName
-import com.epistimis.uddl.uddl.ConceptualComposableElement
-import com.epistimis.uddl.uddl.LogicalComposableElement
-import com.epistimis.uddl.uddl.PlatformComposableElement
+import com.epistimis.uddl.exceptions.CharacteristicNotFoundException
 
 /**
  * This is a set of methods that extract values from instances for use with templated methods
@@ -209,30 +208,57 @@ class CLPExtractors {
 	def dispatch  String getCharacteristicRolename(LogicalCharacteristic obj) { return obj.getRolename(); }
 	def dispatch  String getCharacteristicRolename(PlatformCharacteristic obj) { return obj.getRolename(); }
 
+
+	/**
+	 * We recurse up the specializes hierarchy to collect the 'parent'. As we do
+	 * this, we create a 'specialization' tree.As we pop out of that, we bring the
+	 * characteristics from the prior levels to this one. When we are finished at
+	 * each level
+	 */
+
+	def <Entity extends UddlElement> boolean isA(Entity obj, QualifiedName typeName) {
+
+		if (qnp.getFullyQualifiedName(obj).equalsIgnoreCase(typeName)) {
+			return true;
+		}
+		val UddlElement specializes = CLPExtractors.getSpecializes(obj);
+		if (specializes !== null) {
+			return isA(specializes, typeName);
+		}
+		// If we get here, it isn't that type or a specialization of that type
+		return false;
+	}
+
 	/**
 	 * Get all the characteristics
 	 * @param obj
 	 * @return the list of characteristics. 
 	 */
-	def static <Entity extends UddlElement,Characteristic extends EObject>  List<Characteristic> getCharacteristics(Entity obj ) {
-		var List<Characteristic> characteristics = new ArrayList();
-		CLPExtractors.getCharacteristicsAndRecurse(obj,characteristics);
+	def  <Entity extends UddlElement,Characteristic extends EObject>  Map<String,Characteristic> getCharacteristics(Entity obj ) {
+		var Map<String, Characteristic> characteristics = new HashMap();
+		getCharacteristicsAndRecurse(obj,characteristics);
 		return characteristics;
 	}
-	
+
+
 	/**
+	 * Get the set of all characteristics from this entity - across the entire
+	 * specialization hierarchy. Note that, because we start from the bottom, any
+	 * specializing characteristics will override same named elements higher in the
+	 * hierarchy
+	 * 
 	 * This actually implements collecting the characteristics. It handles the recursion
 	 * @param obj
-	 * @param the list of characteristics. Starts empty and gets filled.
+	 * @param the map of characteristics. Starts empty and gets filled.
 	 */
-	def static <Entity extends UddlElement,Characteristic extends EObject> void getCharacteristicsAndRecurse(Entity obj, List<Characteristic> characteristics) {
+	def <Entity extends UddlElement,Characteristic extends EObject> void getCharacteristicsAndRecurse(Entity obj, Map<String, Characteristic> characteristics) {
 
 		for (EObject pc : CLPExtractors.getComposition(obj)) {
-			characteristics.add( pc as Characteristic);
+			characteristics.putIfAbsent(getCharacteristicRolename(pc), pc as Characteristic);
 		}
 		if (CLPExtractors.isAssociation(obj)) {
 			for (EObject pp : CLPExtractors.getParticipant(obj)) {
-				characteristics.add( pp as Characteristic);
+				characteristics.putIfAbsent(getCharacteristicRolename(pp), pp as Characteristic);
 			}
 		}
 		// Now check for specialization
