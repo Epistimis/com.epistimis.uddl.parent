@@ -2,6 +2,8 @@ package com.epistimis.uddl.exceptions;
 
 public class NameCollisionException extends RuntimeException {
 
+	private static final long serialVersionUID = 8650010573947282715L;
+
 	public NameCollisionException() {
 		// TODO Auto-generated constructor stub
 	}

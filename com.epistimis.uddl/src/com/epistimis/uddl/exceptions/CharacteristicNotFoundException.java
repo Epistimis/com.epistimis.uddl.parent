@@ -2,6 +2,8 @@ package com.epistimis.uddl.exceptions;
 
 public class CharacteristicNotFoundException extends Exception {
 
+	private static final long serialVersionUID = -1671428589677019041L;
+
 	public CharacteristicNotFoundException() {
 		// TODO Auto-generated constructor stub
 	}
