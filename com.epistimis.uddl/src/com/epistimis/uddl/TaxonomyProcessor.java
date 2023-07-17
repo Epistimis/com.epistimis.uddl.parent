@@ -3,7 +3,6 @@ package com.epistimis.uddl;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -11,9 +10,8 @@ import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
-import org.eclipse.xtext.naming.IQualifiedNameProvider;
-import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 import org.eclipse.xtext.naming.QualifiedName;
+import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
 import com.epistimis.uddl.exceptions.NameCollisionException;
 import com.epistimis.uddl.exceptions.NamedObjectNotFoundException;
@@ -72,7 +70,7 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	 * 
 	 * @return The taxonomy base class underpinning the specializing type
 	 */
-	public Class getBaseType() {
+	public Class<?> getBaseType() {
 		return returnedTypeParameter(0);
 	}
 
@@ -85,8 +83,9 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	 *                 stop when we exit this type.
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public Collection<Base> collectAncestors(Base start) {
-		Class realType = getBaseType();
+		Class<?> realType = getBaseType();
 		List<Base> ancestors = new ArrayList<>();
 		EObject current = start;
 		while ((current != null) && realType.isInstance(current)) {
@@ -107,6 +106,7 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	 * @param start
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public Collection<Base> collectDescendants(Base start) {
 		List<Base> descendants = new ArrayList<>();
 		descendants.add(start);

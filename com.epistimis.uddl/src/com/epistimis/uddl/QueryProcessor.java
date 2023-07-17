@@ -26,6 +26,7 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 import com.epistimis.uddl.exceptions.CharacteristicNotFoundException;
 import com.epistimis.uddl.exceptions.NameCollisionException;
 import com.epistimis.uddl.exceptions.NamedObjectNotFoundException;
+import com.epistimis.uddl.exceptions.WrongTypeException;
 import com.epistimis.uddl.query.query.ExplicitSelectedEntityCharacteristicReference;
 import com.epistimis.uddl.query.query.ProjectedCharacteristicAlias;
 import com.epistimis.uddl.query.query.ProjectedCharacteristicExpression;
@@ -201,7 +202,8 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * structure that includes cardinality info for templates to use.
 	 * 
 	 * @param query
-	 * @return A map of (rolename, characteristic) for all the characteristics specified by the query
+	 * @return A map of (rolename, characteristic) for all the characteristics
+	 *         specified by the query
 	 */
 	public Map<String, Characteristic> getSelectedCharacteristics(Query query) {
 
@@ -220,7 +222,8 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * Get the characteristics selected in the query.
 	 * 
 	 * @param query
-	 * @return A map of (rolename, characteristic) for all the characteristics specified by the query
+	 * @return A map of (rolename, characteristic) for all the characteristics
+	 *         specified by the query
 	 */
 	public Map<String, Characteristic> getCompositeQuerySelectedCharacteristics(CompositeQuery query) {
 		Map<String, Characteristic> result = new HashMap<>();
@@ -318,8 +321,8 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	public Map<String, Entity> getReferencedEntitiesComposite(CompositeQuery query) {
 		Map<String, Entity> entities = new HashMap<String, Entity>();
 		Map<Query, QueryStatement> specs = parseCompositeQuery(query);
-		for (Map.Entry<Query, QueryStatement> entry: specs.entrySet()) {
-			entities.putAll(matchQuerytoUDDL(entry.getKey(), entry.getValue()));		
+		for (Map.Entry<Query, QueryStatement> entry : specs.entrySet()) {
+			entities.putAll(matchQuerytoUDDL(entry.getKey(), entry.getValue()));
 		}
 
 		return entities;
@@ -331,15 +334,17 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * working from inside out. The names will be relative to the Query instance
 	 * containing the parsed specification.
 	 * 
-	 * @param q The query that provides the context 
-	 * @param qstmt The parsed query statement whose content will be matched to the Uddl based 
-	 *              on the context provided by the query
-	 *            
-	 * @return A map of <nameOrAlias,Entity> that identifies what was matched. The key is the alias 
-	 *         specified in the qstmt (defaults to name). Can throw exceptions if any name specified
-	 *         in the qstmt is not found or is ambiguous.
+	 * @param q     The query that provides the context
+	 * @param qstmt The parsed query statement whose content will be matched to the
+	 *              Uddl based on the context provided by the query
+	 * 
+	 * @return A map of <nameOrAlias,Entity> that identifies what was matched. The
+	 *         key is the alias specified in the qstmt (defaults to name). Can throw
+	 *         exceptions if any name specified in the qstmt is not found, is
+	 *         ambiguous, or references an EObject that not an Entity
 	 */
-	public Map<String, Entity> matchQuerytoUDDL(Query q, QueryStatement qstmt) throws NamedObjectNotFoundException, NameCollisionException  {
+	public Map<String, Entity> matchQuerytoUDDL(Query q, QueryStatement qstmt)
+			throws NamedObjectNotFoundException, NameCollisionException,WrongTypeException {
 		Resource resource = q.eResource();
 		// Initially, we just get the Entity names
 		Map<String, Entity> chosenEntities = new HashMap<String, Entity>();
@@ -380,36 +385,55 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 						CLPExtractors.getRelatedPackageEntityInstance(q), entityName);
 				switch (globalDescs.size()) {
 				case 0:
-					String msg = MessageFormat.format("No Entities found for name: {0} from Query {1}", entityName,queryFQN);
+					String msg = MessageFormat.format("No Entities found for name: {0} from Query {1}", entityName,
+							queryFQN);
 					throw new NamedObjectNotFoundException(msg);
-					//break;
-				case 1:
-					chosenEntities.put(alias,
-							(Entity) IndexUtilities.objectFromDescription(resource, globalDescs.get(0)));
+				// break;
+				case 1: {
+					EObject obj = IndexUtilities.objectFromDescription(resource, globalDescs.get(0));
+					addChosenEntity(obj, alias, chosenEntities);
+				}
 					break;
 				default:
 					/** found multiple - so print out their names */
-					String nameCollisionsMsg = ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN, getQueryType().getName(), globalDescs);
+					String nameCollisionsMsg = ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN,
+							getQueryType().getName(), globalDescs);
 					throw new NameCollisionException(nameCollisionsMsg);
-					//System.out.println(nameCollisionsMsg);
-					//break;
+				// System.out.println(nameCollisionsMsg);
+				// break;
 				}
 			}
 				break;
-			case 1:
+			case 1: {
 				IEObjectDescription description = listOfDescriptions.get(0);
-				chosenEntities.put(alias, (Entity) IndexUtilities.objectFromDescription(resource, description));
+				EObject obj = IndexUtilities.objectFromDescription(resource, description);
+				addChosenEntity(obj, alias, chosenEntities);
+			}
 				break;
 			default:
 				/** found multiple - so print out their names */
-				String nameCollisionsMsg = ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN, getQueryType().getName(), listOfDescriptions);
+				String nameCollisionsMsg = ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN,
+						getQueryType().getName(), listOfDescriptions);
 				throw new NameCollisionException(nameCollisionsMsg);
-				//System.out.println(nameCollisionsMsg);
+			// System.out.println(nameCollisionsMsg);
 			}
 		}
 		/* at this point we have identified all the entities */
 		return chosenEntities;
 	}
+	
+	@SuppressWarnings("unchecked")
+	private void addChosenEntity(EObject obj, String key, Map<String, Entity> chosenEntities) {
+		Class<Entity> realType = getEntityType();
+		if (realType.isInstance(obj)) {
+			chosenEntities.put(key, (Entity) obj);					
+		} else {
+			String msg = MessageFormat.format(WRONG_TYPE_FMT, qnp.getFullyQualifiedName(obj).toString(),"Entity",obj.getClass().toString());	
+			throw new WrongTypeException(msg);
+		}
+	}
+	static final String WRONG_TYPE_FMT = "Instance {0} expected to be of type {0} but was type {0}";
+
 
 	/**
 	 * Match selected characteristics to specific characteristics of matched
@@ -530,7 +554,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * @return the list of characteristics.
 	 */
 	protected Collection<Characteristic> getCharacteristics(Entity obj) {
-		Map<String,Characteristic> characteristics = new HashMap<>();
+		Map<String, Characteristic> characteristics = new HashMap<>();
 		clp.getCharacteristicsAndRecurse(obj, characteristics);
 		return characteristics.values();
 	}
