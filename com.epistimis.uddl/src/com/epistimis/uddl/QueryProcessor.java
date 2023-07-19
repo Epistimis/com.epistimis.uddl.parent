@@ -26,6 +26,7 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 import com.epistimis.uddl.exceptions.CharacteristicNotFoundException;
 import com.epistimis.uddl.exceptions.NameCollisionException;
 import com.epistimis.uddl.exceptions.NamedObjectNotFoundException;
+import com.epistimis.uddl.exceptions.QueryMatchException;
 import com.epistimis.uddl.exceptions.WrongTypeException;
 import com.epistimis.uddl.query.query.ExplicitSelectedEntityCharacteristicReference;
 import com.epistimis.uddl.query.query.ProjectedCharacteristicAlias;
@@ -204,18 +205,19 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * @param query
 	 * @return A map of (rolename, characteristic) for all the characteristics
 	 *         specified by the query
+	 * @throws CharacteristicNotFoundException 
 	 */
-	public Map<String, Characteristic> getSelectedCharacteristics(Query query) {
+	public Map<String, Characteristic> getSelectedCharacteristics(Query query) throws CharacteristicNotFoundException {
 
-		try {
+	//	try {
 			QueryStatement qs = parseQuery(query);
 			Map<String, Entity> matchedEntities = matchQuerytoUDDL(query, qs);
 			Map<String, Characteristic> selectedChars = selectCharacteristicsFromUDDL(query, qs, matchedEntities);
 			return selectedChars;
-		} catch (Exception excp) {
-			excp.printStackTrace();
-			return new HashMap<String, Characteristic>();
-		}
+//		} catch (Exception excp) {
+//			excp.printStackTrace();
+//			return new HashMap<String, Characteristic>();
+//		}
 	}
 
 	/**
@@ -342,9 +344,14 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 *         key is the alias specified in the qstmt (defaults to name). Can throw
 	 *         exceptions if any name specified in the qstmt is not found, is
 	 *         ambiguous, or references an EObject that not an Entity
+	 *         
+	 * TODO: Don't just throw these exceptions. Collect them and then convert them to errors at the
+	 * appropriate level - but collect all of them 
 	 */
 	public Map<String, Entity> matchQuerytoUDDL(Query q, QueryStatement qstmt)
 			throws NamedObjectNotFoundException, NameCollisionException,WrongTypeException {
+		// Create an exception that we might throw later. We will store suppressed exceptions here and throw only if somethin was suppressed.
+		QueryMatchException potentialExcp = new QueryMatchException("Errors occurred while attempting to match Query to UDDL. See suppressed:");
 		Resource resource = q.eResource();
 		// Initially, we just get the Entity names
 		Map<String, Entity> chosenEntities = new HashMap<String, Entity>();
@@ -387,7 +394,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 				case 0:
 					String msg = MessageFormat.format("No Entities found for name: {0} from Query {1}", entityName,
 							queryFQN);
-					throw new NamedObjectNotFoundException(msg);
+					potentialExcp.addSuppressed(new NamedObjectNotFoundException(msg));
 				// break;
 				case 1: {
 					EObject obj = IndexUtilities.objectFromDescription(resource, globalDescs.get(0));
@@ -398,7 +405,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 					/** found multiple - so print out their names */
 					String nameCollisionsMsg = ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN,
 							getQueryType().getName(), globalDescs);
-					throw new NameCollisionException(nameCollisionsMsg);
+					potentialExcp.addSuppressed(new NameCollisionException(nameCollisionsMsg));
 				// System.out.println(nameCollisionsMsg);
 				// break;
 				}
@@ -414,9 +421,13 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 				/** found multiple - so print out their names */
 				String nameCollisionsMsg = ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN,
 						getQueryType().getName(), listOfDescriptions);
-				throw new NameCollisionException(nameCollisionsMsg);
+				potentialExcp.addSuppressed(new NameCollisionException(nameCollisionsMsg));
 			// System.out.println(nameCollisionsMsg);
 			}
+		}
+		// Only throw if we captured any suppressed exceptions during this process.
+		if (potentialExcp.getSuppressed().length > 0) {
+			throw potentialExcp;
 		}
 		/* at this point we have identified all the entities */
 		return chosenEntities;
@@ -442,11 +453,12 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * @param q               The query - needed for context
 	 * @param qspec           The query specification
 	 * @param matchedEntities Entities previously matched to this query
+	 * @throws CharacteristicNotFoundException 
 	 * @throws Exception
 	 * @returns A map of (rolename, characteristic)
 	 */
 	public Map<String, Characteristic> selectCharacteristicsFromUDDL(Query q, QueryStatement qstmt,
-			Map<String, Entity> matchedEntities) throws CharacteristicNotFoundException {
+			Map<String, Entity> matchedEntities) throws CharacteristicNotFoundException { //throws CharacteristicNotFoundException {
 		// Resource resource = q.eResource();
 		// Initially, we just get the Entity names
 		Map<String, Characteristic> selectedCharacteristics = new HashMap<String, Characteristic>();
