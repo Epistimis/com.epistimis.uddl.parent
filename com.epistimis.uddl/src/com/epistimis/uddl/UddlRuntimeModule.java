@@ -6,8 +6,12 @@ package com.epistimis.uddl;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
+import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
+import org.eclipse.xtext.scoping.IGlobalScopeProvider;
 
 import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.scoping.UddlGlobalScopeProvider;
+import com.epistimis.uddl.scoping.UddlResourceDescriptionStrategy;
 
 /**
  * Use this class to register components to be used at runtime / without the
@@ -71,16 +75,17 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 	 * Enable this if there are performance issues with name resolution. And then
 	 * look at the strategy to see what should be excluded from the index
 	 */
-//	public  Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
-//		return UddlResourceDescriptionStrategy.class;
-//	}
+	public  Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
+		return UddlResourceDescriptionStrategy.class;
+	}
 
-	// Enable imports by uncommenting this. The default is to import anything visible in a project
-	// See section 3.3.1,3.3.2 of the Advanced XText Manual PDF
+//	// Enable imports by uncommenting this. The default is to import anything visible in a project
+//	// See section 3.3.1,3.3.2 of the Advanced XText Manual PDF 
+//	// or https://blogs.itemis.com/en/in-five-minutes-to-transitive-imports-within-a-dsl-with-xtext
 //	@Override
 //	public
 //	Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
-//		return ImportUriGlobalScopeProvider.class;
+//		return UddlGlobalScopeProvider.class;
 //	}
 
 }
