@@ -160,7 +160,7 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	 * 
 	 * If this returns true, it also means that 'start' is a valid value for the
 	 * 'test' label (if you treat 'test' as defining a set of values, then 'start'
-	 * can be one of them.
+	 * can be one of them).
 	 * 
 	 * 
 	 * @param start

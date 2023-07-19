@@ -55,8 +55,8 @@ package uddl --face::datamodel::logical
       self.getAllCharacteristics()->isUnique(rolename)
 
     /*
-     * Compositions in a logical LogicalEntity realize Compositions in
-     * the conceptual LogicalEntity that the logical LogicalEntity realizes.
+     * Compositions in a  LogicalEntity realize Compositions in
+     * the ConceptualEntity that the LogicalEntity realizes.
      */
     inv compositionsConsistentWithRealization:
       self.composition
@@ -65,7 +65,7 @@ package uddl --face::datamodel::logical
           
     /*
      * A LogicalEntity does not contain two Compositions that realize the same
-     * conceptual LogicalComposition unless their types are different Measurements
+     * ConceptualComposition unless their types are different Measurements
      * and their multiplicities are equal.
      */
     inv realizedCompositionsHaveDifferentTypes:
@@ -104,7 +104,7 @@ package uddl --face::datamodel::logical
   context LogicalAssociation    
     /*
      * Participants in a logical LogicalAssociation realize Participants in
-     * the conceptual LogicalAssociation that the logical LogicalAssociation realizes.
+     * the ConceptualAssociation that the LogicalAssociation realizes.
      */
     inv participantsConsistentWithRealization:
       self.participant
@@ -142,8 +142,8 @@ package uddl --face::datamodel::logical
       endif
 
     /*
-     * Helper method that gets the conceptual LogicalCharacteristic a
-     * logical LogicalCharacteristic realizes.
+     * Helper method that gets the ConceptualCharacteristic a
+     * LogicalCharacteristic realizes.
      */
     def: getRealizes() : ConceptualCharacteristic =
       if self.oclIsTypeOf(LogicalComposition) then
@@ -387,8 +387,8 @@ package uddl --face::datamodel::logical
       self.composition->collect(type)->isUnique(view | view)
       
     /*
-     * QueryCompositions in a logical LogicalCompositeQuery realize QueryCompositions
-     * in the conceptual LogicalCompositeQuery that the logical LogicalCompositeQuery
+     * QueryCompositions in a LogicalCompositeQuery realize QueryCompositions
+     * in the ConceptualCompositeQuery that the LogicalCompositeQuery
      * realizes.
      */
     inv compositionsConsistentWithRealization:

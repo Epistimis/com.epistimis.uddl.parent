@@ -3,11 +3,20 @@
  */
 package com.epistimis.uddl.scoping;
 
+//import java.util.List;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 //import org.eclipse.xtext.EcoreUtil2;
+//import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.scoping.IScope;
-
+//import org.eclipse.xtext.scoping.Scopes;
+//import org.eclipse.xtext.scoping.impl.FilteringScope;
+//import org.eclipse.emf.ecore.resource.Resource;
+//
+//import com.epistimis.uddl.uddl.ConceptualComposition;
+//import com.epistimis.uddl.uddl.ConceptualEntity;
+//import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.UddlPackage;
 
 /**
@@ -31,7 +40,10 @@ public class UddlScopeProvider extends AbstractUddlScopeProvider {
 //			 */
 //			LogicalEntity lentity = (LogicalEntity) context.eContainer();
 //			ConceptualEntity centity = lentity.getRealizes();
-//            IScope scope = Scopes.scopeFor(centity.getComposition());
+//			if (centity != null) {
+//	            IScope scope = Scopes.scopeFor(centity.getComposition(),null);
+//				
+//			}
 //            EObject rootElement = EcoreUtil2.getRootContainer(context);
 //            Resource resource = context.eResource();
 //            List<ConceptualComposition> candidates = EcoreUtil2.getAllContentsOfType(rootElement, ConceptualComposition.class);
