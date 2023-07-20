@@ -1,6 +1,6 @@
 package com.epistimis.uddl.exceptions;
 
-public class CharacteristicNotFoundException extends Exception {
+public class CharacteristicNotFoundException extends RuntimeException {
 
 	private static final long serialVersionUID = -1671428589677019041L;
 
