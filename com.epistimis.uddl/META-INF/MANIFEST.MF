@@ -23,16 +23,17 @@ Require-Bundle: org.eclipse.xtext,
  com.epistimis.uddl.query;bundle-version="1.0.0",
  io.typefox.xtext2langium;bundle-version="0.4.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Export-Package: com.epistimis.uddl.parser.antlr,
- com.epistimis.uddl.services,
- com.epistimis.uddl.validation,
- com.epistimis.uddl.parser.antlr.internal,
- com.epistimis.uddl.generator,
- com.epistimis.uddl.scoping,
+Export-Package: com.epistimis.uddl,
+ com.epistimis.uddl.exceptions,
  com.epistimis.uddl.formatting2,
- com.epistimis.uddl.uddl.util,
- com.epistimis.uddl.uddl.impl,
+ com.epistimis.uddl.generator,
+ com.epistimis.uddl.parser.antlr,
+ com.epistimis.uddl.parser.antlr.internal,
+ com.epistimis.uddl.scoping,
+ com.epistimis.uddl.serializer,
+ com.epistimis.uddl.services,
  com.epistimis.uddl.uddl,
- com.epistimis.uddl,
- com.epistimis.uddl.serializer
+ com.epistimis.uddl.uddl.impl,
+ com.epistimis.uddl.uddl.util,
+ com.epistimis.uddl.validation
 Import-Package: org.apache.log4j
