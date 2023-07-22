@@ -9,6 +9,7 @@ import java.util.List;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
@@ -50,9 +51,13 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 
 	abstract public EClass getBaseMetaClass();
 
-	abstract public boolean isCastableToBase(EObject obj);
-
-	abstract public String getBaseName(EObject obj);
+	public boolean isCastableToBase(EObject obj) {
+		return getBaseType().isInstance(obj);
+	}
+	
+	public String getBaseName(EObject obj) {
+		return qnp.getFullyQualifiedName(obj).getLastSegment();
+	}
 
 	/**
 	 * For generic classes, I sometimes need to know the type parameters. This
@@ -162,14 +167,32 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	 * 'test' label (if you treat 'test' as defining a set of values, then 'start'
 	 * can be one of them).
 	 * 
-	 * 
+	 * NOTE: Because these are EObjects with names, we compare qualified names,
+	 * which may be relative	 * 
 	 * @param start
 	 * @param test
 	 * @return
 	 */
-	public boolean containedIn(Base start, String test) {
-		Collection<Base> ancestors = collectAncestors(start);
-		return ancestors.stream().anyMatch(a -> getBaseName(a).equalsIgnoreCase(test));
+	public boolean containedIn(@NonNull Base start, @NonNull String test) {
+		return containedIn(start,test,qnp);
+	}
+
+	/**
+	 * Is the test value anywhere in the ancestry of start. In other words, is
+	 * 'start' contained in the 'test' hierarchy?
+	 * 
+	 * If this returns true, it also means that 'start' is a valid value for the
+	 * 'test' label (if you treat 'test' as defining a set of values, then 'start'
+	 * can be one of them).
+	 * 
+	 * NOTE: Because these are EObjects with names, we compare qualified names,
+	 * which may be relative	 * 
+	 * @param start
+	 * @param test
+	 * @return
+	 */
+	public boolean containedIn(@NonNull Base start, @NonNull QualifiedName testName) {
+		return containedIn(start,testName,qnp);
 	}
 
 	/**
@@ -183,43 +206,39 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	 * NOTE: Because these are EObjects with names, we compare qualified names,
 	 * which may be relative
 	 * 
+	 * This version can be used if you want a different QNP
+	 * 
 	 * @param start
 	 * @param test
 	 * @return
 	 */
-	public boolean containedIn(Base start, String test, UddlQNP qnp) {
-		Collection<Base> ancestors = collectAncestors(start);
+	public boolean containedIn(@NonNull Base start, @NonNull String test, @NonNull UddlQNP qnp) {
 		QualifiedName testName = qnc.toQualifiedName(test);
+		return containedIn(start,testName,qnp);
+	}
+
+	/**
+	 * Is the test value anywhere in the ancestry of start. In other words, is
+	 * 'start' contained in the 'test' hierarchy?
+	 * 
+	 * If this returns true, it also means that 'start' is a valid value for the
+	 * 'test' label (if you treat 'test' as defining a set of values, then 'start'
+	 * can be one of them.
+	 * 
+	 * NOTE: Because these are EObjects with names, we compare qualified names,
+	 * which may be relative
+	 * 
+	 * This version can be used if you want a different QNP
+	 * 
+	 * @param start
+	 * @param test
+	 * @return
+	 */
+	public boolean containedIn(@NonNull Base start, @NonNull QualifiedName testName, @NonNull UddlQNP qnp) {
+		Collection<Base> ancestors = collectAncestors(start);
 		return ancestors.stream().anyMatch(a -> {
 			QualifiedName aqn = qnp.getFullyQualifiedName(a);
 			return qnp.partialMatch(aqn, testName);
-//			if (aqn == null) {
-//				// For some reason this didn't resolve properly? In any case, it can't match
-//				return false;
-//			}
-//			int diff = aqn.getSegmentCount() - testName.getSegmentCount();
-//			if (diff >= 0) {
-//				// The test name may be an RQN - so skip as needed on the aqn - but it could also be that the 
-//				// test name is higher in the taxonomy - or both
-//				boolean found = false;
-//				for (int i = 0; i < diff; i++) while (!found){
-//					if (aqn.getSegment(i).equalsIgnoreCase(testName.getFirstSegment())) {
-//						boolean partialFind = true;
-//						// We've found the start - keep going with the rest
-//						for (int j = i+1; j < testName.getSegmentCount(); j++) {
-//							if (!aqn.getSegment(j).equalsIgnoreCase(testName.getSegment(j-i))) {
-//								partialFind = false;
-//								break;
-//							}
-//						}
-//						found = partialFind;
-//					}
-//				}
-//				return found;
-//				//return aqn.skipFirst(diff).compareToIgnoreCase(testName) == 0;				
-//			} else {
-//				return false; // it can't possibly match
-//			}
 		});
 	}
 

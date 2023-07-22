@@ -76,7 +76,9 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 			// The test name may be an RQN - so skip as needed on the aqn - but it could also be that the 
 			// test name is higher in the taxonomy - or both
 			boolean found = false;
-			for (int i = 0; i < diff; i++) while (!found){
+			int i = 0;
+			// exit the loop if we find it or if we are done with the count
+			while (!found && ( i < diff)) {
 				if (longer.getSegment(i).equalsIgnoreCase(shorter.getFirstSegment())) {
 					boolean partialFind = true;
 					// We've found the start - keep going with the rest
@@ -88,6 +90,7 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 					}
 					found = partialFind;
 				}
+				i++;
 			}
 			return found;
 		} else {

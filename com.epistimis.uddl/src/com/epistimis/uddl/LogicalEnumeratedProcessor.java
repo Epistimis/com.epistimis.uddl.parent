@@ -13,14 +13,14 @@ public class LogicalEnumeratedProcessor extends TaxonomyProcessor<LogicalEnumera
 		return UddlPackage.eINSTANCE.getLogicalEnumeratedBase();
 	}
 
-	@Override
-	public boolean isCastableToBase(EObject obj) {
-		return (obj instanceof LogicalEnumeratedBase);
-	}
+//	@Override
+//	public boolean isCastableToBase(EObject obj) {
+//		return (obj instanceof LogicalEnumeratedBase);
+//	}
 
-	@Override
-	public String getBaseName(EObject obj) {
-		return ((LogicalEnumeratedBase)obj).getName();
-	}
+//	@Override
+//	public String getBaseName(EObject obj) {
+//		return ((LogicalEnumeratedBase)obj).getName();
+//	}
 
 }

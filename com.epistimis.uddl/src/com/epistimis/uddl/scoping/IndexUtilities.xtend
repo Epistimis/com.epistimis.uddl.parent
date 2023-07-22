@@ -15,6 +15,7 @@ import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
 import java.util.ArrayList
 import com.epistimis.uddl.exceptions.NamedObjectNotFoundException
 import com.epistimis.uddl.exceptions.NameCollisionException
+import java.util.Collections
 
 /**
  * This is modified from the book (See https://github.com/LorenzoBettini/packtpub-xtext-book-2nd-examples)
@@ -109,13 +110,14 @@ class IndexUtilities {
 	 * @param name The name of the instance to search for
 	 * @param ignoreCase true to ignore case, false to use case
 	 * 
+	 * NOTE: This method returns a synchronized list just in case there is a threading issue
 	 * @return A list of all the all the objects visible in this context of that type
 	 * with that name
 
 	 */
 	def searchAllVisibleEObjectDescriptions(EObject context, EClass type, String name, boolean ignoreCase) {
 
-		context.getVisibleEObjectDescriptions(type).filter [
+		Collections.synchronizedList( context.getVisibleEObjectDescriptions(type).filter [
 			val QualifiedName qn = it.getQualifiedName();
 			for (var i = qn.getSegmentCount() - 1; i >= 0; i--) {
 				val rqn = qn.skipFirst(i).toString();
@@ -133,7 +135,7 @@ class IndexUtilities {
 			 * If we get here, there wasn't a match on this description
 			 */
 			return false;
-		].toList;
+		].toList);
 	}
 
 	/**
