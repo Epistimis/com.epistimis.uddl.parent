@@ -159,5 +159,49 @@ context LogicalAssociation
 		let assocTypes = self.participant->collect(type.referencedModelTypes())->flatten()->asSet() in
 		compTypes->union(assocTypes)
 
+ context LogicalView
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		if (self.oclIsTypeOf(LogicalQuery)) then
+			self.oclAsType(LogicalQuery).referencedModelTypes()
+		else 
+			self.oclAsType(LogicalCompositeQuery).referencedModelTypes()
+		endif
+
+context LogicalQuery
+	/**
+	 * Return a set of all the model types referenced by this element
+	 * TODO: This requires a Java call - which isn't yet available.
+	 * In the mean time, some simple string parsing might work in limited cases
+	 * This only works on a single entity name - need to split it to get more
+	 * Also does not work with aliases
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		let fromNdx = self.specification.toLowerCase().indexOf(' from ') in
+		let whereNdx = self.specification.toLowerCase().indexOf(' where ') in
+		let joinNdx = self.specification.toLowerCase().indexOf(' join ') in
+		let endNdx = if ( joinNdx > 0) then 
+						joinNdx 
+					 else if (whereNdx > 0) then 
+					 		whereNdx 
+					 	else 
+					 		self.specification->size() 
+					 	endif
+					 endif in
+		let name = self.specification.substring(fromNdx+6,endNdx).trim() in
+--		let names = nameraw.tokenize(',') in
+--		let entities = LogicalEntity.allInstances()->select(o|names.includes(o.name))->asSet() in
+		let entities = LogicalEntity.allInstances()->select(o|o.name = name)->asSet() in
+		entities->collect(referencedModelTypes())->flatten()->asSet()
+
+
+context LogicalCompositeQuery
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		self.composition->collect(type.referencedModelTypes())->flatten()->asSet()
   
  endpackage

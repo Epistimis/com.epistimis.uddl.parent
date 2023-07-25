@@ -43,6 +43,9 @@ context ConceptualObservable
 
 context ConceptualEntity
 
+	static def: findByName(n: String): Set(ConceptualEntity) =
+		ConceptualEntity.allInstances()->select(o|o.name = n)->asSet()
+		
 	/**
 	 * Return a set of all the model types referenced by this element
 	 */
@@ -73,5 +76,52 @@ context ConceptualAssociation
 
 --	def: referencesModelType(o:ConceptualObservable): Boolean = 
 --		self.referencedModelTypes()->includes(o)
+
+ context ConceptualView
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		if (self.oclIsTypeOf(ConceptualQuery)) then
+			self.oclAsType(ConceptualQuery).referencedModelTypes()
+		else 
+			self.oclAsType(ConceptualCompositeQuery).referencedModelTypes()
+		endif
+
+context ConceptualQuery
+	/**
+	 * Return a set of all the model types referenced by this element
+	 * TODO: This requires a Java call - which isn't yet available.
+	 * In the mean time, some simple string parsing might work in limited cases
+	 * This only works on a single entity name - need to split it to get more
+	 * Also does not work with aliases
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		let fromNdx = self.specification.toLowerCase().indexOf(' from ') in
+		let whereNdx = self.specification.toLowerCase().indexOf(' where ') in
+		let joinNdx = self.specification.toLowerCase().indexOf(' join ') in
+		let endNdx = if ( joinNdx > 0) then 
+						joinNdx 
+					 else if (whereNdx > 0) then 
+					 		whereNdx 
+					 	else 
+					 		self.specification->size() 
+					 	endif
+					 endif in
+		let name = self.specification.substring(fromNdx+6,endNdx).trim() in
+		let entities = ConceptualEntity.allInstances()->select(o|o.name = name)->asSet() in
+--		let names = name.tokenize(',') in
+--		let entities = LogicalEntity.allInstances()->select(o|names.includes(o.name))->asSet() in
+		entities->collect(referencedModelTypes())->flatten()->asSet()
+
+
+
+context ConceptualCompositeQuery
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		self.composition->collect(type.referencedModelTypes())->flatten()->asSet()
+
 
 endpackage
