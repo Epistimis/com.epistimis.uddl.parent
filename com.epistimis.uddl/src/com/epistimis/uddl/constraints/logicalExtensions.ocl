@@ -1,6 +1,11 @@
+/**
+ * 
+ */
+import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
 import  '../../../../../model/generated/Uddl.ecore'
 include 'helpers.ocl'
 include 'conceptual.ocl'
+include 'conceptualExtensions.ocl'
 
 /**
  * This contains more general capability for the EXTENSIONS at the logical level
@@ -16,6 +21,12 @@ package uddl
 	def: asError(verdict : Boolean) : Boolean = if verdict then true else null endif
 
   context LogicalEnumerated
+  
+--  	static def: findWithName(name: String): Collection(LogicalEnumerated) =
+--  		LogicalEnumerated.allInstances()->select(e : LogicalEnumerated| e.name.toLowerCase() = name.toLowerCase())
+--  
+--  	static def: findWithRQN(rqn: String): Collection(LogicalEnumerated) =
+--  		let qn = rqn->tokenize(".")
     /*
      * Helper method - flattens the hierarchy. Can't just use 'flatten' because it expects a collection only , not objects that include collections
      * as members.
@@ -49,7 +60,17 @@ package uddl
       else -- 
         self.oclAsType(LogicalEnumerationLabel).flattenLabels()
       endif    	
- 
+
+	/**
+	 * Helper method to walk up the enumeration hierachy and 
+	 * find the enum with the name specified - or null if it 
+	 * isn't above the starting point.
+	 */
+--    def: containedIn(name: String): Boolean = 
+--    	let container = obj.oclAsType(ecore::EObject).eContainer().oclAsType(LogicalEnumeratedBase) in
+-- 			container.name.toLower == name or
+-- 			container->containedIn(name)
+
     /*
      * An LogicalEnumeratedBase's name is not an IDL reserved word.
      */                        
@@ -62,6 +83,13 @@ package uddl
    */  
    	 def: flattenLabels(): Collection(LogicalEnumeratedBase) =
   	    self.label->closure(e: LogicalEnumeratedBase | if e.oclIsTypeOf(LogicalEnumeratedSet) then e.oclAsType(LogicalEnumeratedSet).label else Bag{e} endif)->including(self.oclAsType(LogicalEnumeratedBase))
+
+
+
+--    def: containedIn( obj: ecore::EObject): Boolean = 
+--    	let container = obj.oclAsType(ecore::EObject).eContainer().oclAsType(LogicalEnumeratedBase) in
+--    	container->closure()->includes(obj)
+
  
      /*
      * An LogicalEnumeratedSet's name is not an IDL reserved word.
@@ -75,5 +103,61 @@ package uddl
      */    	 
    	def: flattenLabels(): Bag(LogicalEnumeratedBase) =
    		Bag{self.oclAsType(LogicalEnumeratedBase)}
+  
+  
+ context LogicalComposableElement
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+    def: referencedModelTypes(): Set(ConceptualComposableElement) =
+ 		if (self.oclIsKindOf(LogicalMeasurement)) then
+			self.oclAsType(LogicalMeasurement).referencedModelTypes()
+		else
+			self.oclAsType(LogicalEntity).referencedModelTypes()
+		endif
+    	
+	/**
+	 * Does this element reference the specified type?
+	 */
+	def: referencesModelType(o:ConceptualObservable): Boolean = 
+		self.referencedModelTypes()->includes(o)
+
+
+context LogicalMeasurement
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+    def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		self.realizes.referencedModelTypes()
+		
+		
+context LogicalEntity
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		let myComps = self.composition->collect(type.referencedModelTypes())->flatten()->asSet() in
+		let parentTypes = if (self.specializes.oclIsUndefined()) then  Bag {} 
+		else if self.specializes.oclIsKindOf(ConceptualAssociation) then
+			self.specializes.oclAsType(LogicalAssociation).referencedModelTypes() 
+			else self.specializes.referencedModelTypes() 
+			endif
+		endif in
+		myComps->union(parentTypes)->asSet()
+			
+
+context LogicalAssociation
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		let compTypes = self.oclAsType(LogicalEntity).referencedModelTypes() in
+		-- This call will also handle the specialization 
+		let assocTypes = self.participant->collect(type.referencedModelTypes())->flatten()->asSet() in
+		compTypes->union(assocTypes)
+
   
  endpackage

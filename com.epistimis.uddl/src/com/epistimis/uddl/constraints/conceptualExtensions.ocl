@@ -1,0 +1,77 @@
+import '/resource/com.epistimis.uddl/model/generated/Uddl.ecore'
+
+package uddl
+
+
+
+context ConceptualComposableElement
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+    def: referencedModelTypes(): Set(ConceptualComposableElement) =
+ 		if (self.oclIsKindOf(ConceptualObservable)) then
+			self.oclAsType(ConceptualObservable).referencedModelTypes()
+		else
+			self.oclAsType(ConceptualEntity).referencedModelTypes()
+		endif
+    	
+	/**
+	 * Does this element reference the specified type?
+	 */
+	def: referencesModelType(o:ConceptualObservable): Boolean = 
+		self.referencedModelTypes()->includes(o)
+
+--	def: referencesModelType(o:ConceptualObservable): Boolean = 
+--		if (self.oclIsKindOf(ConceptualObservable)) then
+--			self.oclAsType(ConceptualObservable).referencesModelType(o)
+--		else
+--			self.oclAsType(ConceptualEntity).referencesModelType(o)
+--		endif
+
+context ConceptualObservable
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+    def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		self->asSet()
+		
+		
+--	def: referencesModelType(o:ConceptualObservable): Boolean = 
+--		self = o
+
+
+context ConceptualEntity
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		let myComps = self.composition->collect(type.referencedModelTypes())->flatten()->asSet() in
+		let parentTypes = if (self.specializes.oclIsUndefined()) then  Bag {} 
+		else if self.specializes.oclIsKindOf(ConceptualAssociation) then
+			self.specializes.oclAsType(ConceptualAssociation).referencedModelTypes() 
+			else self.specializes.referencedModelTypes() 
+			endif
+		endif in
+		myComps->union(parentTypes)->asSet()
+		
+--	def: referencesModelType(o:ConceptualObservable): Boolean = 
+--		self.referencedModelTypes()->includes(o)
+	
+
+context ConceptualAssociation
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		let compTypes = self.oclAsType(ConceptualEntity).referencedModelTypes() in
+		-- This call will also handle the specialization 
+		let assocTypes = self.participant->collect(type.referencedModelTypes())->flatten()->asSet() in
+		compTypes->union(assocTypes)
+
+--	def: referencesModelType(o:ConceptualObservable): Boolean = 
+--		self.referencedModelTypes()->includes(o)
+
+endpackage

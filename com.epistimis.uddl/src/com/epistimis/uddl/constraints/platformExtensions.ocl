@@ -1,0 +1,68 @@
+import '/resource/com.epistimis.uddl/model/generated/Uddl.ecore'
+import 'conceptualExtensions.ocl'
+import 'logicalExtensions.ocl'
+
+package uddl
+
+context PlatformComposableElement
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+    def: referencedModelTypes(): Set(ConceptualComposableElement) =
+ 		if (self.oclIsKindOf(LogicalMeasurement)) then
+			self.oclAsType(PlatformDataType).referencedModelTypes()
+		else
+			self.oclAsType(PlatformEntity).referencedModelTypes()
+		endif
+    	
+	/**
+	 * Does this element reference the specified type?
+	 */
+	def: referencesModelType(o:ConceptualObservable): Boolean = 
+		self.referencedModelTypes()->includes(o)
+
+
+context PlatformDataType
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+    def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		self.realizes.oclAsType(LogicalComposableElement).referencedModelTypes()
+		
+		
+context PlatformEntity
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		let myComps = self.composition->collect(type.referencedModelTypes())->flatten()->asSet() in
+		let parentTypes = if (self.specializes.oclIsUndefined()) then  Bag {} 
+		else if self.specializes.oclIsKindOf(ConceptualAssociation) then
+			self.specializes.oclAsType(PlatformAssociation).referencedModelTypes() 
+			else self.specializes.referencedModelTypes() 
+			endif
+		endif in
+		myComps->union(parentTypes)->asSet()
+			
+
+context PlatformAssociation
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		let compTypes = self.oclAsType(PlatformEntity).referencedModelTypes() in
+		-- This call will also handle the specialization 
+		let assocTypes = self.participant->collect(type.referencedModelTypes())->flatten()->asSet() in
+		compTypes->union(assocTypes)
+
+context PlatformQuery
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+
+
+endpackage
