@@ -58,11 +58,30 @@ context PlatformAssociation
 		let assocTypes = self.participant->collect(type.referencedModelTypes())->flatten()->asSet() in
 		compTypes->union(assocTypes)
 
+context PlatformView
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		if (self.oclIsTypeOf(PlatformQuery)) then
+			self.oclAsType(PlatformQuery).referencedModelTypes()
+		else 
+			self.oclAsType(PlatformCompositeQuery).referencedModelTypes()
+		endif
+
 context PlatformQuery
 	/**
 	 * Return a set of all the model types referenced by this element
 	 */
 	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		Set{null}
 
+
+context PlatformCompositeQuery
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		self.composition->collect(type.referencedModelTypes())->flatten()->asSet()
 
 endpackage
