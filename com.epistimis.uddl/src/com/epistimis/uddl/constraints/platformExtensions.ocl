@@ -46,6 +46,13 @@ context PlatformEntity
 		endif in
 		myComps->union(parentTypes)->asSet()
 			
+	/**
+	 * oclIsKindOf uses the metamodel. We want to follow the UDDL
+	 * specialization hierarchy
+	 */		
+	def: isTypeOrSpecializationOf(t: PlatformEntity): Boolean =
+		self = t or self.specializes.isTypeOrSpecializationOf(t)
+
 
 context PlatformAssociation
 
@@ -77,7 +84,7 @@ context PlatformQuery
 	 * This only works on a single entity name - need to split it to get more
 	 * Also does not work with aliases
 	 */
-	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+   def: referencedEntities(): Set(PlatformEntity) =
 		let fromNdx = self.specification.toLowerCase().indexOf(' from ') in
 		let whereNdx = self.specification.toLowerCase().indexOf(' where ') in
 		let joinNdx = self.specification.toLowerCase().indexOf(' join ') in
@@ -90,8 +97,13 @@ context PlatformQuery
 					 	endif
 					 endif in
 		let name = self.specification.substring(fromNdx+6,endNdx).trim() in
-		let entities = PlatformEntity.allInstances()->select(o|o.name = name)->asSet() in
-		entities->collect(referencedModelTypes())->flatten()->asSet()
+		PlatformEntity.allInstances()->select(o|o.name = name)->asSet() 
+
+	/**
+	 * Return a set of all the model types referenced by this element
+	 */
+	def: referencedModelTypes(): Set(ConceptualComposableElement) =
+		self.referencedEntities()->collect(referencedModelTypes())->flatten()->asSet()
 
 
 context PlatformCompositeQuery
