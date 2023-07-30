@@ -3,6 +3,18 @@ import '/resource/com.epistimis.uddl/model/generated/Uddl.ecore'
 
 package uddl
 
+context UddlElement
+	   /**
+		 * Declare a helper operation to map an ok/warning verdict to ok/error.
+		 */
+		def: asError(verdict : Boolean) : Boolean = if verdict then true else null endif
+
+	   /**
+		 * Declare a helper operation to map an ok/warning verdict to ok/warning. This doesn't 
+		 * do anything but gives us two functions with similar names in case developers forget
+		 * they can just use they inv return 'as is' for warnings.
+		 */
+		def: asWarning(verdict : Boolean) : Boolean = if verdict then true else false endif
 
 
 context ConceptualComposableElement
@@ -61,6 +73,9 @@ context ConceptualEntity
 			endif
 		endif in
 		myComps->union(parentTypes)->asSet()
+
+	def: matchingObservables(checklist: Set(uddl::ConceptualObservable) ): Set(uddl::ConceptualObservable) = 
+		self.referencedModelTypes()->selectByType(uddl::ConceptualObservable)->select(t|checklist->includes(t)) 
 		
 --	def: referencesModelType(o:ConceptualObservable): Boolean = 
 --		self.referencedModelTypes()->includes(o)
@@ -97,6 +112,10 @@ context ConceptualAssociation
 		else 
 			self.oclAsType(ConceptualCompositeQuery).referencedModelTypes()
 		endif
+
+context ConceptualView
+	def: matchingObservables(checklist: Set(uddl::ConceptualObservable) ): Set(uddl::ConceptualObservable) = 
+		self.referencedModelTypes()->selectByType(uddl::ConceptualObservable)->select(t|checklist->includes(t)) 
 
 context ConceptualQuery
 

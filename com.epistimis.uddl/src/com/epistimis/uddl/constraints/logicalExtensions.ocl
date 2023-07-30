@@ -20,7 +20,112 @@ package uddl
 	 */
 	def: asError(verdict : Boolean) : Boolean = if verdict then true else null endif
 
+ 
+   context LogicalEnumeratedBase
+ 	   /**
+		 * Declare a helper operation to map an ok/warning verdict to ok/error.
+		 */
+		def: asError(verdict : Boolean) : Boolean = if verdict then true else null endif
+ 	
+		 /**
+		  * Find the root
+		  */
+		 def: root(): LogicalEnumerated =
+	    	let container = self.oclAsType(ecore::EObject).eContainer().oclAsType(LogicalEnumeratedBase) in
+	    	container.root()
+	    	
+ 
+     /*
+     * Helper method that reroutes based on derived type
+     */      
+    def: flattenLabels(): Collection(LogicalEnumeratedBase) =
+	     if self.oclIsTypeOf(LogicalEnumeratedSet) then
+	        self.oclAsType(LogicalEnumeratedSet).flattenLabels()
+	     else -- 
+	        self.oclAsType(LogicalEnumerationLabel).flattenLabels()
+	     endif 
+         	
+		/**
+		 * All ProcessingBase classes can check containment using this method
+		 * This determines if obj is contained in self's set labels (which includes self)
+		 */
+		def: contains(obj: LogicalEnumeratedBase): Boolean = 
+			self.flattenLabels()->includes(obj)
+
+ 		def: contains(s: String): Boolean = 
+			self.flattenLabels()->exists(l|l.name.toLowerCase() = s.toLowerCase())
+
+		/**
+		 * Is self contained in the passed in set (including any subelements)
+		 */
+		def: containedIn(s: Set(LogicalEnumeratedBase)): Boolean =
+			s->collect(flattenLabels())->includes(self)
+		/**
+		 * Is self contained in the hierarchy of the passed in element?
+		 */
+		def: containedIn(s: LogicalEnumeratedBase): Boolean =
+			s.flattenLabels()->includes(self)
+
+
+		def: containedIn(s: String): Boolean =
+			findSetRootedInName(s)->includes(self)
+
+		def: containedIn(s: Set(String)): Boolean =
+			s->collect(o|findSetRootedInName(o))->includes(self)
+
+
+		/**
+		 * Find a specific instance. Note that this looks through all of them. Use it sparingly
+		 * NOTE: static methods are invoked using '::' instead of '.'
+		 */	
+		static def: findByName(n: String): LogicalEnumeratedBase =
+			LogicalEnumeratedBase.allInstances()->select(o|o.name.toLowerCase() = n.toLowerCase())->asSequence()->first()
+
+		/**
+		 * Find specific instances. Note that this looks through all of them. Use it sparingly
+		 * NOTE: static methods are invoked using '::' instead of '.'
+		 */	
+		static def: findByNames(names: Set(String)): Set(LogicalEnumeratedBase) =
+			let lnames = names->collect(toLowerCase()) in
+			LogicalEnumeratedBase.allInstances()->select(o|lnames->includes(o.name.toLowerCase())) 
+
+ 		/**
+		 * Find the set of instances rooted at this name. Note that this looks through all of them. Use it sparingly
+		 * NOTE: static methods are invoked using '::' instead of '.'
+		 */	
+		static def: findSetRootedInName(n: String): Set(LogicalEnumeratedBase) =
+			findByName(n)->collect(flattenLabels())->asSet()
+
+ 		/**
+		 * Find the set of instances rooted at this set of names. Note that this looks through all of them. Use it sparingly
+		 * NOTE: static methods are invoked using '::' instead of '.'
+		 */	
+		static def: findSetRootedInNames(names: Set(String)): Set(LogicalEnumeratedBase) =
+			findByNames(names)->collect(flattenLabels())->asSet()
+
+	/**
+	 * Helper method to walk up the enumeration hierachy and 
+	 * find the enum with the name specified - or null if it 
+	 * isn't above the starting point.
+	 */
+--    def: containedIn(name: String): Boolean = 
+--    	let container = obj.oclAsType(ecore::EObject).eContainer().oclAsType(LogicalEnumeratedBase) in
+-- 			container.name.toLower == name or
+-- 			container->containedIn(name)
+
+    /*
+     * An LogicalEnumeratedBase's name is not an IDL reserved word.
+     */                        
+    inv nameIsNotReservedWord:
+      not UddlElement::isReservedWord(self.name)
+ 
   context LogicalEnumerated
+ 
+ 		 /**
+		  * Find the root
+		  */
+		 def: root(): LogicalEnumerated =
+			self
   
 --  	static def: findWithName(name: String): Collection(LogicalEnumerated) =
 --  		LogicalEnumerated.allInstances()->select(e : LogicalEnumerated| e.name.toLowerCase() = name.toLowerCase())
@@ -50,32 +155,6 @@ package uddl
      inv enumerationLabelNameUniqueDrillDown('Enumeration labels must be unique within the entire enumeration hierarchy. '+ self.name + ' contains a duplicate. Remove duplicate(s) to continue'):
      	asError(self.flattenLabels()->isUnique(name))
     
-  context LogicalEnumeratedBase
-     /*
-     * Helper method that reroutes based on derived type
-     */      
-    def: flattenLabels(): Collection(LogicalEnumeratedBase) =
-      if self.oclIsTypeOf(LogicalEnumeratedSet) then
-        self.oclAsType(LogicalEnumeratedSet).flattenLabels()
-      else -- 
-        self.oclAsType(LogicalEnumerationLabel).flattenLabels()
-      endif    	
-
-	/**
-	 * Helper method to walk up the enumeration hierachy and 
-	 * find the enum with the name specified - or null if it 
-	 * isn't above the starting point.
-	 */
---    def: containedIn(name: String): Boolean = 
---    	let container = obj.oclAsType(ecore::EObject).eContainer().oclAsType(LogicalEnumeratedBase) in
--- 			container.name.toLower == name or
--- 			container->containedIn(name)
-
-    /*
-     * An LogicalEnumeratedBase's name is not an IDL reserved word.
-     */                        
-    inv nameIsNotReservedWord:
-      not UddlElement::isReservedWord(self.name)
       
   context LogicalEnumeratedSet
   /**
@@ -146,6 +225,9 @@ context LogicalEntity
 			endif
 		endif in
 		myComps->union(parentTypes)->asSet()
+
+	def: matchingObservables(checklist: Set(uddl::ConceptualObservable) ): Set(uddl::ConceptualObservable) = 
+		self.referencedModelTypes()->selectByType(uddl::ConceptualObservable)->select(t|checklist->includes(t)) 
 			
 	/**
 	 * oclIsKindOf uses the metamodel. We want to follow the UDDL
