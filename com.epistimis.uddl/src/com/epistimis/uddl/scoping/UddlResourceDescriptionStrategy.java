@@ -1,18 +1,18 @@
 package com.epistimis.uddl.scoping;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+//import java.util.ArrayList;
+//import java.util.HashMap;
+//import java.util.List;
+//import java.util.Map;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.xtext.naming.QualifiedName;
-import org.eclipse.xtext.resource.EObjectDescription;
+//import org.eclipse.xtext.naming.QualifiedName;
+//import org.eclipse.xtext.resource.EObjectDescription;
 import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.resource.impl.DefaultResourceDescriptionStrategy;
 import org.eclipse.xtext.scoping.impl.ImportUriResolver;
 import org.eclipse.xtext.util.IAcceptor;
-import org.eclipse.xtext.xbase.lib.IterableExtensions;
+//import org.eclipse.xtext.xbase.lib.IterableExtensions;
 
 import com.epistimis.uddl.uddl.ConceptualPathNode;
 import com.epistimis.uddl.uddl.LogicalConstraint;

@@ -2,6 +2,8 @@ package com.epistimis.uddl.exceptions;
 
 public class QueryMatchException extends RuntimeException {
 
+	private static final long serialVersionUID = 7404891922402895796L;
+
 	public QueryMatchException() {
 		// TODO Auto-generated constructor stub
 	}
