@@ -46,15 +46,15 @@ public class UddlValidator extends AbstractUddlValidator {
 		EPackage ePackage = getPackage();
 		loadAndRegister(registrar,resourceAddress,ePackage);
 	}
+
 	protected void loadAndRegister(EValidatorRegistrar registrar, String resourceAddress, EPackage ePackage) {
 		/**
-		 * NOTE: AbstractInjectableValidator::register registers validators for the
+		 * NOTE: AbstractInjectableValidator::register registers 'this' validator for the
 		 * entire inheritance hierarchy ( because of the base class implementation of
-		 * getEPackages() )
+		 * getEPackages() ). 
 		 * 
-		 * This does not do that. Each OCL file is associated with a specific package,
-		 * so it need not be registered to others. If there is a need, manually
-		 * re-register the OCL file for multiple packages.
+		 * ?We do something similar here because the OCL could refer to any of the packages in the hierarchy?
+		 * 
 		 * 
 		 * See
 		 * https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.ocl.doc%2Fhelp%2FInstallation.html
@@ -97,7 +97,10 @@ public class UddlValidator extends AbstractUddlValidator {
 		 * Registrations here are for OCL we ALWAYS want available.
 		 */
 		OCLstdlib.install();
-//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/logicalExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/helpers.ocl"				,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/conceptualExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/logicalExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/platformExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
 //        loadOCLAndRegister(registrar,"src/com/epistimis/uddl/constraints/specialCategoriesOfData.ocl");
 		/**
 		 * TODO: These don't appear to be having any effect. It could be because we have
@@ -133,12 +136,21 @@ public class UddlValidator extends AbstractUddlValidator {
 		return getInputURI(localFileName, com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
 	}
 
+	/**
+	 * Get the URI to file from the specified plugin
+	 * @param localFileName The filename (relative to/ inside of) the specified plugin
+	 * @param pluginId The ID of the plugin containing the file
+	 * @return URI to the desired file
+	 */
 	protected static @NonNull URI getInputURI(@NonNull String localFileName, @NonNull String pluginId) {
 		String plugInPrefix = pluginId + "/";
 		URI plugURI = EcorePlugin.IS_ECLIPSE_RUNNING ? URI.createPlatformPluginURI(plugInPrefix, true)
 				: URI.createPlatformResourceURI(plugInPrefix, true);
 		URI localURI = URI.createURI(localFileName.startsWith("/") ? localFileName.substring(1) : localFileName);
 		return localURI.resolve(plugURI);
+		// NOTE: See alternative implementation at 
+		// https://stackoverflow.com/questions/40086759/how-to-access-the-member-files-and-folders-of-a-plug-in-in-eclipse
+		
 	}
 
 
