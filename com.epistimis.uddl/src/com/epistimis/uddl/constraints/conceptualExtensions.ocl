@@ -45,7 +45,7 @@ package uddl
 		 * Does this element reference any of the specified observables?
 		 */
 		def: referencesAnyModelTypes(objs:Set(ConceptualObservable)): Boolean = 
-			not self.referencedModelTypes()->intersection(objs)->isEmpty()
+			self.referencedModelTypes()->intersection(objs)->notEmpty()
 	
 		/**
 		 * Does this element reference all of the specified observables?

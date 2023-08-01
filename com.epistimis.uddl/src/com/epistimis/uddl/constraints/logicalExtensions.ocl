@@ -2,7 +2,8 @@
  * 
  */
 import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
-import  '../../../../../model/generated/Uddl.ecore'
+import '/resource/com.epistimis.uddl/model/generated/Uddl.ecore'
+--import  '../../../../../model/generated/Uddl.ecore'
 include 'helpers.ocl'
 include 'conceptual.ocl'
 include 'conceptualExtensions.ocl'
