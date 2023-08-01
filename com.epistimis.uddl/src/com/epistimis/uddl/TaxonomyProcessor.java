@@ -80,86 +80,6 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	}
 
 	/**
-	 * From start, walk up containment hierarchy. This needs the
-	 * 
-	 * @param start    The starting point in the taxonomy
-	 * @param realType The base type of this taxonomy. Needed because eContainment
-	 *                 can continue walking up through unrelated types. We need to
-	 *                 stop when we exit this type.
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public Collection<Base> collectAncestors(Base start) {
-		Class<?> realType = getBaseType();
-		List<Base> ancestors = new ArrayList<>();
-		EObject current = start;
-		while ((current != null) && realType.isInstance(current)) {
-			ancestors.add((Base) current);
-			current = current.eContainer();
-		}
-
-		return ancestors;
-	}
-
-	/**
-	 * Get all the descendants of the starting point (including the starting point)
-	 * 
-	 * TODO: Do we need to check the contents to select only those of the correct
-	 * type? I don't think so since taxonomies contain only the correct type by
-	 * definition
-	 * 
-	 * @param start
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public Collection<Base> collectDescendants(Base start) {
-		List<Base> descendants = new ArrayList<>();
-		descendants.add(start);
-		TreeIterator<EObject> titer = start.eAllContents();
-		while (titer.hasNext()) {
-			Base jb = (Base) titer.next();
-			descendants.add(jb);
-		}
-
-		return descendants;
-	}
-
-	/**
-	 * When we want to check to see if an invariant affects something related to a
-	 * taxonomy, we need to check for invariants associated with the taxonomy member
-	 * under consideration. However, because taxonomies are defined & used
-	 * hierarchically, we also need to consider:
-	 * 
-	 * A) The entire containment hierarchy for the specified element - because
-	 * 'this' element 'is-a' element for each of its containers in that taxonomy.
-	 * Because each taxonomy element specializes its containers, every invariant
-	 * that applies to one of its containers necessarily applies to it as well.
-	 * 
-	 * B) Its entire contents (everything contained within the element under
-	 * consideration) - because any code used for 'this' element could be used for
-	 * any of its specializing elements. Since invariants / constraints must be true
-	 * for the specified element, they must be true for all instances of that
-	 * element, which include all specializations of that element. A) differs from
-	 * B) in that A) is a guaranteed problem, whereas B) could be a problem.
-	 * 
-	 * This implies several things: 1) Each hierarchy should be constructed
-	 * assiduously. 2) Constraints/invariants/checks should be associated with an
-	 * element carefully
-	 * 
-	 * Without both of these, constraints can have unintended far reaching impact.
-	 * 
-	 * @param p
-	 * @return
-	 */
-	public Collection<Base> getAffectingElements(Base p) {
-
-		Collection<Base> results = collectAncestors(p);
-		results.addAll(collectDescendants(p));
-		return results;
-
-	}
-
-	/**
 	 * Is the test value anywhere in the ancestry of start. In other words, is
 	 * 'start' contained in the 'test' hierarchy?
 	 * 
@@ -303,57 +223,110 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	}
 
 	/**
-	 * When we want to check to see if an invariant affects something in a taxonomy,
-	 * we need to check for invariants associated with the concept under
-	 * consideration. However, when concepts can be defined & used hierarchically,
-	 * we also need to consider:
+	 * From start, walk up containment hierarchy. This needs the
 	 * 
-	 * A) The entire containment hierarchy for the specified concept - because
-	 * 'this' concept 'is-a' concept for each of its containers. Because each
-	 * concept specializes its containers, every invariant that applies to one of
-	 * its containers necessarily applies to it as well.
+	 * @param start    The starting point in the taxonomy
+	 * @param realType The base type of this taxonomy. Needed because eContainment
+	 *                 can continue walking up through unrelated types. We need to
+	 *                 stop when we exit this type.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Base> collectAncestors(Base start) {
+		Class<?> realType = getBaseType();
+		List<Base> ancestors = new ArrayList<>();
+		EObject current = start;
+		while ((current != null) && realType.isInstance(current)) {
+			ancestors.add((Base) current);
+			current = current.eContainer();
+		}
+
+		return ancestors;
+	}
+
+	/**
+	 * Get all the descendants of the starting point (including the starting point)
 	 * 
-	 * B) Its entire contents (everything contained within the concept under
-	 * consideration) - because any code used for 'this' concept could be used for
-	 * any of its specializing Purposes. Since invariants / constraints must be true
-	 * for the specified concept, they must be true for all instances of that
-	 * concept, which include all specializations of that concept. A) differs from
+	 * TODO: Do we need to check the contents to select only those of the correct
+	 * type? I don't think so since taxonomies contain only the correct type by
+	 * definition
+	 * 
+	 * @param start
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Base> collectDescendants(Base start) {
+		List<Base> descendants = new ArrayList<>();
+		descendants.add(start);
+		TreeIterator<EObject> titer = start.eAllContents();
+		while (titer.hasNext()) {
+			Base jb = (Base) titer.next();
+			descendants.add(jb);
+		}
+
+		return descendants;
+	}
+
+	/**
+	 * When we want to check to see if an invariant affects something related to a
+	 * taxonomy, we need to check for invariants associated with the taxonomy member
+	 * under consideration. However, because taxonomies are defined & used
+	 * hierarchically, we also need to consider:
+	 * 
+	 * A) The entire containment hierarchy for the specified element - because
+	 * 'this' element 'is-a' element for each of its containers in that taxonomy.
+	 * Because each taxonomy element specializes its containers, every invariant
+	 * that applies to one of its containers necessarily applies to it as well.
+	 * 
+	 * B) Its entire contents (everything contained within the element under
+	 * consideration) - because any code used for 'this' element could be used for
+	 * any of its specializing elements. Since invariants / constraints must be true
+	 * for the specified element, they must be true for all instances of that
+	 * element, which include all specializations of that element. A) differs from
 	 * B) in that A) is a guaranteed problem, whereas B) could be a problem.
 	 * 
-	 * This implies several things: 1) The concept hierarchy should be constructed
-	 * assiduously. 2) Constraints/invariants/checks should be associated with
-	 * concept carefully
+	 * This implies several things: 1) Each hierarchy should be constructed
+	 * assiduously. 2) Constraints/invariants/checks should be associated with an
+	 * element carefully
 	 * 
 	 * Without both of these, constraints can have unintended far reaching impact.
 	 * 
 	 * @param p
 	 * @return
 	 */
-	public List<Base> getAffectingConcepts(Base p) {
-		List<Base> results = new ArrayList<Base>();
-		results.add(p);
-		/**
-		 * Get all the containment hierarchy
-		 */
-		EObject current = (EObject) p;
-		while ((current.eContainer() != null) && (isCastableToBase(current.eContainer()))) {
-			current = current.eContainer();
-			results.add((Base) current);
-		}
-		/**
-		 * We also get all the content of the original concept, if it is a set.
-		 * eAllContents returns a TreeIterator so we don't need to recurse separately
-		 */
-		for (EObject tp : IteratorExtensions.<EObject>toIterable(((EObject) p).eAllContents())) {
-			if (isCastableToBase(tp)) {
-				results.add((Base) tp);
-			} else {
-				msgInvalidValue(qnp.getFullyQualifiedName(tp).toString(), tp.toString());
-			}
-		}
+	public List<Base> getAffectingElements(Base p) {
+
+		List<Base> results = collectAncestors(p);
+		results.addAll(collectDescendants(p));
 		return results;
+
 	}
 
+//	public List<Base> getAffectingElements(Base p) {
+//		List<Base> results = new ArrayList<Base>();
+//		results.add(p);
+//		/**
+//		 * Get all the containment hierarchy
+//		 */
+//		EObject current = (EObject) p;
+//		while ((current.eContainer() != null) && (isCastableToBase(current.eContainer()))) {
+//			current = current.eContainer();
+//			results.add((Base) current);
+//		}
+//		/**
+//		 * We also get all the content of the original concept, if it is a set.
+//		 * eAllContents returns a TreeIterator so we don't need to recurse separately
+//		 */
+//		for (EObject tp : IteratorExtensions.<EObject>toIterable(((EObject) p).eAllContents())) {
+//			if (isCastableToBase(tp)) {
+//				results.add((Base) tp);
+//			} else {
+//				msgInvalidValue(qnp.getFullyQualifiedName(tp).toString(), tp.toString());
+//			}
+//		}
+//		return results;
+//	}
+	
 	/**
 	 * Check to see if the testedHierarchy overlaps with the hierarchyToCheck. There
 	 * are three possible results: 1) FALSE - the testedHierarchy is completely
