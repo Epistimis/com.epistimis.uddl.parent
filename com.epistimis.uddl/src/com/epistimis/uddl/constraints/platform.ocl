@@ -1,3 +1,4 @@
+import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
 import  '../../../../../model/generated/Uddl.ecore'
 
 include 'helpers.ocl'
@@ -8,9 +9,15 @@ package uddl
   context PlatformElement
     /*
      * All Platform Elements have a unique name.
+     * 
+     * NOTE:  The select line converts this from globally unique name to FQN unique
+     * because it only compares names with the same parent container.  This is a variation
+     * from the FACE/ UDDL spec
      */
-    inv hasUniqueName:
+     inv hasUniqueName('Names must be unique within a container'):
+    	let parent = self.oclAsType(ecore::EObject).eContainer() in 
       not PlatformElement.allInstances()->excluding(self)
+      							->select(e|e.oclAsType(ecore::EObject).eContainer() = parent)
                                 ->collect(name.toLowerCase())
                                 ->includes(self.name.toLowerCase())
     
