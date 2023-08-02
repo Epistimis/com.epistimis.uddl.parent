@@ -1,5 +1,7 @@
 --import face : 'http://www.opengroup.us/face/3.0#/'
-import  '../../../../../model/generated/Uddl.ecore'
+--import 'http://www.epistimis.com/uddl/Uddl'
+--import  '../../../../../model/generated/Uddl.ecore'
+import 'platform:/resource/com.epistimis.uddl/model/generated/Uddl.ecore'
 
 
 package uddl

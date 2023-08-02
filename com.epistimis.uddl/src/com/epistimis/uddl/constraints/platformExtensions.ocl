@@ -1,6 +1,9 @@
-import '/resource/com.epistimis.uddl/model/generated/Uddl.ecore'
-import 'conceptualExtensions.ocl'
-import 'logicalExtensions.ocl'
+--import  '../../../../../model/generated/Uddl.ecore'
+import 'platform:/resource/com.epistimis.uddl/model/generated/Uddl.ecore'
+--import 'http://www.epistimis.com/uddl/Uddl'
+
+include 'conceptualExtensions.ocl'
+include 'logicalExtensions.ocl'
 
 package uddl
 
