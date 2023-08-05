@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
@@ -38,6 +39,8 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 
 	@Inject
 	IQualifiedNameConverter qnc;
+
+	static Logger logger = Logger.getLogger(TaxonomyProcessor.class);
 
 	public TaxonomyProcessor() {
 		// TODO Auto-generated constructor stub
@@ -171,7 +174,7 @@ public abstract class TaxonomyProcessor<Base extends EObject> {
 	 */
 	public static String msgInvalidValue(String container, String invalidValue) {
 		String msg = MessageFormat.format("Container {0} contains an invalid value: {1}", container, invalidValue);
-		System.out.println(msg);
+		logger.error(msg);
 		return msg;
 	}
 

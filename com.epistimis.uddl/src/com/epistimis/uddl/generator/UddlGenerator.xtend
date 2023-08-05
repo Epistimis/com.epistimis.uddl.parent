@@ -15,6 +15,7 @@ import com.epistimis.uddl.RealizedAssociation
 import com.epistimis.uddl.RealizedDataType
 import com.epistimis.uddl.RealizedEntity
 import com.epistimis.uddl.RealizedComposableElement
+import org.apache.log4j.Logger
 
 /**
  * Generates code from your model files on save.
@@ -22,6 +23,8 @@ import com.epistimis.uddl.RealizedComposableElement
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class UddlGenerator extends AbstractGenerator {
+
+	static Logger logger = Logger.getLogger(UddlGenerator);
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 
@@ -46,7 +49,7 @@ class UddlGenerator extends AbstractGenerator {
 			} else if (elem instanceof PlatformEntity) {
 				new RealizedEntity(elem);
 			} else {
-				System.out.println("No processing available for type " + elem.class.toString);
+				logger.warn("No processing available for type " + elem.class.toString);
 			}
 		}
 		/**
@@ -65,24 +68,24 @@ class UddlGenerator extends AbstractGenerator {
 			gen2.doGenerate(resource, fsa, context);
 		}
 		catch (Exception excp) {
-			System.out.println("Protobuf exception: " + excp.localizedMessage);
-			System.out.println(excp.stackTrace);
+			logger.error("Protobuf exception: " + excp.localizedMessage,excp);
+			//System.out.println(excp.stackTrace);
 		}
 		try {
 			val gen1 = new IDLDataStructureGenerator(RealizedComposableElement.allComposableElements);
 			gen1.doGenerate(resource, fsa, context);			
 		}
 		catch (Exception excp) {
-			System.out.println("IDL exception: " + excp.localizedMessage);
-			System.out.println(excp.stackTrace);
+			logger.error("IDL exception: " + excp.localizedMessage,excp);
+			//System.out.println(excp.stackTrace);
 		}
 		try {
 			val gen3 = new RDBMSDataStructureGenerator(RealizedComposableElement.allComposableElements);
 			gen3.doGenerate(resource, fsa, context);
 		}
 		catch (Exception excp) {
-			System.out.println("RDBMS exception: " + excp.localizedMessage);
-			System.out.println(excp.stackTrace);
+			logger.error("RDBMS exception: " + excp.localizedMessage,excp);
+			//System.out.println(excp.stackTrace);
 		}
 
 

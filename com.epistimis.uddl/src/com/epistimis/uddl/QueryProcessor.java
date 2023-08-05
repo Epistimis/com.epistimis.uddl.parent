@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
@@ -87,6 +88,8 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 
 	@Inject
 	CLPExtractors clp;
+
+	static Logger logger = Logger.getLogger(QueryProcessor.class);
 
 	/**
 	 * Get the individual QueryCompositions from this CompositeQuery
@@ -264,10 +267,10 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 		} catch (Exception e) {
 			// TODO: This should also check for Parse errors - like unit tests do - and
 			// print out something.
-			System.out.println("Query " + qnp.getFullyQualifiedName(query).toString() + " contains a malformed query: '"
-					+ queryText + "'");
+			logger.error("Query " + qnp.getFullyQualifiedName(query).toString() + " contains a malformed query: '"
+					+ queryText + "'",e);
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 
 		return qspec;
@@ -410,7 +413,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 					String nameCollisionsMsg = ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN,
 							getQueryType().getName(), globalDescs);
 					potentialExcp.addSuppressed(new NameCollisionException(nameCollisionsMsg));
-					// System.out.println(nameCollisionsMsg);
+					// logger.info(nameCollisionsMsg);
 					break;
 				}
 			}
@@ -426,7 +429,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 				String nameCollisionsMsg = ndxUtil.printIEObjectDescriptionNameCollisions(queryFQN,
 						getQueryType().getName(), listOfDescriptions);
 				potentialExcp.addSuppressed(new NameCollisionException(nameCollisionsMsg));
-				// System.out.println(nameCollisionsMsg);
+				// logger.info(nameCollisionsMsg);
 				break;
 			}
 		}
