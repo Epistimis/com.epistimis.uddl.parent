@@ -44,7 +44,7 @@ Workflow {
 //		        outputPath = './langium'
 //		    }
 			// rename refactoring - already handled by XBase
-			fragment = refactoring.RefactorElementNameFragment2 {}
+			//fragment = refactoring.RefactorElementNameFragment2 {}
 			fragment = org.eclipse.xtext.xtext.generator.ui.codemining.CodeMiningFragment {}
 
 			serializer = {
