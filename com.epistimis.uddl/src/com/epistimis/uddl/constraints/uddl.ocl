@@ -1,8 +1,12 @@
+/**
+ * UDDL standard constraints - adjusted for this metamodel
+ */
 --import 'http://www.epistimis.com/uddl/Uddl'
 --import  '../../../../../model/generated/Uddl.ecore'
-import 'platform:/resource/com.epistimis.uddl/model/generated/Uddl.ecore'
+import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
 
-include 'helpers.ocl'
+--include 'helpers.ocl'
+include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/helpers.ocl'
 
 
 package uddl 

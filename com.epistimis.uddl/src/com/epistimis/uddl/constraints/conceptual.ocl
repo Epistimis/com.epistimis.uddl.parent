@@ -1,26 +1,30 @@
 import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
 
-import  '../../../../../model/generated/Uddl.ecore'
+--import  '../../../../../model/generated/Uddl.ecore'
+import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
 
-include 'helpers.ocl'
+--include 'helpers.ocl'
+include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/helpers.ocl'
 
 
 package uddl 
 
-  context ConceptualElement
-    /*
-     * Every Conceptual Element has a unique name.
-     * 
-     * NOTE:  The select line converts this from globally unique name to FQN unique
-     * because it only compares names with the same parent container.  This is a variation
-     * from the FACE/ UDDL spec
-     */
-    inv hasUniqueName('Names must be unique within a container'):
-    	let parent = self.oclAsType(ecore::EObject).eContainer() in 
-      not UddlElement.allInstances()->excluding(self)
-      							->select(e|e.oclAsType(ecore::EObject).eContainer() = parent)
-                                ->collect(name.toLowerCase())
-                                ->includes(self.name.toLowerCase())
+--  context ConceptualElement
+--    /*
+--     * Every Conceptual Element has a unique name.
+--     * 
+--     * NOTE:  The select line converts this from globally unique name to FQN unique
+--     * because it only compares names with the same parent container.  This is a variation
+--     * from the FACE/ UDDL spec
+--     * 
+--     * NOTE: XText automatically enforces this - this is redundant
+--     */
+--    inv hasUniqueName('Names must be unique within a container'):
+--    	let parent = self.oclAsType(ecore::EObject).eContainer() in 
+--      not UddlElement.allInstances()->excluding(self)
+--      							->select(e|e.oclAsType(ecore::EObject).eContainer() = parent)
+--                                ->collect(name.toLowerCase())
+--                                ->includes(self.name.toLowerCase())
 
  context ConceptualComposableElement
     /* 
@@ -84,9 +88,16 @@ package uddl
     /*
      * Helper method that determines whether or not
      * a ConceptualEntity is part of a specialization cycle.
+     * 
+     * NOTE: closure operation includes the source, which means 
+     * that this will always be true in its original form. Modified
+     * to start at the first specialization.  This may be a bug that 
+     * only happens when the source type is the same as the type the 
+     * closure is operating on
      */
     def: isPartOfSpecializationCycle() : Boolean =
-      self->closure(specializes)->includes(self)
+--      self->closure(specializes)->includes(self)
+      let start = self.specializes in start?->closure(specializes)->includes(self)
 
     /*
      * A ConceptualCharacteristic's rolename is unique within a ConceptualEntity.

@@ -1,17 +1,30 @@
+/**
+ * UDDL standard constraints - adjusted for this metamodel
+ */
 --import datamodel : 'http://www.opengroup.us/face/datamodel/3.0#/'
-import  '../../../../../model/generated/Uddl.ecore'
-include 'helpers.ocl'
+--import  '../../../../../model/generated/Uddl.ecore'
+import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
+
+--include 'helpers.ocl'
+include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/helpers.ocl'
 
 package uddl
 
-  context ConceptualElement
-    /*
-     * Every Conceptual Element has a unique name.
-     */
-    inv hasUniqueName:
-      not UddlElement.allInstances()->excluding(self)
-                                ->collect(name.toLowerCase())
-                                ->includes(self.name.toLowerCase())
+--  context ConceptualElement
+--    /*
+--     * Every Conceptual Element has a unique name.
+--     * NOTE:  The select line converts this from globally unique name to FQN unique
+--     * because it only compares names with the same parent container.  This is a variation
+--     * from the FACE/ UDDL spec
+--     * 
+--     * NOTE: XText automatically enforces this - this is redundant
+--     */
+--    inv hasUniqueName('Names must be unique within a container'):
+--    	let parent = self.oclAsType(ecore::EObject).eContainer() in 
+--      not UddlElement.allInstances()->excluding(self)
+--      							->select(e|e.oclAsType(ecore::EObject).eContainer() = parent)
+--                                ->collect(name.toLowerCase())
+--                                ->includes(self.name.toLowerCase())
       
   context ConceptualComposableElement
     /* 
