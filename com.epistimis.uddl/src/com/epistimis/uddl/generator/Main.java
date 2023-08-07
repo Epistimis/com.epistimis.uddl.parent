@@ -28,6 +28,7 @@ import com.epistimis.uddl.UddlStandaloneSetup;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.eclipse.xtext.diagnostics.Severity;
 
 public class Main {
 
@@ -108,7 +109,20 @@ public class Main {
 			List<Issue> list = validator.validate(resource, CheckMode.ALL, CancelIndicator.NullImpl);
 			if (!list.isEmpty()) {
 				for (Issue issue : list) {
-					logger.error(issue);
+					switch(issue.getSeverity()) {
+					case ERROR:
+						logger.error(issue);
+						break;
+					case WARNING:
+						logger.warn(issue);
+						break;
+					case INFO:
+						logger.info(issue);
+						break;
+					case IGNORE:
+						logger.trace(issue);
+						break;
+					}
 				}
 				return;
 			}
