@@ -23,9 +23,9 @@ package uddl
 --     * NOTE: XText automatically enforces this - this is redundant     
 --     */
 --     inv hasUniqueName('Names must be unique within a container'):
---    	let parent = self.oclAsType(ecore::EObject).eContainer() in 
+--    	let parent = self.oclContainer in 
 --      not PlatformElement.allInstances()->excluding(self)
---      							->select(e|e.oclAsType(ecore::EObject).eContainer() = parent)
+--      							->select(e|e.oclContainer = parent)
 --                                ->collect(name.toLowerCase())
 --                                ->includes(self.name.toLowerCase())
     

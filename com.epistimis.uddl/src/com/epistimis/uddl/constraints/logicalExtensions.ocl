@@ -36,7 +36,7 @@ package uddl
 		  * Find the root
 		  */
 		 def: root(): LogicalEnumerated =
-	    	let container = self.oclAsType(ecore::EObject).eContainer().oclAsType(LogicalEnumeratedBase) in
+	    	let container = self.oclContainer.oclAsType(LogicalEnumeratedBase) in
 	    	container.root()
 	    	
  
@@ -84,8 +84,12 @@ package uddl
 		 * NOTE: static methods are invoked using '::' instead of '.'
 		 */	
 		static def: findByName(n: String): LogicalEnumeratedBase =
-			LogicalEnumeratedBase.allInstances()->select(o|o.name.toLowerCase() = n.toLowerCase())->asSequence()->first()
-
+			let found = LogicalEnumeratedBase.allInstances()->select(o|o.name.toLowerCase() = n.toLowerCase())->asSequence() in 
+			if (found->notEmpty()) then
+				found->first()
+			else
+				null
+			endif
 		/**
 		 * Find specific instances. Note that this looks through all of them. Use it sparingly
 		 * NOTE: static methods are invoked using '::' instead of '.'
@@ -99,7 +103,13 @@ package uddl
 		 * NOTE: static methods are invoked using '::' instead of '.'
 		 */	
 		static def: findSetRootedInName(n: String): Set(LogicalEnumeratedBase) =
-			findByName(n)->collect(flattenLabels())->asSet()
+			let root = findByName(n) in
+			if (root->notEmpty()) then
+				root->collect(flattenLabels())->asSet()
+			else
+				Set{}
+			endif
+
 
  		/**
 		 * Find the set of instances rooted at this set of names. Note that this looks through all of them. Use it sparingly
@@ -109,12 +119,12 @@ package uddl
 			findByNames(names)->collect(flattenLabels())->asSet()
 
 		/**
-		 * Helper method to walk up the enumeration hierachy and 
+		 * Helper method to walk up the enumeration hierarchy and 
 		 * find the enum with the name specified - or null if it 
 		 * isn't above the starting point.
 		 */
 	--    def: containedIn(name: String): Boolean = 
-	--    	let container = obj.oclAsType(ecore::EObject).eContainer().oclAsType(LogicalEnumeratedBase) in
+	--    	let container = obj.oclContainer.oclAsType(LogicalEnumeratedBase) in
 	-- 			container.name.toLower == name or
 	-- 			container->containedIn(name)
 	
@@ -171,7 +181,7 @@ package uddl
 	
 	
 	--    def: containedIn( obj: ecore::EObject): Boolean = 
-	--    	let container = obj.oclAsType(ecore::EObject).eContainer().oclAsType(LogicalEnumeratedBase) in
+	--    	let container = obj.oclContainer.oclAsType(LogicalEnumeratedBase) in
 	--    	container->closure()->includes(obj)
 	
 	    	 	
