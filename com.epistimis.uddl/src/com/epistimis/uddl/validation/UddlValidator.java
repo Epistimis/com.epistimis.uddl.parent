@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.ocl.pivot.model.OCLstdlib;
+import org.eclipse.ocl.pivot.utilities.OCL;
+import org.eclipse.ocl.pivot.utilities.ThreadLocalExecutor;
 import org.eclipse.ocl.xtext.completeocl.validation.CompleteOCLEObjectValidator;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.validation.CheckType;
@@ -33,11 +36,17 @@ import com.epistimis.uddl.uddl.UddlPackage;
  * https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class UddlValidator extends AbstractUddlValidator {
+	
+	static Logger logger = Logger.getLogger(UddlValidator.class);
+	//static OCL ocl = OCL.newInstance();
 
 	protected static String ISSUE_CODE_PREFIX = "com.epistimis.uddl.";
 	public static String ENTITY_NEEDS_2_ELEMENTS = ISSUE_CODE_PREFIX + "EntityNeeds2Elements";
 
-
+	static {
+		// Per https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.ocl.doc%2Fhelp%2FPivotThreadSafety.html
+		org.eclipse.ocl.pivot.utilities.ValueUtil.initAllStatics();
+	}
 	public EPackage getPackage() {
 		return UddlPackage.eINSTANCE;
 	}
@@ -93,15 +102,27 @@ public class UddlValidator extends AbstractUddlValidator {
 	public void register(EValidatorRegistrar registrar) {
 		super.register(registrar);
 
+
 		/**
 		 * Registrations here are for OCL we ALWAYS want available.
+		 * These provide foundational rules about the UDDL metamodel
+		 */	
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/uddl.ocl"					,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/datamodel.ocl"			,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/conceptual.ocl"			,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/logical.ocl"				,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/platform.ocl"				,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+
+		/**
+		 * These will be automatically loaded as needed by other files
 		 */
-		OCLstdlib.install();
-		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/helpers.ocl"				,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
-		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/conceptualExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
-		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/logicalExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
-		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/platformExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
-//        loadOCLAndRegister(registrar,"src/com/epistimis/uddl/constraints/specialCategoriesOfData.ocl");
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/helpers.ocl"				,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/conceptualExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/logicalExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/platformExtensions.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+
+		// TODO: May want to use this - or not - this should be recreated in the above
+//      loadOCLAndRegister(registrar,"src/com/epistimis/uddl/constraints/realizedObservables.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
 		/**
 		 * TODO: These don't appear to be having any effect. It could be because we have
 		 * no way to invoke the validators created here. Or that they are invoked and
@@ -111,13 +132,13 @@ public class UddlValidator extends AbstractUddlValidator {
 		 * Commented out to eliminate potential performance problems. These should be loaded and run only 
 		 * on command - not here where they get triggered in the editor constantly.
 		 */
-//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/uddl.ocl",UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
-//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/datamodel.ocl",UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
-//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/conceptual.ocl",UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
-//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/logical.ocl",UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
-//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/platform.ocl",UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
 
-	}
+
+		// Per https://www.eclipse.org/forums/index.php/t/1092285/, calling this before registering OCL validators
+		// may have made thing worse in the past - so call it here - after registration but before use
+		OCLstdlib.install();
+		
+}
 
 	/**
 	 * Copied from org.eclipse.ocl.examples.pivot.tests.PivotTestCase.java:
