@@ -25,7 +25,7 @@ import org.eclipse.emf.common.util.URI;
 import org.w3c.dom.Element;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
-import org.xml.sax.EntityResolver;
+//import org.xml.sax.EntityResolver;
 import org.xml.sax.helpers.DefaultHandler;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.ocl.pivot.resource.ProjectManager;
