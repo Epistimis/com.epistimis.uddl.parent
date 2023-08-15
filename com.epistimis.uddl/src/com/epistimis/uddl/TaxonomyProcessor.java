@@ -18,6 +18,7 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 import com.epistimis.uddl.exceptions.NameCollisionException;
 import com.epistimis.uddl.exceptions.NamedObjectNotFoundException;
 import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.uddl.Taxonomy;
 import com.google.inject.Inject;
 
 /**
@@ -30,7 +31,7 @@ import com.google.inject.Inject;
  * @param <Base> This is the type returned by the base rule (by default spelled
  *               the same as the base rule name)
  */
-public abstract class TaxonomyProcessor<Base extends EObject> {
+public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 	@Inject
 	IndexUtilities ndxUtil;
 

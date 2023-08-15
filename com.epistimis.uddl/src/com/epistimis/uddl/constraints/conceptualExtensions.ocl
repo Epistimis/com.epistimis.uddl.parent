@@ -26,6 +26,8 @@ package uddl
 
 	context ConceptualComposableElement
 	
+		static def: findByName(n: String): Set(ConceptualComposableElement) =
+			ConceptualComposableElement.allInstances()->select(o|o.name = n)->asSet()
 		/**
 		 * TODO: Nothing here addresses finding a data structure pattern in a general way. That would
 		 * require knowing roles and contains/containment/ reference information. Roles are defined at the privacy
@@ -63,15 +65,12 @@ package uddl
 	
 			
 	
-	--	def: referencesModelType(o:ConceptualObservable): Boolean = 
-	--		if (self.oclIsKindOf(ConceptualObservable)) then
-	--			self.oclAsType(ConceptualObservable).referencesModelType(o)
-	--		else
-	--			self.oclAsType(ConceptualEntity).referencesModelType(o)
-	--		endif
 	
 	
 	context ConceptualObservable
+	
+		static def: findByName(n: String): Set(ConceptualObservable) =
+			ConceptualObservable.allInstances()->select(o|o.name = n)->asSet()
 		/**
 		 * Return a set of all the model types referenced by this element
 		 */
@@ -79,8 +78,6 @@ package uddl
 			self->asSet()
 	
 			
-	--	def: referencesModelType(o:ConceptualObservable): Boolean = 
-	--		self = o
 	
 	
 	context ConceptualEntity
@@ -105,8 +102,6 @@ package uddl
 		def: matchingObservables(checklist: Set(uddl::ConceptualObservable) ): Set(uddl::ConceptualObservable) = 
 			self.referencedModelTypes()->selectByType(uddl::ConceptualObservable)->select(t|checklist->includes(t)) 
 			
-	--	def: referencesModelType(o:ConceptualObservable): Boolean = 
-	--		self.referencedModelTypes()->includes(o)
 	
 		/**
 		 * oclIsKindOf uses the metamodel. We want to follow the UDDL
@@ -114,7 +109,14 @@ package uddl
 		 */		
 		def: isTypeOrSpecializationOf(t: ConceptualEntity): Boolean =
 			self = t or self.specializes.isTypeOrSpecializationOf(t)
-		
+
+		/**
+		 * ConceptualEntities cannot specialize a ConceptualAssociation. Any specialization of
+		 * a ConceptualAssocation must be a ConceptualAssociation. Why? Because it's still a
+		 * ConceptualAssociation even if the specialization does not add participants
+		 */
+		inv specializesOnlyConceptualEntity:
+			self.specializes <> null implies not self.specializes.oclIsKindOf(ConceptualAssociation)
 	
 	context ConceptualAssociation
 	

@@ -293,7 +293,10 @@ LogicalEnumerated:
 		']'
 		';'
 		;
-
+/**EXTENSION: The foundation for every taxonomic type hierarchy. Override and extend as needed */
+Taxonomy:
+	LogicalEnumeratedBase
+;
 /**EXTENSION: Creates the foundation for a hierarchy of enumerated values  */
 LogicalEnumeratedBase:
 	LogicalEnumeratedSet |

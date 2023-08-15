@@ -26,6 +26,30 @@ package uddl
 	def: asError(verdict : Boolean) : Boolean = if verdict then true else null endif
 
  
+   context Taxonomy
+ 	     /*
+	     * Helper method that reroutes based on derived type
+	     * 
+	     */      
+	    def: flattenLabels(): Collection(LogicalEnumeratedBase) =
+		     if self.oclIsTypeOf(LogicalEnumeratedSet) then
+		        self.oclAsType(LogicalEnumeratedSet).flattenLabels()
+		     else -- 
+		        self.oclAsType(LogicalEnumerationLabel).flattenLabels()
+		     endif 
+   
+    			
+   		/**
+		 * All Taxonomy classes can check containment using this method
+		 * This determines if obj is contained in self's set labels (which includes self)
+		 */
+		def: contains(obj: Taxonomy): Boolean = 
+			self.flattenLabels()->includes(obj)
+
+ 		def: contains(s: String): Boolean = 
+			self.flattenLabels()->exists(l|l.name.toLowerCase() = s.toLowerCase())
+   
+   
    context LogicalEnumeratedBase
  	   /**
 		 * Declare a helper operation to map an ok/warning verdict to ok/error.
@@ -40,18 +64,18 @@ package uddl
 	    	container.root()
 	    	
  
-     /*
-     * Helper method that reroutes based on derived type
-     */      
-    def: flattenLabels(): Collection(LogicalEnumeratedBase) =
-	     if self.oclIsTypeOf(LogicalEnumeratedSet) then
-	        self.oclAsType(LogicalEnumeratedSet).flattenLabels()
-	     else -- 
-	        self.oclAsType(LogicalEnumerationLabel).flattenLabels()
-	     endif 
-         	
+	     /*
+	     * Helper method that reroutes based on derived type
+	     */      
+	    def: flattenLabels(): Collection(LogicalEnumeratedBase) =
+		     if self.oclIsTypeOf(LogicalEnumeratedSet) then
+		        self.oclAsType(LogicalEnumeratedSet).flattenLabels()
+		     else -- 
+		        self.oclAsType(LogicalEnumerationLabel).flattenLabels()
+		     endif 
+	         	
 		/**
-		 * All ProcessingBase classes can check containment using this method
+		 * All LogicalEnumeratedBase classes can check containment using this method
 		 * This determines if obj is contained in self's set labels (which includes self)
 		 */
 		def: contains(obj: LogicalEnumeratedBase): Boolean = 
@@ -98,17 +122,32 @@ package uddl
 			let lnames = names->collect(toLowerCase()) in
 			LogicalEnumeratedBase.allInstances()->select(o|lnames->includes(o.name.toLowerCase())) 
 
+
+  		/**
+		 * Find the set of instances rooted at this instance. Use this version if you
+		 * know self is not null
+		 */	
+ 		def: findSetRootedIn(): Set(LogicalEnumeratedBase) =
+				self->collect(flattenLabels())->asSet()
+
+   		/**
+		 * Find the set of instances rooted at this instance. Use this version if you
+		 * aren't sure if root is null or not
+		 */	
+ 		static def: findSetRootedIn(root: LogicalEnumeratedBase): Set(LogicalEnumeratedBase) =
+			if (root->notEmpty()) then
+				root->collect(flattenLabels())->asSet()
+			else
+				Set{}
+			endif
+ 
  		/**
 		 * Find the set of instances rooted at this name. Note that this looks through all of them. Use it sparingly
 		 * NOTE: static methods are invoked using '::' instead of '.'
 		 */	
 		static def: findSetRootedInName(n: String): Set(LogicalEnumeratedBase) =
 			let root = findByName(n) in
-			if (root->notEmpty()) then
-				root->collect(flattenLabels())->asSet()
-			else
-				Set{}
-			endif
+				findSetRootedIn(root)
 
 
  		/**
@@ -245,6 +284,15 @@ package uddl
 		def: isTypeOrSpecializationOf(t: LogicalEntity): Boolean =
 			self = t or self.specializes.isTypeOrSpecializationOf(t)
 	
+
+		/**
+		 * LogicalEntities cannot specialize a LogicalAssociation. Any specialization of
+		 * a LogicalAssociation must be a LogicalAssociation. Why? Because it's still a
+		 * LogicalAssociation even if the specialization does not add participants
+		 */
+		inv specializesOnlyLogicalEntity:
+			self.specializes <> null implies not self.specializes.oclIsKindOf(LogicalAssociation)
+
 	context LogicalAssociation
 	
 		/**
