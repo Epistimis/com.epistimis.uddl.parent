@@ -49,6 +49,14 @@ package uddl
  		def: contains(s: String): Boolean = 
 			self.flattenLabels()->exists(l|l.name.toLowerCase() = s.toLowerCase())
    
+ 		/**
+		 * The two sets intersect but neither is completely contained in the other
+		 */
+		static def: overlapsOnly(first: Set(Taxonomy), second: Set(Taxonomy)): Boolean =
+			let diff = first->symmetricDifference(second) in
+			first->intersection(second)->notEmpty() and
+			first->intersection(diff)->notEmpty() and
+			second->intersection(diff)->notEmpty()
    
    context LogicalEnumeratedBase
  	   /**
