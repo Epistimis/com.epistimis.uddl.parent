@@ -16,6 +16,16 @@ import java.util.ArrayList
 import com.epistimis.uddl.exceptions.NamedObjectNotFoundException
 import com.epistimis.uddl.exceptions.NameCollisionException
 import java.util.Collections
+import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.emf.ecore.util.ECrossReferenceAdapter
+import org.eclipse.emf.common.notify.Adapter
+import java.util.LinkedList
+import java.util.Collection
+import org.eclipse.emf.ecore.EStructuralFeature.Setting
+import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.ecore.util.EcoreUtil.UsageCrossReferencer
+import org.eclipse.emf.ecore.EStructuralFeature
 
 /**
  * This is modified from the book (See https://github.com/LorenzoBettini/packtpub-xtext-book-2nd-examples)
@@ -235,4 +245,53 @@ class IndexUtilities {
  * 		return difference.toMap[qualifiedName]
  * 	}
  */
+ 
+ 	/**
+ 	 * Find all the resources that reference the referenceTarget
+ 	 * from: https://www.eclipse.org/forums/index.php/t/165076/
+ 	 * NOTE: This is from an old post - UsageCrossReferencer is likely newer
+ 	 */
+	 def List<Resource> getReferencingResources(EObject referenceTarget) {
+		val Resource res = referenceTarget.eResource();
+		val ResourceSet rs = res.getResourceSet();
+		var ECrossReferenceAdapter crossReferencer = null;
+		var List<Adapter> adapters = rs.eAdapters();
+		for (Adapter adapter : adapters) {
+			if(adapter instanceof ECrossReferenceAdapter){
+				crossReferencer =  adapter as ECrossReferenceAdapter;
+				//break;
+			}
+		}
+		if(crossReferencer === null){
+			crossReferencer = new ECrossReferenceAdapter();
+			rs.eAdapters().add(crossReferencer);
+		}
+		var List<Resource> referers = new LinkedList<Resource>();
+		val Collection<Setting> referencers = crossReferencer.getInverseReferences(referenceTarget, true);
+		for (Setting setting : referencers) {
+			val EObject referer = setting.getEObject();
+			val Resource resource = referer.eResource();
+			if(!resource.equals(res)){
+				// Only need to check the other resources not containing the referenceTarget
+				var URI uri = resource.getURI();
+				uri = rs.getURIConverter().normalize(uri);
+				if(uri.isPlatformResource()){
+					referers.add(resource);
+				}
+			}
+		}
+		return referers;
+	}
+	
+	/**
+	 * Find all the cross references to the specified target, no matter
+	 * where they are in the resource set
+	 * 
+	 * See EcoreUtil.delete() for an example of why it might be done this way
+	 */
+ 	def Collection<EStructuralFeature.Setting> getReferencingObjects(EObject referenceTarget) {
+		val Resource res = referenceTarget.eResource();
+		val ResourceSet rs = res.getResourceSet();
+ 		return EcoreUtil.UsageCrossReferencer.find(referenceTarget,rs);
+ 	}
 }

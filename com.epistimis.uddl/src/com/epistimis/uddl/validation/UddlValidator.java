@@ -92,6 +92,9 @@ public class UddlValidator extends AbstractUddlValidator {
 		 * https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.ocl.doc%2Fhelp%2FInstallation.html
 		 * for sample code
 		 * 
+		 * or 
+		 * https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.ocl.doc%2Fhelp%2FEvaluatingConstraints.html
+		 * 
 		 * getInputURI replaces that example's URI creation
 		 */
 		URI oclURI = getInputURI(resourceAddress, pluginId);
