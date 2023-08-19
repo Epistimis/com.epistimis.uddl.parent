@@ -270,6 +270,15 @@ package uddl
 	context LogicalEntity
 	
 		/**
+		 * Because we can have duplicate leaf names even when the FQNs are distinct
+		 * we return the full set. The caller will need to filter these in more
+		 * detail. Note further: We do not have a generic QualifiedNameProvider
+		 * defined in OCL because that duplicates what we have in Java. So we don't
+		 * parse QNs here.
+		 */
+		static def: findByName(n: String): Set(ConceptualEntity) =
+			LogicalEntity.allInstances()->select(o|o.name = n)->asSet()
+		/**
 		 * Return a set of all the model types referenced by this element
 		 */
 		def: referencedModelTypes(): Set(ConceptualComposableElement) =
@@ -292,6 +301,11 @@ package uddl
 		def: isTypeOrSpecializationOf(t: LogicalEntity): Boolean =
 			self = t or self.specializes.isTypeOrSpecializationOf(t)
 	
+		/**
+		 * Get all the Entities that specialize the root
+		 */
+		static def: specializationHierarchy(root: LogicalEntity): Set(LogicalEntity) =
+			LogicalEntity.allInstances()->select(isTypeOrSpecializationOf(root))
 
 		/**
 		 * LogicalEntities cannot specialize a LogicalAssociation. Any specialization of

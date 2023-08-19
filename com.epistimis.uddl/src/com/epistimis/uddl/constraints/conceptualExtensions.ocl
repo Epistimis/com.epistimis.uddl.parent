@@ -6,6 +6,8 @@ import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
 --import uddl : 'http://www.epistimis.com/uddl/Uddl'
 --import  '../../../../../model/generated/Uddl.ecore'
 import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
+--include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/library.ocl'
+
 
 
 package uddl
@@ -63,7 +65,6 @@ package uddl
 			let isect = self.referencedModelTypes()->intersection(objs) in
 			isect->size() = objs->size()
 	
-			
 	
 	
 	
@@ -122,6 +123,13 @@ package uddl
 				result->including(o,self.pathsToObservable(o))
 			) 
 
+		/**
+		 * Because we can have duplicate leaf names even when the FQNs are distinct
+		 * we return the full set. The caller will need to filter these in more
+		 * detail. Note further: We do not have a generic QualifiedNameProvider
+		 * defined in OCL because that duplicates what we have in Java. So we don't
+		 * parse QNs here.
+		 */
 		static def: findByName(n: String): Set(ConceptualEntity) =
 			ConceptualEntity.allInstances()->select(o|o.name = n)->asSet()
 			
@@ -148,6 +156,12 @@ package uddl
 		 */		
 		def: isTypeOrSpecializationOf(t: ConceptualEntity): Boolean =
 			self = t or self.specializes.isTypeOrSpecializationOf(t)
+
+		/**
+		 * Get all the Entities that specialize the root
+		 */
+		static def: specializationHierarchy(root: ConceptualEntity): Set(ConceptualEntity) =
+			ConceptualEntity.allInstances()->select(isTypeOrSpecializationOf(root))
 
 		/**
 		 * ConceptualEntities cannot specialize a ConceptualAssociation. Any specialization of

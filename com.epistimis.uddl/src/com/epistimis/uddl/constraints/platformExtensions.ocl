@@ -43,6 +43,15 @@ package uddl
 	context PlatformEntity
 	
 		/**
+		 * Because we can have duplicate leaf names even when the FQNs are distinct
+		 * we return the full set. The caller will need to filter these in more
+		 * detail. Note further: We do not have a generic QualifiedNameProvider
+		 * defined in OCL because that duplicates what we have in Java. So we don't
+		 * parse QNs here.
+		 */
+		static def: findByName(n: String): Set(ConceptualEntity) =
+			PlatformEntity.allInstances()->select(o|o.name = n)->asSet()
+		/**
 		 * Return a set of all the model types referenced by this element
 		 */
 		def: referencedModelTypes(): Set(ConceptualComposableElement) =
@@ -61,6 +70,13 @@ package uddl
 		 */		
 		def: isTypeOrSpecializationOf(t: PlatformEntity): Boolean =
 			self = t or self.specializes.isTypeOrSpecializationOf(t)
+
+		/**
+		 * Get all the Entities that specialize the root
+		 */
+		static def: specializationHierarchy(root: PlatformEntity): Set(PlatformEntity) =
+			PlatformEntity.allInstances()->select(isTypeOrSpecializationOf(root))
+
 	
 		/**
 		 * PlatformEntities cannot specialize a PlatformAssociation. Any specialization of
