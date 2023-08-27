@@ -134,14 +134,18 @@ package uddl
 			ConceptualEntity.allInstances()->select(o|o.name = n)->asSet()
 			
 		/**
-		 * Return a set of all the model types referenced by this element
+		 * Return a set of all the model types referenced by this element. Note that it includes 'self' and,
+		 * because the specialization processing is recursive, it also includes the entire 'specialization'
+		 * hierarchy for this entity.
 		 */
 		def: referencedModelTypes(): Set(ConceptualComposableElement) =
 			let myComps = self.composition->collect(type.referencedModelTypes())->flatten()->asSet() in
 			let parentTypes = if (self.specializes.oclIsUndefined()) then  Bag {} 
-			else if self.specializes.oclIsKindOf(ConceptualAssociation) then
-				self.specializes.oclAsType(ConceptualAssociation).referencedModelTypes() 
-				else self.specializes.referencedModelTypes() 
+			else 
+				if self.specializes.oclIsKindOf(ConceptualAssociation) then
+					self.specializes.oclAsType(ConceptualAssociation).referencedModelTypes() 
+				else 
+					self.specializes.referencedModelTypes() 
 				endif
 			endif in
 			-- Include 'self' because it is a structural type that we will sometimes want to know about
@@ -155,7 +159,7 @@ package uddl
 		 * specialization hierarchy
 		 */		
 		def: isTypeOrSpecializationOf(t: ConceptualEntity): Boolean =
-			self = t or self.specializes.isTypeOrSpecializationOf(t)
+			self = t or self?.specializes.isTypeOrSpecializationOf(t)
 
 		/**
 		 * Get all the Entities that specialize the root
@@ -174,17 +178,16 @@ package uddl
 	context ConceptualAssociation
 	
 		/**
-		 * Return a set of all the model types referenced by this element
+		 * Return a set of all the model types referenced by this element. Note that it includes 'self' and,
+		 * because the specialization processing is recursive, it also includes the entire 'specialization'
+		 * hierarchy for this entity (done in the ConceptualEntity::referencedModelTypes() call)
 		 */
 		def: referencedModelTypes(): Set(ConceptualComposableElement) =
+			-- compTypes call will also handle the specialization 
 			let compTypes = self.oclAsType(ConceptualEntity).referencedModelTypes() in
-			-- This call will also handle the specialization 
 			let assocTypes = self.participant->collect(type.referencedModelTypes())->flatten()->asSet() in
 			compTypes->union(assocTypes)
-	
-	--	def: referencesModelType(o:ConceptualObservable): Boolean = 
-	--		self.referencedModelTypes()->includes(o)
-	
+		
 	 context ConceptualView
 		/**
 		 * Return a set of all the model types referenced by this element

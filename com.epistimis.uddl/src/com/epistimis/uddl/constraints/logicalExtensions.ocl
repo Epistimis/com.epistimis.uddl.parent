@@ -299,7 +299,7 @@ package uddl
 		 * specialization hierarchy
 		 */		
 		def: isTypeOrSpecializationOf(t: LogicalEntity): Boolean =
-			self = t or self.specializes.isTypeOrSpecializationOf(t)
+			self = t or self?.specializes.isTypeOrSpecializationOf(t)
 	
 		/**
 		 * Get all the Entities that specialize the root
