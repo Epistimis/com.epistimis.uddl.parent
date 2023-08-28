@@ -106,6 +106,7 @@ package ocl
 		 */
 		def: asWarning(verdict : Boolean) : Boolean = if verdict then true else false endif
 
+
 --context Collection::max():T
 --	pre: self−>notEmpty()
 --	post: result = self−>any(e | self−>forAll(e2 | e >= e2))
@@ -119,7 +120,9 @@ package ocl
 --	post: result = self−>sum() / self−>size()
 
 
---context OrderedSet::covariance(Y: OrderedSet):Real pre: self−>size() = Y−>size() and self−>notEmpty() post:
+--context OrderedSet::covariance(Y: OrderedSet):Real 
+--  pre: self−>size() = Y−>size() and self−>notEmpty() 
+--  post:
 --	let avgY:Real = Y−>avg() in
 --	let avgSelf:Real = self−>avg() in
 --		result = (1/self−>size()) *
