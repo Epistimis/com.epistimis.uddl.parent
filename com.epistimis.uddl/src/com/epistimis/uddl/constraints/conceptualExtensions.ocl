@@ -212,8 +212,6 @@ package uddl
 		 * Also does not work with aliases
 		 */
 	   def: referencedEntities(): Set(ConceptualEntity) =
-	--		let names = name.tokenize(',') in
-	--		let entities = LogicalEntity.allInstances()->select(o|names.includes(o.name))->asSet() in
 			let lspec = self.specification.toLowerCase() in
 			let fromNdx = lspec.indexOf(' from ') in
 			let whereNdx = lspec.indexOf(' where ') in
@@ -231,7 +229,7 @@ package uddl
 						 	endif
 						 endif in
 			let name = self.specification.substring(fromNdx+6,endNdx).trim() in
-			 ConceptualEntity.allInstances()->select(o|o.name = name)->asSet()
+			 ConceptualEntity::findByName(name)->asSet()
 	   
 		/**
 		 * Return a set of all the model types referenced by this element

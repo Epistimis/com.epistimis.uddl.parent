@@ -165,15 +165,6 @@ package uddl
 		static def: findSetRootedInNames(names: Set(String)): Set(LogicalEnumeratedBase) =
 			findByNames(names)->collect(flattenLabels())->asSet()
 
-		/**
-		 * Helper method to walk up the enumeration hierarchy and 
-		 * find the enum with the name specified - or null if it 
-		 * isn't above the starting point.
-		 */
-	--    def: containedIn(name: String): Boolean = 
-	--    	let container = obj.oclContainer.oclAsType(LogicalEnumeratedBase) in
-	-- 			container.name.toLower == name or
-	-- 			container->containedIn(name)
 	
 	    /*
 	     * An LogicalEnumeratedBase's name is not an IDL reserved word.
@@ -189,11 +180,6 @@ package uddl
 		 def: root(): LogicalEnumerated =
 			self
   
---  	static def: findWithName(name: String): Collection(LogicalEnumerated) =
---  		LogicalEnumerated.allInstances()->select(e : LogicalEnumerated| e.name.toLowerCase() = name.toLowerCase())
---  
---  	static def: findWithRQN(rqn: String): Collection(LogicalEnumerated) =
---  		let qn = rqn->tokenize(".")
 	    /*
 	     * Helper method - flattens the hierarchy. Can't just use 'flatten' because it expects a collection only , not objects that include collections
 	     * as members.
@@ -225,13 +211,7 @@ package uddl
 	   	 def: flattenLabels(): Collection(LogicalEnumeratedBase) =
 	  	    self.label->closure(e: LogicalEnumeratedBase | if e.oclIsTypeOf(LogicalEnumeratedSet) then e.oclAsType(LogicalEnumeratedSet).label else Bag{e} endif)->including(self.oclAsType(LogicalEnumeratedBase))
 	
-	
-	
-	--    def: containedIn( obj: ecore::EObject): Boolean = 
-	--    	let container = obj.oclContainer.oclAsType(LogicalEnumeratedBase) in
-	--    	container->closure()->includes(obj)
-	
-	    	 	
+		    	 	
   	context LogicalEnumerationLabel
 	    /*
 	     * Helper method - end of recursion 
@@ -276,7 +256,7 @@ package uddl
 		 * defined in OCL because that duplicates what we have in Java. So we don't
 		 * parse QNs here.
 		 */
-		static def: findByName(n: String): Set(ConceptualEntity) =
+		static def: findByName(n: String): Set(LogicalEntity) =
 			LogicalEntity.allInstances()->select(o|o.name = n)->asSet()
 		/**
 		 * Return a set of all the model types referenced by this element
@@ -363,9 +343,7 @@ package uddl
 						 	endif
 						 endif in
 			let name = self.specification.substring(fromNdx+6,endNdx).trim() in
---		let names = nameraw.tokenize(',') in
---		let entities = LogicalEntity.allInstances()->select(o|names.includes(o.name))->asSet() in
-			LogicalEntity.allInstances()->select(o|o.name = name)->asSet()
+			LogicalEntity::findByName(name)->asSet()
 		/**
 		 * Return a set of all the model types referenced by this element
 		 */

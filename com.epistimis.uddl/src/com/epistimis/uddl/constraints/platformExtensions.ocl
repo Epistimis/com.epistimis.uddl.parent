@@ -49,7 +49,7 @@ package uddl
 		 * defined in OCL because that duplicates what we have in Java. So we don't
 		 * parse QNs here.
 		 */
-		static def: findByName(n: String): Set(ConceptualEntity) =
+		static def: findByName(n: String): Set(PlatformEntity) =
 			PlatformEntity.allInstances()->select(o|o.name = n)->asSet()
 		/**
 		 * Return a set of all the model types referenced by this element
@@ -134,7 +134,7 @@ package uddl
 						 	endif
 						 endif in
 			let name = self.specification.substring(fromNdx+6,endNdx).trim() in
-			PlatformEntity.allInstances()->select(o|o.name = name)->asSet() 
+			PlatformEntity::findByName(name)->asSet() 
 	
 		/**
 		 * Return a set of all the model types referenced by this element
