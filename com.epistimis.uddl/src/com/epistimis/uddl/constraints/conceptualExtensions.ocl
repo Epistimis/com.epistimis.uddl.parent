@@ -131,7 +131,8 @@ package uddl
 		 * parse QNs here.
 		 */
 		static def: findByName(n: String): Set(ConceptualEntity) =
-			ConceptualEntity.allInstances()->select(o|o.name = n)->asSet()
+			let ents = uddl::ConceptualEntity.allInstances() in
+			ents->select(o|o.name = n)->asSet()
 			
 		/**
 		 * Return a set of all the model types referenced by this element. Note that it includes 'self' and,
@@ -159,13 +160,14 @@ package uddl
 		 * specialization hierarchy
 		 */		
 		def: isTypeOrSpecializationOf(t: ConceptualEntity): Boolean =
-			self = t or self?.specializes.isTypeOrSpecializationOf(t)
+			self = t or if (self.specializes->notEmpty()) then self.specializes.isTypeOrSpecializationOf(t) else false endif
 
 		/**
 		 * Get all the Entities that specialize the root
 		 */
 		static def: specializationHierarchy(root: ConceptualEntity): Set(ConceptualEntity) =
-			ConceptualEntity.allInstances()->select(isTypeOrSpecializationOf(root))
+			let ents = uddl::ConceptualEntity.allInstances() in 
+			ents->select(isTypeOrSpecializationOf(root))
 
 		/**
 		 * ConceptualEntities cannot specialize a ConceptualAssociation. Any specialization of
