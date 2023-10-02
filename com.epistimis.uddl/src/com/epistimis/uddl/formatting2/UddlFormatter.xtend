@@ -38,6 +38,8 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.formatting2.regionaccess.ISemanticRegion
 
 import static com.epistimis.uddl.uddl.UddlPackage.Literals.*
+import com.epistimis.uddl.uddl.PlatformDataType
+
 //import com.google.inject.Inject
 //import com.epistimis.uddl.services.UddlGrammarAccess
 
@@ -79,23 +81,24 @@ class UddlFormatter extends AbstractFormatter2 {
 
 	def void formatContainerContents(EList<EObject> objs, extension IFormattableDocument document) {
 		for (obj : objs) {
-			obj.append[setNewLines(1, 1, 2)]
+			obj.prepend[setNewLines(1,1,2)].append[setNewLines(1, 1, 2)]
 		}
 	}
 
 	def void formatContainer(EObject obj, extension IFormattableDocument document) {
 		val open = obj.regionFor.keyword("{")
 		val close = obj.regionFor.keyword("}")
-		open.append[newLine]
+		open.prepend[setNewLines(1,1,2)].append[newLine]
+		close.prepend[setNewLines(1,1,2)].append[setNewLines(1,1,2)]
 		interior(open, close)[indent]
 	}
 	def void formatObj(EObject obj, extension IFormattableDocument document) {
 		val open = obj.regionFor.keyword("{")
 		val close = obj.regionFor.keyword("};")
-		open.append[newLine]
+		open.prepend[setNewLines(1,1,2)].append[newLine]
+		close.prepend[setNewLines(1,1,2)].append[setNewLines(1,1,2)];
 		interior(open, close)[indent]
 
-		obj.regionFor.keyword('};').surround[noSpace].append[setNewLines(1,1,2)];
 	}
 
 	def void formatSubobj(EObject obj, extension IFormattableDocument document) {
@@ -359,6 +362,12 @@ class UddlFormatter extends AbstractFormatter2 {
 	def dispatch void format(PlatformEntity obj, extension IFormattableDocument document) {
 		obj.formatEntity(document);
 
+	}
+
+	def dispatch void format(PlatformDataType obj, extension IFormattableDocument document) {
+		formatAttributeElement(obj.regionFor.feature(UDDL_ELEMENT__NAME ),document);
+		formatAttributeElement(obj.regionFor.feature(UDDL_ELEMENT__DESCRIPTION ),document);
+		formatAttributeElement(obj.regionFor.feature(PLATFORM_DATA_TYPE__REALIZES ),document);
 	}
 
 	def dispatch void formatCharacteristic(PlatformCharacteristic obj, extension IFormattableDocument document) {
