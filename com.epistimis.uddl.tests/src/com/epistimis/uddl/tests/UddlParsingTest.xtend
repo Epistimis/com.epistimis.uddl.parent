@@ -91,9 +91,9 @@ dm d2  {
 			map[it.qualifiedName].join(", "))
 	}
 
-	def private assertExternalTypesInIndex(EObject o, EClass type, String expected) {
-		val visibleExternalDescriptions = o.getVisibleExternalEObjectDescriptionsByType(type)
-		expected.assertEquals(visibleExternalDescriptions.values.
-			map[it.qualifiedName].join(", "))
-	}
+//	def private assertExternalTypesInIndex(EObject o, EClass type, String expected) {
+//		val visibleExternalDescriptions = o.getVisibleExternalEObjectDescriptionsByType(type)
+//		expected.assertEquals(visibleExternalDescriptions.values.
+//			map[it.qualifiedName].join(", "))
+//	}
 }

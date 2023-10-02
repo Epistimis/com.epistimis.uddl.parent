@@ -5,43 +5,43 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.xtext.scoping.IScopeProvider
 import org.eclipse.xtext.testing.InjectWith
-import org.eclipse.xtext.testing.XtextRunner
-import org.eclipse.xtext.testing.util.ParseHelper
+//import org.eclipse.xtext.testing.XtextRunner
+//import org.eclipse.xtext.testing.util.ParseHelper
 //import org.example.smalljava.SmallJavaModelUtil
 //import org.example.smalljava.smallJava.SJMemberSelection
 //import org.example.smalljava.smallJava.SJMethod
 //import org.example.smalljava.smallJava.SJProgram
 //import org.example.smalljava.smallJava.SJSymbolRef
 //import org.example.smalljava.smallJava.SJVariableDeclaration
-import com.epistimis.uddl.uddl.UddlPackage
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
+//import com.epistimis.uddl.uddl.UddlPackage
+//import org.junit.jupiter.api.Assertions
+//import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
 
 import static extension org.junit.jupiter.api.Assertions.assertEquals
-import com.epistimis.uddl.uddl.DataModel
-import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
+//import com.epistimis.uddl.uddl.DataModel
+//import org.eclipse.emf.ecore.resource.Resource
+//import org.eclipse.emf.common.util.URI
+//import org.eclipse.emf.ecore.resource.ResourceSet
+//import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 
 @ExtendWith(InjectionExtension)
 @InjectWith(UddlInjectorProvider)
 class UddlScopeProviderTest {
-	@Inject extension ParseHelper<DataModel>
+//	@Inject extension ParseHelper<DataModel>
 	@Inject extension IScopeProvider
 
 	/**
 	 * Read in the UDDL SDM into a resource. Then add to that simple models that 
 	 */
-	static ResourceSet testRS;
-	static Resource uddlSDM;
+//	static ResourceSet testRS;
+//	static Resource uddlSDM;
 
 	def static initializeSDM() {
-		val uri = URI.createFileURI("UDDL_SDM_Min.uddl");
-		testRS = new ResourceSetImpl();
-		uddlSDM = testRS.getResource(uri, true);
+//		val uri = URI.createFileURI("UDDL_SDM_Min.uddl");
+//		testRS = new ResourceSetImpl();
+//		uddlSDM = testRS.getResource(uri, true);
 
 	}
 

@@ -31,7 +31,7 @@ import com.epistimis.uddl.exceptions.NamedObjectNotFoundException;
 import com.epistimis.uddl.exceptions.QueryMatchException;
 import com.epistimis.uddl.exceptions.WrongTypeException;
 import com.epistimis.uddl.query.query.ExplicitSelectedEntityCharacteristicReference;
-import com.epistimis.uddl.query.query.ProjectedCharacteristicAlias;
+//import com.epistimis.uddl.query.query.ProjectedCharacteristicAlias;
 import com.epistimis.uddl.query.query.ProjectedCharacteristicExpression;
 import com.epistimis.uddl.query.query.ProjectedCharacteristicList;
 import com.epistimis.uddl.query.query.QueryIdentifier;
@@ -494,7 +494,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 					// pce must be an ExplicitSelectedEntityCharacteristicReference
 					ExplicitSelectedEntityCharacteristicReference esecr = (ExplicitSelectedEntityCharacteristicReference) pce;
 					SelectedEntityCharacteristicReference secr = esecr.getSelectedEntityCharacteristicReference();
-					ProjectedCharacteristicAlias alias = esecr.getProjectedCharacteristicAlias();
+//					ProjectedCharacteristicAlias alias = esecr.getProjectedCharacteristicAlias();
 					QueryIdentifier se = (QueryIdentifier) secr.getSelectedEntity();
 					if (se == null) {
 						// If no selected entity, that means the characteristic only exists in one of

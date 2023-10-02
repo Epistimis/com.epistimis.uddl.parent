@@ -1,10 +1,10 @@
 package com.epistimis.uddl.validation;
 
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.ENamedElement;
-import org.eclipse.emf.ecore.EReference;
+//import org.eclipse.emf.ecore.EAttribute;
+//import org.eclipse.emf.ecore.ENamedElement;
+//import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.xtend.lib.annotations.Data;
+//import org.eclipse.xtend.lib.annotations.Data;
 
 /**
  * Use this when identifying a message to be specified in the Eclipse errors list / edit window
