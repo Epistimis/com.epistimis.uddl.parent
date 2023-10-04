@@ -69,8 +69,8 @@ package uddl
 		 * specialization hierarchy
 		 */		
 		def: isTypeOrSpecializationOf(t: PlatformEntity): Boolean =
-			self = t or self?.specializes.isTypeOrSpecializationOf(t)
-
+			self = t or if (self.specializes->notEmpty()) then self.specializes.isTypeOrSpecializationOf(t) else false endif
+ 
 		/**
 		 * Get all the Entities that specialize the root
 		 */
