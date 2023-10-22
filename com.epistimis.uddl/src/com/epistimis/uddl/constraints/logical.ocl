@@ -1,24 +1,39 @@
+/**
+ * UDDL standard constraints - adjusted for this metamodel
+ */
+import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
+--import  '../../../../../model/generated/Uddl.ecore'
+import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
 
-import  '../../../../../model/generated/Uddl.ecore'
-include 'helpers.ocl'
-include 'conceptual.ocl'
+--include 'helpers.ocl'
+--include 'conceptual.ocl'
+include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/helpers.ocl'
+include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl'
 
 package uddl --face::datamodel::logical
 
-  context LogicalElement
-    /*
-     * Every Logical LogicalElement has a unique name,
-     * with the exception of Constraints.
-     */
-    inv hasUniqueName:
-      not self.oclIsTypeOf(LogicalConstraint) implies
-      not LogicalElement.allInstances()->excluding(self)
-                                ->collect(name.toLowerCase())
-                                ->includes(self.name.toLowerCase())
+--  context LogicalElement
+--    /*
+--     * Every Logical LogicalElement has a unique name,
+--     * with the exception of Constraints.
+--     * 
+--     * NOTE:  The select line converts this from globally unique name to FQN unique
+--     * because it only compares names with the same parent container.  This is a variation
+--     * from the FACE/ UDDL spec
+--     * 
+--     * NOTE: XText automatically enforces this - this is redundant
+--     */
+--   inv hasUniqueName('Names must be unique within a container'):
+--      not self.oclIsTypeOf(LogicalConstraint) implies
+--    	let parent = self.oclContainer in 
+--      not LogicalElement.allInstances()->excluding(self)
+--      							->select(e|e.oclContainer = parent)
+--                                ->collect(name.toLowerCase())
+--                                ->includes(self.name.toLowerCase())
 
   context LogicalEntity
     /*
-     * Helper method that gets the Characteristics contained in an LogicalEntity.
+     * Helper method that gets the Characteristics contained in a LogicalEntity.
      */
     def: getLocalCharacteristics() : Set(LogicalCharacteristic) =
       if self.oclIsTypeOf(LogicalAssociation) then
@@ -34,7 +49,7 @@ package uddl --face::datamodel::logical
       endif
       
     /*
-     * Helper method that gets the Characteristics of an LogicalEntity,
+     * Helper method that gets the Characteristics of a LogicalEntity,
      * including those from specialized Entities.
      */
     def: getAllCharacteristics() : Set(LogicalCharacteristic) =
@@ -49,14 +64,14 @@ package uddl --face::datamodel::logical
                                               c2.specializes = c1))
 
     /*
-     * A LogicalCharacteristic's rolename is unique within an LogicalEntity.
+     * A LogicalCharacteristic's rolename is unique within a LogicalEntity.
      */
     inv characteristicsHaveUniqueRolenames:
       self.getAllCharacteristics()->isUnique(rolename)
 
     /*
-     * Compositions in a logical LogicalEntity realize Compositions in
-     * the conceptual LogicalEntity that the logical LogicalEntity realizes.
+     * Compositions in a  LogicalEntity realize Compositions in
+     * the ConceptualEntity that the LogicalEntity realizes.
      */
     inv compositionsConsistentWithRealization:
       self.composition
@@ -64,8 +79,8 @@ package uddl --face::datamodel::logical
           ->forAll(c | self.realizes.composition->exists(c2 | c = c2))
           
     /*
-     * An LogicalEntity does not contain two Compositions that realize the same
-     * conceptual LogicalComposition unless their types are different Measurements
+     * A LogicalEntity does not contain two Compositions that realize the same
+     * ConceptualComposition unless their types are different Measurements
      * and their multiplicities are equal.
      */
     inv realizedCompositionsHaveDifferentTypes:
@@ -79,7 +94,7 @@ package uddl --face::datamodel::logical
                                         c1.upperBound = c2.upperBound)
     
     /*
-     * If an LogicalEntity specializes, its specialization is
+     * If a LogicalEntity specializes, its specialization is
      * consistent with its realization's specialization.
      */
     inv specializationConsistentWithRealization:
@@ -87,7 +102,7 @@ package uddl --face::datamodel::logical
       self.specializes.realizes = self.realizes.specializes
            
     /*
-     * An LogicalEntity has at least one LogicalCharacteristic defined
+     * A LogicalEntity has at least one LogicalCharacteristic defined
      * locally (not through generalization), unless the
      * LogicalEntity is in the "middle" of a generalization hierarchy.
      */
@@ -104,7 +119,7 @@ package uddl --face::datamodel::logical
   context LogicalAssociation    
     /*
      * Participants in a logical LogicalAssociation realize Participants in
-     * the conceptual LogicalAssociation that the logical LogicalAssociation realizes.
+     * the ConceptualAssociation that the LogicalAssociation realizes.
      */
     inv participantsConsistentWithRealization:
       self.participant
@@ -114,7 +129,7 @@ package uddl --face::datamodel::logical
                             ->exists(ae2 | ae = ae2))
     
     /*
-     * Participants in an LogicalAssociation realize unique Participants.
+     * Participants in a LogicalAssociation realize unique Participants.
      */
     inv participantsRealizeUniquely:
       self.participant->forAll(p1, p2 | p1 <> p2 implies
@@ -142,8 +157,8 @@ package uddl --face::datamodel::logical
       endif
 
     /*
-     * Helper method that gets the conceptual LogicalCharacteristic a
-     * logical LogicalCharacteristic realizes.
+     * Helper method that gets the ConceptualCharacteristic a
+     * LogicalCharacteristic realizes.
      */
     def: getRealizes() : ConceptualCharacteristic =
       if self.oclIsTypeOf(LogicalComposition) then
@@ -387,8 +402,8 @@ package uddl --face::datamodel::logical
       self.composition->collect(type)->isUnique(view | view)
       
     /*
-     * QueryCompositions in a logical LogicalCompositeQuery realize QueryCompositions
-     * in the conceptual LogicalCompositeQuery that the logical LogicalCompositeQuery
+     * QueryCompositions in a LogicalCompositeQuery realize QueryCompositions
+     * in the ConceptualCompositeQuery that the LogicalCompositeQuery
      * realizes.
      */
     inv compositionsConsistentWithRealization:
@@ -488,8 +503,8 @@ package uddl --face::datamodel::logical
 
   context LogicalValueTypeUnit
     /*
-     * If a LogicalValueTypeUnit "A" contains an LogicalEnumerationConstraint,
-     * then A's valueType is an LogicalEnumerated, and the constraint's
+     * If a LogicalValueTypeUnit "A" contains a LogicalEnumerationConstraint,
+     * then A's valueType is a LogicalEnumerated, and the constraint's
      * allowedValues are EnumerationLabels from that LogicalEnumerated.
      */
     inv appropriateLabelsForEnumeratedConstraint:
@@ -525,20 +540,20 @@ package uddl --face::datamodel::logical
       
   context LogicalEnumerated
     /*
-     * An LogicalEnumerated's name is not an IDL reserved word.
+     * A LogicalEnumerated's name is not an IDL reserved word.
      */                        
     inv nameIsNotReservedWord:
       not UddlElement::isReservedWord(self.name)
   
     /*
-     * An LogicalEnumerationLabel's name is unique within an LogicalEnumerated.
+     * A LogicalEnumerationLabel's name is unique within a LogicalEnumerated.
      */
     inv enumerationLabelNameUnique:
       self.label->isUnique(name)
       
   context LogicalEnumerationLabel
     /*
-     * An LogicalEnumerationLabel's name is not an IDL reserved word.
+     * A LogicalEnumerationLabel's name is not an IDL reserved word.
      */                        
     inv nameIsNotReservedWord:
       not UddlElement::isReservedWord(self.name)
@@ -546,7 +561,7 @@ package uddl --face::datamodel::logical
   context LogicalMeasurementSystem
     /*
      * Helper method that determines if a LogicalMeasurementSystem
-     * uses an LogicalEnumerated LogicalValueType in any of its axes.
+     * uses a LogicalEnumerated LogicalValueType in any of its axes.
      */
     def: hasAnEnumeratedValueType() : Boolean =
       let valueTypes: Collection(LogicalValueType) =
@@ -554,7 +569,7 @@ package uddl --face::datamodel::logical
       valueTypes->exists(vt | vt.oclIsTypeOf(LogicalEnumerated))
 
     /*
-     * There is one LogicalMeasurementSystem that uses an LogicalEnumerated LogicalValueType
+     * There is one LogicalMeasurementSystem that uses a LogicalEnumerated LogicalValueType
      * in any of its axes. Its name is "AbstractDiscreteSet",
      * and it has one axis.
      */
@@ -631,7 +646,7 @@ package uddl --face::datamodel::logical
   context LogicalMeasurement
     /*
      * Helper method that determines if a LogicalMeasurement
-     * uses an LogicalEnumerated LogicalValueType in any of its axes.
+     * uses a LogicalEnumerated LogicalValueType in any of its axes.
      */
     def: hasAnEnumeratedValueType() : Boolean =
       let valueTypes: Collection(LogicalValueType) =
@@ -646,7 +661,7 @@ package uddl --face::datamodel::logical
         self.measurementSystem.oclIsTypeOf(LogicalStandardMeasurementSystem)
 
     /*
-     * A LogicalMeasurement that uses an LogicalEnumerated LogicalValueType in any of its axes
+     * A LogicalMeasurement that uses a LogicalEnumerated LogicalValueType in any of its axes
      * is based on the 'AbstractDiscreteSet' LogicalMeasurementSystem.
      */
     inv enumeratedMeasurementUsesEnumeratedMeasurementSystem:

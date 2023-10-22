@@ -1,8 +1,5 @@
 package com.epistimis.uddl;
 
-import com.epistimis.uddl.uddl.ConceptualBasisEntity;
-import com.epistimis.uddl.uddl.LogicalEnumerated;
-import com.epistimis.uddl.uddl.LogicalEnumeratedBase;
 import com.epistimis.uddl.uddl.LogicalMeasurement;
 
 /**

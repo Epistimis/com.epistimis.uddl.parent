@@ -4,10 +4,14 @@ package com.epistimis.uddl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.epistimis.uddl.uddl.PlatformComposableElement;
 
 
 public class RealizedComposableElement {
+
+	static Logger logger = Logger.getLogger(RealizedComposableElement.class);
 
 	/**
 	 * This is, essentially, a compiler name table. It contains the results of processing all the composable elements in the model to
@@ -32,10 +36,10 @@ public class RealizedComposableElement {
 					RealizedComposableElement realizedType = allComposableElements.get(type);
 					if (realizedType == null) {
 						if (type != null) {
-							System.out.println("Could not find realization for " + type.getName());
+							logger.warn("Could not find realization for " + type.getName());
 						}
 						else {
-							System.out.println("Could not find realization for null type for " + rc.getRolename() + " of " +re.getName());
+							logger.warn("Could not find realization for null type for " + rc.getRolename() + " of " +re.getName());
 							
 						}
 					}

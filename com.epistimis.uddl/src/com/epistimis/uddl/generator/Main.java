@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -27,12 +28,15 @@ import com.epistimis.uddl.UddlStandaloneSetup;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.eclipse.xtext.diagnostics.Severity;
 
 public class Main {
 
+	static Logger logger = Logger.getLogger(Main.class);
+
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			System.err.println("Aborting: no path to EMF resource provided!");
+			logger.error("Aborting: no path to EMF resource provided!");
 			return;
 		}
 		Injector injector = new UddlStandaloneSetup().createInjectorAndDoEMFRegistration();
@@ -83,11 +87,11 @@ public class Main {
 					
 
 			} catch (Exception excp) {
-				System.out.println("Exception: " + excp.getLocalizedMessage());
-				excp.printStackTrace();
+				logger.error("Exception: " + excp.getLocalizedMessage(),excp);
+				//excp.printStackTrace();
 				return;
 			}
-			System.out.println("Finished processing " + args[0]);
+			logger.info("Finished processing " + args[0]);
 		}
 		
 		for (String arg: args) {
@@ -105,7 +109,20 @@ public class Main {
 			List<Issue> list = validator.validate(resource, CheckMode.ALL, CancelIndicator.NullImpl);
 			if (!list.isEmpty()) {
 				for (Issue issue : list) {
-					System.err.println(issue);
+					switch(issue.getSeverity()) {
+					case ERROR:
+						logger.error(issue);
+						break;
+					case WARNING:
+						logger.warn(issue);
+						break;
+					case INFO:
+						logger.info(issue);
+						break;
+					case IGNORE:
+						logger.trace(issue);
+						break;
+					}
 				}
 				return;
 			}
@@ -121,6 +138,6 @@ public class Main {
 		context.setCancelIndicator(CancelIndicator.NullImpl);
 		generator.generate(res2Gen, fileAccess, context);
 
-		System.out.println("Code generation finished.");
+		logger.info("Code generation finished.");
 	}
 }

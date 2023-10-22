@@ -1,0 +1,252 @@
+/**
+ * UDDL Conceptual level - Epistimis extensions outside of the UDDL spec
+ */
+import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
+
+--import uddl : 'http://www.epistimis.com/uddl/Uddl'
+--import  '../../../../../model/generated/Uddl.ecore'
+import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
+--include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/library.ocl'
+
+
+
+package uddl
+
+	context UddlElement
+	   /**
+		 * Declare a helper operation to map an ok/warning verdict to ok/error.
+		 */
+		def: asError(verdict : Boolean) : Boolean = if verdict then true else null endif
+
+	   /**
+		 * Declare a helper operation to map an ok/warning verdict to ok/warning. This doesn't 
+		 * do anything but gives us two functions with similar names in case developers forget
+		 * they can just use they inv return 'as is' for warnings.
+		 */
+		def: asWarning(verdict : Boolean) : Boolean = if verdict then true else false endif
+
+
+	context ConceptualComposableElement
+	
+		static def: findByName(n: String): Set(ConceptualComposableElement) =
+			ConceptualComposableElement.allInstances()->select(o|o.name = n)->asSet()
+		/**
+		 * TODO: Nothing here addresses finding a data structure pattern in a general way. That would
+		 * require knowing roles and contains/containment/ reference information. Roles are defined at the privacy
+		 * level - so this problem will have to be addressed there.
+		 */
+		
+		/**
+		 * Return a set of all the model types referenced by this element
+		 */
+	    def: referencedModelTypes(): Set(ConceptualComposableElement) =
+	 		if (self.oclIsKindOf(ConceptualObservable)) then
+				self.oclAsType(ConceptualObservable).referencedModelTypes()
+			else
+				self.oclAsType(ConceptualEntity).referencedModelTypes()
+			endif
+	    	
+		/**
+		 * Does this element reference the specified type?
+		 */
+		def: referencesModelType(o:ConceptualObservable): Boolean = 
+			self.referencedModelTypes()->includes(o)
+			
+		/**
+		 * Does this element reference any of the specified observables?
+		 */
+		def: referencesAnyModelTypes(objs:Set(ConceptualObservable)): Boolean = 
+			self.referencedModelTypes()->intersection(objs)->notEmpty()
+	
+		/**
+		 * Does this element reference all of the specified observables?
+		 */
+		def: referencesAllModelTypes(objs:Set(ConceptualObservable)): Boolean = 
+			let isect = self.referencedModelTypes()->intersection(objs) in
+			isect->size() = objs->size()
+	
+	
+	
+	
+	context ConceptualObservable
+	
+		static def: findByName(n: String): Set(ConceptualObservable) =
+			ConceptualObservable.allInstances()->select(o|o.name = n)->asSet()
+		/**
+		 * Return a set of all the model types referenced by this element
+		 */
+	    def: referencedModelTypes(): Set(ConceptualComposableElement) =
+			self->asSet()
+	
+			
+	
+	context ConceptualComposition
+	
+		/**
+		 * A helper to hide how the rolename is determined because it changes 
+		 */
+		def: calculatedRoleName(): String =
+			self.rolename
+			
+	context ConceptualEntity
+	
+		/**
+		 * This returns a set of 'paths' (each as a sequence of strings) that list the
+		 * relative qualified rolenames to get from self to a ConceptualObservable of the specified type.
+		 * Since same observable may be in different ConceptualEntities contained within this one,
+		 * we can have multiple paths - so we return a Set of Sequences
+		 */
+		def: pathsToObservable(obs: ConceptualObservable):Set(Sequence(String)) =
+			self.composition->iterate(comp: ConceptualComposition; result:Set(Sequence(String)) = Set{Sequence{}} |
+				let tempResults = 
+					if (comp.type = obs) then 
+						Set{Sequence{comp.calculatedRoleName()}}  
+					else 
+						if (comp.type.oclIsKindOf(ConceptualEntity)) then 
+							let lowerResult = comp.type.oclAsType(ConceptualEntity).pathsToObservable(obs) in
+							let prepResult = lowerResult->collectNested(prepend(comp.rolename)) in
+							prepResult->asSet()
+						else
+							null --Set{null}
+						endif
+					endif
+				in
+				tempResults->reject(null)->asSet()
+			)
+
+		/**
+		 * Return a map where the key is the ConceptualObservable and the value is the set of RQN / paths
+		 * to observables of that type from self
+		 */
+		def: pathsToObservables(obs: Set(ConceptualObservable)):Map(ConceptualObservable,Set(Sequence(String))) =
+			obs->iterate(o: ConceptualObservable; result: Map(ConceptualObservable,Set(Sequence(String))) = Map{} |
+				result->including(o,self.pathsToObservable(o))
+			) 
+
+		/**
+		 * Because we can have duplicate leaf names even when the FQNs are distinct
+		 * we return the full set. The caller will need to filter these in more
+		 * detail. Note further: We do not have a generic QualifiedNameProvider
+		 * defined in OCL because that duplicates what we have in Java. So we don't
+		 * parse QNs here.
+		 */
+		static def: findByName(n: String): Set(ConceptualEntity) =
+			let ents = uddl::ConceptualEntity.allInstances() in
+			ents->select(o|o.name = n)->asSet()
+			
+		/**
+		 * Return a set of all the model types referenced by this element. Note that it includes 'self' and,
+		 * because the specialization processing is recursive, it also includes the entire 'specialization'
+		 * hierarchy for this entity.
+		 */
+		def: referencedModelTypes(): Set(ConceptualComposableElement) =
+			let myComps = self.composition->collect(type.referencedModelTypes())->flatten()->asSet() in
+			let parentTypes = if (self.specializes.oclIsUndefined()) then  Bag {} 
+			else 
+				if self.specializes.oclIsKindOf(ConceptualAssociation) then
+					self.specializes.oclAsType(ConceptualAssociation).referencedModelTypes() 
+				else 
+					self.specializes.referencedModelTypes() 
+				endif
+			endif in
+			-- Include 'self' because it is a structural type that we will sometimes want to know about
+			self->asSet()->union(myComps->union(parentTypes))->asSet()
+	
+		def: matchingObservables(checklist: Set(uddl::ConceptualObservable) ): Set(uddl::ConceptualObservable) = 
+			self.referencedModelTypes()->selectByType(uddl::ConceptualObservable)->select(t|checklist->includes(t)) 
+			
+		/**
+		 * oclIsKindOf uses the metamodel. We want to follow the UDDL
+		 * specialization hierarchy
+		 */		
+		def: isTypeOrSpecializationOf(t: ConceptualEntity): Boolean =
+			self = t or if (self.specializes->notEmpty()) then self.specializes.isTypeOrSpecializationOf(t) else false endif
+
+		/**
+		 * Get all the Entities that specialize the root
+		 */
+		static def: specializationHierarchy(root: ConceptualEntity): Set(ConceptualEntity) =
+			let ents = uddl::ConceptualEntity.allInstances() in 
+			ents->select(isTypeOrSpecializationOf(root))
+
+		/**
+		 * ConceptualEntities cannot specialize a ConceptualAssociation. Any specialization of
+		 * a ConceptualAssocation must be a ConceptualAssociation. Why? Because it's still a
+		 * ConceptualAssociation even if the specialization does not add participants
+		 */
+		inv specializesOnlyConceptualEntity:
+			self.specializes <> null implies not self.specializes.oclIsKindOf(ConceptualAssociation)
+	
+	context ConceptualAssociation
+	
+		/**
+		 * Return a set of all the model types referenced by this element. Note that it includes 'self' and,
+		 * because the specialization processing is recursive, it also includes the entire 'specialization'
+		 * hierarchy for this entity (done in the ConceptualEntity::referencedModelTypes() call)
+		 */
+		def: referencedModelTypes(): Set(ConceptualComposableElement) =
+			-- compTypes call will also handle the specialization 
+			let compTypes = self.oclAsType(ConceptualEntity).referencedModelTypes() in
+			let assocTypes = self.participant->collect(type.referencedModelTypes())->flatten()->asSet() in
+			compTypes->union(assocTypes)
+		
+	 context ConceptualView
+		/**
+		 * Return a set of all the model types referenced by this element
+		 */
+		def: referencedModelTypes(): Set(ConceptualComposableElement) =
+			if (self.oclIsTypeOf(ConceptualQuery)) then
+				self.oclAsType(ConceptualQuery).referencedModelTypes()
+			else 
+				self.oclAsType(ConceptualCompositeQuery).referencedModelTypes()
+			endif
+	
+		def: matchingObservables(checklist: Set(uddl::ConceptualObservable) ): Set(uddl::ConceptualObservable) = 
+			self.referencedModelTypes()->selectByType(uddl::ConceptualObservable)->select(t|checklist->includes(t)) 
+	
+	context ConceptualQuery
+	
+		/**
+		 * Return a set of all the ConceptualEntities referenced by this element
+		 * TODO: This requires a Java call - which isn't yet available.
+		 * In the mean time, some simple string parsing might work in limited cases
+		 * This only works on a single entity name - need to split it to get more
+		 * Also does not work with aliases
+		 */
+	   def: referencedEntities(): Set(ConceptualEntity) =
+			let lspec = self.specification.toLowerCase() in
+			let fromNdx = lspec.indexOf(' from ') in
+			let whereNdx = lspec.indexOf(' where ') in
+			let joinNdx = lspec.indexOf(' join ') in
+			let asNdx = lspec.indexOf(' as ') in
+			let endNdx = if (asNdx > fromNdx) then
+							asNdx
+						 else if ( joinNdx > fromNdx) then 
+								joinNdx 
+						 	else if (whereNdx > fromNdx) then 
+						 			whereNdx 
+						 		else -- 
+						 			self.specification.size() 
+						 		endif
+						 	endif
+						 endif in
+			let name = self.specification.substring(fromNdx+6,endNdx).trim() in
+			 ConceptualEntity::findByName(name)->asSet()
+	   
+		/**
+		 * Return a set of all the model types referenced by this element
+		 */
+		def: referencedModelTypes(): Set(ConceptualComposableElement) =
+			self.referencedEntities()->collect(referencedModelTypes())->flatten()->asSet()
+	
+	
+	
+	context ConceptualCompositeQuery
+		/**
+		 * Return a set of all the model types referenced by this element
+		 */
+		def: referencedModelTypes(): Set(ConceptualComposableElement) =
+			self.composition->collect(type.referencedModelTypes())->flatten()->asSet()
+
+
+endpackage

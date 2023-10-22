@@ -22,6 +22,7 @@ import org.eclipse.xtext.generator.IGenerator2
 import org.eclipse.xtext.generator.IGeneratorContext
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import com.epistimis.uddl.RealizedComposableElement
+import org.apache.log4j.Logger
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.
@@ -35,6 +36,8 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 
 	@Inject
 	extension protected IQualifiedNameProvider qnp;
+
+	static Logger logger = Logger.getLogger(CommonDataStructureGenerator);
 
 	List<PlatformEntity> processedEntities;
 	List<PlatformDataModel> processedPDMs;
@@ -293,7 +296,7 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 				processAnEntity(pEnt, fsa, context);
 			}
 		} else {
-			System.out.println("Cannot process unsupported Entity type: " + pce.toString);
+			logger.warn("Cannot process unsupported Entity type: " + pce.toString);
 		}
 
 	}

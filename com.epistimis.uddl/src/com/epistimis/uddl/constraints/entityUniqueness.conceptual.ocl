@@ -1,17 +1,30 @@
+/**
+ * UDDL standard constraints - adjusted for this metamodel
+ */
 --import datamodel : 'http://www.opengroup.us/face/datamodel/3.0#/'
-import  '../../../../../model/generated/Uddl.ecore'
-include 'helpers.ocl'
+--import  '../../../../../model/generated/Uddl.ecore'
+import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
+
+--include 'helpers.ocl'
+include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/helpers.ocl'
 
 package uddl
 
-  context ConceptualElement
-    /*
-     * Every Conceptual Element has a unique name.
-     */
-    inv hasUniqueName:
-      not UddlElement.allInstances()->excluding(self)
-                                ->collect(name.toLowerCase())
-                                ->includes(self.name.toLowerCase())
+--  context ConceptualElement
+--    /*
+--     * Every Conceptual Element has a unique name.
+--     * NOTE:  The select line converts this from globally unique name to FQN unique
+--     * because it only compares names with the same parent container.  This is a variation
+--     * from the FACE/ UDDL spec
+--     * 
+--     * NOTE: XText automatically enforces this - this is redundant
+--     */
+--    inv hasUniqueName('Names must be unique within a container'):
+--    	let parent = self.oclContainer in 
+--      not UddlElement.allInstances()->excluding(self)
+--      							->select(e|e.oclContainer = parent)
+--                                ->collect(name.toLowerCase())
+--                                ->includes(self.name.toLowerCase())
       
   context ConceptualComposableElement
     /* 
@@ -25,7 +38,7 @@ package uddl
 
   context ConceptualEntity
     /*
-     * Helper method that gets the Characteristics contained in an ConceptualEntity.
+     * Helper method that gets the Characteristics contained in a ConceptualEntity.
      */
     def: getLocalCharacteristics() : Set(ConceptualCharacteristic) =
       if self.oclIsTypeOf(ConceptualAssociation) then
@@ -41,7 +54,7 @@ package uddl
       endif
       
     /*
-     * Helper method that gets the Characteristics of an ConceptualEntity,
+     * Helper method that gets the Characteristics of a ConceptualEntity,
      * including those from specialized Entities.
      */
     def: getAllCharacteristics() : Set(ConceptualCharacteristic) =
@@ -65,7 +78,7 @@ package uddl
         ->union(self.getBasisEntities())
 
     /*
-     * Helper method to retrieve the BasisEntities of an ConceptualEntity,
+     * Helper method to retrieve the BasisEntities of a ConceptualEntity,
      * including those from specialized Entities.
      */
     def: getBasisEntities() : Bag(ConceptualBasisEntity) =
@@ -74,20 +87,20 @@ package uddl
     
     /*
      * Helper method that determines whether or not
-     * an ConceptualEntity is part of a specialization cycle.
+     * a ConceptualEntity is part of a specialization cycle.
      */
     def: isPartOfSpecializationCycle() : Boolean =
       self->closure(specializes)->includes(self)
 
     /*
-     * A ConceptualCharacteristic's rolename is unique within an ConceptualEntity.
+     * A ConceptualCharacteristic's rolename is unique within a ConceptualEntity.
      */
     inv characteristicsHaveUniqueRolenames:
       self.getAllCharacteristics()->isUnique(rolename)
 
     /*
      * A Conceptual ConceptualEntity contains a ConceptualComposition whose type
-     * is an ConceptualObservable named 'Identifier'.
+     * is a ConceptualObservable named 'Identifier'.
 	 *
 	 * NOTE: CR 362 changed ConceptualObservable name from 'UniqueIdentifier' to 'Identifier'
      */
@@ -101,7 +114,7 @@ package uddl
     /* 
      * If ConceptualEntity A' specializes ConceptualEntity A, all characteristics
      * in A' specialize nothing, specialize characteristics from A,
-     * or specialize characteristics from an ConceptualEntity that is a generalization of
+     * or specialize characteristics from a ConceptualEntity that is a generalization of
      * A. (If A' does not specialize, none of its characteristics specialize.)
      */
     inv specializingCharacteristicsConsistent:
@@ -118,26 +131,26 @@ package uddl
        endif
     
     /*
-     * An ConceptualEntity is not a specialization of itself.
+     * A ConceptualEntity is not a specialization of itself.
      */
     inv noCyclesInSpecialization:
       not isPartOfSpecializationCycle()
           
     /*
-     * An ConceptualEntity has at least one ConceptualCharacteristic defined
+     * A ConceptualEntity has at least one ConceptualCharacteristic defined
      * locally (not through generalization).
      */
     inv hasAtLeastOneLocalCharacteristic:
       self.getLocalCharacteristics()->size() >= 1
 	  
     /*
-     * An ConceptualEntity is unique in a Conceptual Data Model.
+     * A ConceptualEntity is unique in a Conceptual Data Model.
      * (An ConceptualEntity is unique if the set of its Characteristics
      * is different from other Entities' in terms of
      * type, lowerBound, upperBound, and path (for Participants).
      * 
-     * NOTE: If an ConceptualEntity is part of a specialization cycle, its uniqueness
-     * is undefined. So, if an ConceptualEntity is part of a specialization cycle,
+     * NOTE: If aConceptualEntity is part of a specialization cycle, its uniqueness
+     * is undefined. So, if a ConceptualEntity is part of a specialization cycle,
      * it will not fail entityIsUnique, but will fail noCyclesInSpecialization.
      */
     inv entityIsUnique:
@@ -149,7 +162,7 @@ package uddl
 
   context ConceptualAssociation
     /*
-     * An ConceptualAssociation has at least two Participants.
+     * A ConceptualAssociation has at least two Participants.
      */
      inv hasAtLeastTwoParticipants:
        self.getAllCharacteristics()
@@ -179,7 +192,7 @@ package uddl
 
     /* 
      * Helper method that gets the contribution a ConceptualCharacteristic makes
-     * to an ConceptualEntity's uniqueness.
+     * to a ConceptualEntity's uniqueness.
      */ 
     def: getIdentityContribution() : Sequence(OclAny) =
       if self.oclIsTypeOf(ConceptualComposition) then
@@ -240,7 +253,7 @@ package uddl
   context ConceptualComposition
     /* 
      * Helper method that gets the contribution a ConceptualComposition makes
-     * to an ConceptualEntity's uniqueness (type and multiplicity).
+     * to a ConceptualEntity's uniqueness (type and multiplicity).
      */ 
      def: getIdentityContribution() : Sequence(OclAny) = 
        Sequence{self.type,
@@ -347,7 +360,7 @@ package uddl
       
     /* 
      * Helper method that gets the contribution a ConceptualParticipant makes
-     * to an ConceptualEntity's uniqueness (type, path sequence, and multiplicity).
+     * to a ConceptualEntity's uniqueness (type, path sequence, and multiplicity).
      */ 
      def: getIdentityContribution() : Sequence(OclAny) = 
        Sequence{self.type,

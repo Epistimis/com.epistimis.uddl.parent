@@ -1,10 +1,14 @@
-grammar com.epistimis.uddl.Uddl with org.eclipse.xtext.common.Terminals
+grammar com.epistimis.uddl.Uddl with org.eclipse.xtext.common.Terminals //org.eclipse.xtext.xbase.annotations.XbaseWithAnnotations //org.eclipse.xtext.xbase.Xbase //org.eclipse.xtext.common.Terminals
 
 generate uddl "http://www.epistimis.com/uddl/Uddl"
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
-// Starter rule comes first
+//// Starter rule comes first
+//ModelFile:
+//	includes+=Include*
+//	dataModel=DataModel
+//;
 
 /** A DataModel is a container for ConceptualDataModels, LogicalDataModels, and PlatformDataModels */
 DataModel:
@@ -19,6 +23,7 @@ DataModel:
 terminal fragment DEC:  ('0'..'9')+;
 
 // TODO: This needs code to process the +|- when creating int or float?
+/** INT override causing ambiguity with XBase */
 @Override
 terminal INT returns ecore::EInt:  ('+'|'-')? DEC;
 //LONG returns ecore::ELong: INT ("L"|"l");
@@ -28,9 +33,15 @@ terminal FLOAT returns ecore::EFloat : ('+'|'-')? DEC '.' DEC;
 QN:
     ID ('.' ID)*;
 
-Import:
-    'import' importedNamespace=QualifiedNameWithWildcard;
+/**
+ * Use 'include' because 'import' is an XBase keyword
+ */
+Include:
+    'include' importedNamespace=QualifiedNameWithWildcard;
 
+/**
+ * Already defined in XBase
+ */
 QualifiedNameWithWildcard:
     QN '.*'?;
 
@@ -222,7 +233,7 @@ LogicalUnit:
 /** A Conversion is a relationship between two ConvertibleElements that describes how to transform measured quantities between two Units. */
 LogicalConversion:
 	'conv' name=ID  (description=STRING)? '{'
-		source=[LogicalAssociation|QN] '->'  destination=[LogicalAssociation|QN]
+		source=[LogicalAssociation|QN] '-()>'  destination=[LogicalAssociation|QN]
 		'};' |
 	LogicalAffineConversion
 ;
@@ -230,7 +241,7 @@ LogicalConversion:
 /** An AffineConversion is a relationship between two ConvertibleElements in the form mx+b. */
 LogicalAffineConversion:
 	'aconv' name=ID  (description=STRING)? '{'
-		source=[LogicalAssociation|QN] '-(' conversionFactor=FLOAT ',' offset=FLOAT ')->'  destination=[LogicalAssociation|QN]
+		source=[LogicalAssociation|QN] '-(' 'm:' conversionFactor=FLOAT 'b:' offset=FLOAT ')->'  destination=[LogicalAssociation|QN]
 	'};'
 ;
 
@@ -247,7 +258,7 @@ LogicalValueType:
 LogicalString: 					'str' 	name=ID (description=STRING)? ';' 	;
 
 /** A Character is a value type representing characters from any character set. */
-LogicalCharacter: 				'char' 	name=ID (description=STRING)? ';'	;
+LogicalCharacter: 				'ch' 	name=ID (description=STRING)? ';'	;
 
 /** A Boolean is a value type representing the two values TRUE and FALSE. */
 LogicalBoolean:					'bool' 	name=ID (description=STRING)? ';'	;
@@ -282,7 +293,10 @@ LogicalEnumerated:
 		']'
 		';'
 		;
-
+/**EXTENSION: The foundation for every taxonomic type hierarchy. Override and extend as needed */
+Taxonomy:
+	LogicalEnumeratedBase
+;
 /**EXTENSION: Creates the foundation for a hierarchy of enumerated values  */
 LogicalEnumeratedBase:
 	LogicalEnumeratedSet |
@@ -435,8 +449,7 @@ LogicalMeasurementConstraint:
 /** A MeasurementSystemConversion is a relationship between two MeasurementSystems that describes how to transform measured quantities between those MeasurementSystems. The conversion is captured as a set of equations in the “equation” attribute. The specific format of “equation” is undefined. The loss introduced by the conversion equations is captured in the “conversionLossDescription” attribute. The specific format of “conversionLossDescription” is undefined. */
 LogicalMeasurementSystemConversion:
 	'msc' name=ID  (description=STRING)? '{'
-		source=[LogicalMeasurementSystem|QN] '->' destination=[LogicalMeasurementSystem|QN]
-		'eqn:' '[' equation+=STRING (',' equation+=STRING)? ']'
+		source=[LogicalMeasurementSystem|QN] '-('equation+=STRING (',' equation+=STRING)? ')>' destination=[LogicalMeasurementSystem|QN]
 		'loss:' conversionLossDescription=STRING
 	'};'
 ;
@@ -473,14 +486,13 @@ LogicalMeasurementAxis:
 
 /** A MeasurementAttribute is supplemental data associated with a Measurement.  */
 LogicalMeasurementAttribute:
-	type=[LogicalMeasurement|QN] rolename=ID
+	type=[LogicalMeasurement|QN] rolename=ID ';'
 ;
 
 /** A MeasurementConversion is a relationship between two Measurements that describes how to transform measured quantities between those Measurements. The conversion is captured as a set of equations in the “equation” attribute. The specific format of “equation” is undefined. The loss introduced by the conversion equations is captured in the “conversionLossDescription” attribute. The specific format of “conversionLossDescription” is undefined. */
 LogicalMeasurementConversion:
 	'mc' name=ID  (description=STRING)? '{'
-		source=[LogicalMeasurementSystem|QN] '->' destination=[LogicalMeasurementSystem|QN]
-		'eqn:' '[' equation+=STRING (',' equation+=STRING)? ']'
+		source=[LogicalMeasurementSystem|QN] '-(' equation+=STRING (',' equation+=STRING)? ')>' destination=[LogicalMeasurementSystem|QN]
 		'loss:' conversionLossDescription=STRING
 	'};'
 ;
@@ -596,7 +608,7 @@ PlatformDataType:
 PlatformPrimitive:
 	PlatformSequence |
 	PlatformBoolean |
-	PlatformCharType |
+	PlatformChar | //PlatformCharType | // skip single inheritance
 	PlatformNumber |
 	PlatformOctet |
 	PlatformEnumeration |
@@ -610,15 +622,16 @@ PlatformBoolean:			'bool'  						name=ID  (description=STRING)? '->' realizes=[/
 /** An Octet is an 8-bit quantity that is guaranteed not to undergo any conversion during transfer between systems. */
 PlatformOctet:				'octet'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
 
-/** A CharType is a Char. */
-PlatformCharType:
-	PlatformChar |
-	PlatformWChar // NOTE: WChar was removed from the spec. Not clear is we want it
-;
+// Skip single inheritance - XText doesn't float attributes up when there is single inheritance.
+///** A CharType is a Char. */
+//PlatformCharType:
+//	PlatformChar 
+////	| PlatformWChar // NOTE: WChar was removed from the spec. Not clear is we want it
+//;
 
 /** A Char is a data type that represents characters from any single byte character set. */
 PlatformChar:				'char'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
-PlatformWChar:				'wchar'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+//PlatformWChar:				'wchar'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
 
 /** A StringType is a BoundedString, an unbounded String, or a CharArray. */
 PlatformStringType:
