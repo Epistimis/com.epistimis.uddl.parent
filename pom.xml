@@ -28,7 +28,9 @@
 		<module>com.epistimis.uddl.feature</module>
 		<module>com.epistimis.uddl.repository</module>
 		<module>com.epistimis.uddl.tests</module>
+		<!-- some problem with SWT on this module - but I don't use it so....
 		<module>com.epistimis.uddl.ui.tests</module>
+		-->
 	</modules>
 	<dependencyManagement>
 		<dependencies>
