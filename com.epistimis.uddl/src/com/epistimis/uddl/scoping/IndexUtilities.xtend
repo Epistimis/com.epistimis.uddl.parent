@@ -24,7 +24,7 @@ import java.util.Collection
 import org.eclipse.emf.ecore.EStructuralFeature.Setting
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.emf.ecore.util.EcoreUtil.UsageCrossReferencer
+//import org.eclipse.emf.ecore.util.EcoreUtil.UsageCrossReferencer
 import org.eclipse.emf.ecore.EStructuralFeature
 
 /**

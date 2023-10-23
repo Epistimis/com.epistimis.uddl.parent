@@ -1,9 +1,9 @@
 package com.epistimis.uddl.tests
 
-import com.google.inject.Inject
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.EReference
-import org.eclipse.xtext.scoping.IScopeProvider
+//import com.google.inject.Inject
+//import org.eclipse.emf.ecore.EObject
+//import org.eclipse.emf.ecore.EReference
+//import org.eclipse.xtext.scoping.IScopeProvider
 import org.eclipse.xtext.testing.InjectWith
 //import org.eclipse.xtext.testing.XtextRunner
 //import org.eclipse.xtext.testing.util.ParseHelper
@@ -18,7 +18,7 @@ import org.eclipse.xtext.testing.InjectWith
 //import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
 
-import static extension org.junit.jupiter.api.Assertions.assertEquals
+//import static extension org.junit.jupiter.api.Assertions.assertEquals
 //import com.epistimis.uddl.uddl.DataModel
 //import org.eclipse.emf.ecore.resource.Resource
 //import org.eclipse.emf.common.util.URI
@@ -30,7 +30,7 @@ import org.eclipse.xtext.testing.extensions.InjectionExtension
 @InjectWith(UddlInjectorProvider)
 class UddlScopeProviderTest {
 //	@Inject extension ParseHelper<DataModel>
-	@Inject extension IScopeProvider
+//	@Inject extension IScopeProvider
 
 	/**
 	 * Read in the UDDL SDM into a resource. Then add to that simple models that 
@@ -282,7 +282,8 @@ class UddlScopeProviderTest {
 	 * 		m.returnStatement.expression as SJMemberSelection
 	 * 	}
 	 */
-	def private assertScope(EObject context, EReference reference, CharSequence expected) {
-		expected.toString.assertEquals(context.getScope(reference).allElements.map[name].join(", "))
-	}
+	 
+//	def private assertScope(EObject context, EReference reference, CharSequence expected) {
+//		expected.toString.assertEquals(context.getScope(reference).allElements.map[name].join(", "))
+//	}
 }

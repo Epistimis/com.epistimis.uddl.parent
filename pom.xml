@@ -7,13 +7,13 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<xtextVersion>2.30.0</xtextVersion>
-		<mwe2Version>2.14.0</mwe2Version>
+		<xtextVersion>2.32.0</xtextVersion>
+		<mwe2Version>2.15.0</mwe2Version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
 		<!-- Tycho settings -->
-		<tycho-version>3.0.3</tycho-version>
+		<tycho-version>3.0.5</tycho-version>
 		<!-- Define overridable properties for tycho-surefire-plugin -->
 		<platformSystemProperties></platformSystemProperties>
 		<moduleProperties></moduleProperties>
@@ -28,9 +28,7 @@
 		<module>com.epistimis.uddl.feature</module>
 		<module>com.epistimis.uddl.repository</module>
 		<module>com.epistimis.uddl.tests</module>
-		<!-- some problem with SWT on this module - but I don't use it so....
 		<module>com.epistimis.uddl.ui.tests</module>
-		-->
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -40,12 +38,6 @@
 				<version>${xtextVersion}</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
-			<dependency>
-			    <groupId>org.projectlombok</groupId>
-			    <artifactId>lombok</artifactId>
-			    <version>1.18.28</version>
-			    <scope>provided</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

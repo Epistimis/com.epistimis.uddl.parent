@@ -2,18 +2,18 @@ package com.epistimis.uddl.scoping;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.function.Consumer;
+//import java.util.function.Consumer;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.EcoreUtil2;
-import org.eclipse.xtext.resource.IEObjectDescription;
-import org.eclipse.xtext.resource.IResourceDescription;
+//import org.eclipse.xtext.resource.IEObjectDescription;
+//import org.eclipse.xtext.resource.IResourceDescription;
 import org.eclipse.xtext.scoping.impl.ImportUriGlobalScopeProvider;
 import org.eclipse.xtext.util.IResourceScopeCache;
 
 //import com.epistimis.uddl.uddl.UddlPackage;
-import com.google.common.base.Splitter;
+//import com.google.common.base.Splitter;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -21,10 +21,10 @@ import com.google.inject.Provider;
 
 public class UddlGlobalScopeProvider extends ImportUriGlobalScopeProvider {
 
-	  private static final Splitter SPLITTER = Splitter.on(",");
+//	  private static final Splitter SPLITTER = Splitter.on(",");
 
-	  @Inject
-	  private IResourceDescription.Manager descriptionManager;
+//	  @Inject
+//	  private IResourceDescription.Manager descriptionManager;
 
 	  @Inject
 	  private IResourceScopeCache cache;
@@ -32,7 +32,7 @@ public class UddlGlobalScopeProvider extends ImportUriGlobalScopeProvider {
 	  @Override
 	  protected LinkedHashSet<URI> getImportedUris(final Resource resource) {
 		    abstract class __UddlGlobalScopeProvider_1 implements Provider<LinkedHashSet<URI>> {
-		      final __UddlGlobalScopeProvider_1 _this__UddlGlobalScopeProvider_1 = this;
+//		      final __UddlGlobalScopeProvider_1 _this__UddlGlobalScopeProvider_1 = this;
 
 		      public abstract LinkedHashSet<URI> collectImportUris(final Resource resource, final LinkedHashSet<URI> uniqueImportURIs);
 		    }
@@ -55,22 +55,22 @@ public class UddlGlobalScopeProvider extends ImportUriGlobalScopeProvider {
 		      }
 
 		      public LinkedHashSet<URI> collectImportUris(final Resource resource, final LinkedHashSet<URI> uniqueImportURIs) {
-		        final IResourceDescription resourceDescription = UddlGlobalScopeProvider.this.descriptionManager.getResourceDescription(resource);
+//		        final IResourceDescription resourceDescription = UddlGlobalScopeProvider.this.descriptionManager.getResourceDescription(resource);
 		        //final Iterable<IEObjectDescription> models = resourceDescription.getExportedObjectsByType(UddlPackage.Literals.MODEL_FILE);
-		        final Consumer<IEObjectDescription> _function = (IEObjectDescription it) -> {
-		          final String userData = it.getUserData(UddlResourceDescriptionStrategy.INCLUDES);
-		          if ((userData != null)) {
-		            final Consumer<String> _function_1 = (String uri) -> {
-		              URI includedUri = URI.createURI(uri);
-		              includedUri = includedUri.resolve(resource.getURI());
-		              boolean _add = uniqueImportURIs.add(includedUri);
-		              if (_add) {
-		                this.collectImportUris(resource.getResourceSet().getResource(includedUri, true), uniqueImportURIs);
-		              }
-		            };
-		            UddlGlobalScopeProvider.SPLITTER.split(userData).forEach(_function_1);
-		          }
-		        };
+//		        final Consumer<IEObjectDescription> _function = (IEObjectDescription it) -> {
+//		          final String userData = it.getUserData(UddlResourceDescriptionStrategy.INCLUDES);
+//		          if ((userData != null)) {
+//		            final Consumer<String> _function_1 = (String uri) -> {
+//		              URI includedUri = URI.createURI(uri);
+//		              includedUri = includedUri.resolve(resource.getURI());
+//		              boolean _add = uniqueImportURIs.add(includedUri);
+//		              if (_add) {
+//		                this.collectImportUris(resource.getResourceSet().getResource(includedUri, true), uniqueImportURIs);
+//		              }
+//		            };
+//		            UddlGlobalScopeProvider.SPLITTER.split(userData).forEach(_function_1);
+//		          }
+//		        };
 		        //models.forEach(_function);
 		        return uniqueImportURIs;
 		      }
