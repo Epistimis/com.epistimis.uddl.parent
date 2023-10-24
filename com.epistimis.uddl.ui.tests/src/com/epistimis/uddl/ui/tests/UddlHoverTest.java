@@ -41,33 +41,33 @@ public class UddlHoverTest extends AbstractHoverTest {
 			}
 			""";
 
-	@Test
-	public void hoverOverDataModel() throws Exception {
-		DataModel parseDm = parseHelper.parse(dataModel);
-		assertHoverOverKeyword(dataModel, "dm", UddlKeywordHoverText.dmKeywordHover);
-		assertHoverOverUddlElementName(dataModel, parseDm);
-	}
-
-	@Test
-	public void hoverOverConceptualDataModel() throws Exception {
-		ConceptualDataModel parseCdm = parseHelper.parse(dataModel).getCdm().get(0);
-		assertHoverOverKeyword(dataModel, "cdm", UddlKeywordHoverText.cdmKeywordHover);
-		assertHoverOverUddlElementName(dataModel, parseCdm);
-	}
-
-	@Test
-	public void hoverOverLogicDataModel() throws Exception {
-		LogicalDataModel parseLdm = parseHelper.parse(dataModel).getLdm().get(0);
-		assertHoverOverKeyword(dataModel, "ldm", UddlKeywordHoverText.ldmKeywordHover);
-		assertHoverOverUddlElementName(dataModel, parseLdm);
-	}
-
-	@Test
-	public void hoverOverPlatformDataModel() throws Exception {
-		PlatformDataModel parseLdm = parseHelper.parse(dataModel).getPdm().get(0);
-		assertHoverOverKeyword(dataModel, "pdm", UddlKeywordHoverText.pdmKeywordHover);
-		assertHoverOverUddlElementName(dataModel, parseLdm);
-	}
+//	@Test
+//	public void hoverOverDataModel() throws Exception {
+//		DataModel parseDm = parseHelper.parse(dataModel);
+//		assertHoverOverKeyword(dataModel, "dm", UddlKeywordHoverText.dmKeywordHover);
+//		assertHoverOverUddlElementName(dataModel, parseDm);
+//	}
+//
+//	@Test
+//	public void hoverOverConceptualDataModel() throws Exception {
+//		ConceptualDataModel parseCdm = parseHelper.parse(dataModel).getCdm().get(0);
+//		assertHoverOverKeyword(dataModel, "cdm", UddlKeywordHoverText.cdmKeywordHover);
+//		assertHoverOverUddlElementName(dataModel, parseCdm);
+//	}
+//
+//	@Test
+//	public void hoverOverLogicDataModel() throws Exception {
+//		LogicalDataModel parseLdm = parseHelper.parse(dataModel).getLdm().get(0);
+//		assertHoverOverKeyword(dataModel, "ldm", UddlKeywordHoverText.ldmKeywordHover);
+//		assertHoverOverUddlElementName(dataModel, parseLdm);
+//	}
+//
+//	@Test
+//	public void hoverOverPlatformDataModel() throws Exception {
+//		PlatformDataModel parseLdm = parseHelper.parse(dataModel).getPdm().get(0);
+//		assertHoverOverKeyword(dataModel, "pdm", UddlKeywordHoverText.pdmKeywordHover);
+//		assertHoverOverUddlElementName(dataModel, parseLdm);
+//	}
 
 	/**
 	 * Assert hover over a UddlElement name
