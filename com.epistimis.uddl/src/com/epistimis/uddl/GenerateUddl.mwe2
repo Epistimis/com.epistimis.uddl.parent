@@ -40,10 +40,10 @@ Workflow {
 			name = "com.epistimis.uddl.Uddl"
 			fileExtensions = "uddl"
 
-//			// Only enable this when we need to regenerate langium
-//		    fragment = io.typefox.xtext2langium.Xtext2LangiumFragment {
-//		        outputPath = './langium'
-//		    }
+			// Only enable this when we need to regenerate langium
+		    fragment = io.typefox.xtext2langium.Xtext2LangiumFragment {
+		        outputPath = './langium'
+		    }
 
 			fragment = org.eclipse.xtext.xtext.generator.ui.codemining.CodeMiningFragment {}
 
