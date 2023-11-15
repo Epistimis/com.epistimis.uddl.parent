@@ -24,6 +24,7 @@ DataModel:
 /** INT override causing ambiguity with XBase */
 //@Override
 terminal SIGNED_INT returns ecore::EInt:  ('+'|'-') INT;
+// Handling LONGs also requires recognizing numerical representations that are too large to fit in an integer
 //LONG returns ecore::ELong:  SIGNED_INT ("L"|"l");
 terminal FLOAT returns ecore::EFloat : ('+'|'-')? DEC '.' DEC;
 //DOUBLE returns ecore::EDouble : ('+'|'-')? DEC '.' DEC ('D'|'d');
