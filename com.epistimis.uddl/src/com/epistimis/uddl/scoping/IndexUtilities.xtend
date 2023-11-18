@@ -26,6 +26,19 @@ import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.util.EcoreUtil
 //import org.eclipse.emf.ecore.util.EcoreUtil.UsageCrossReferencer
 import org.eclipse.emf.ecore.EStructuralFeature
+import java.util.Set
+import java.util.HashSet
+import org.eclipse.emf.common.util.EList
+import org.eclipse.acceleo.query.runtime.IQueryEnvironment
+import org.eclipse.acceleo.query.runtime.Query
+import org.eclipse.acceleo.query.runtime.impl.QueryBuilderEngine
+import org.eclipse.acceleo.query.runtime.IQueryBuilderEngine.AstResult
+import org.eclipse.acceleo.query.runtime.impl.QueryEvaluationEngine
+import java.util.Map
+import com.google.common.collect.Maps
+import org.eclipse.emf.ecore.EcorePackage
+import org.eclipse.acceleo.query.runtime.EvaluationResult
+import org.eclipse.ocl.pivot.values.OrderedSet
 
 /**
  * This is modified from the book (See https://github.com/LorenzoBettini/packtpub-xtext-book-2nd-examples)
@@ -214,6 +227,177 @@ class IndexUtilities {
 			msg += MessageFormat.format("\t {0}\n",qnp.getFullyQualifiedName(o).toString());
 		}
 		return msg;
+	}
+
+
+	/**
+	 * Identify the EObjects in the closure starting at root and following the specified 
+	 * feature. This assumes the feature points from parent to child.
+	 * 
+	 * @param context  The context from which we start - we search for everything
+	 *                 visible in to this context
+	 * @param root The root of the hierarchy
+	 * @param type The type of object to find
+	 * @param feat The feature used to determine the hierarchy
+	 * 
+	 * Note that to get the full hierarchy, we need the closure that comes from following the specified 
+	 * feature through an unknown number of levels. This means we need to loop on all the objects and keep
+	 * adding to the found list until the list doesn't change after a complete pass.
+	 * 
+	 * This version handles features of all cardinality
+	 * 
+	 * 
+	 * @return A set of the EObjects of the specified type in the specified hierarchy
+	 *         that are visible from the context
+	 */
+	def Set<EObject> closure(EObject context, EObject root, EClass type, EStructuralFeature feat) {
+		// If this is a collection feature, handle that differently
+		if (feat.isMany) {
+			return closureColn(context,root, type, feat);
+		}
+
+		var Set<EObject> found  = new HashSet<EObject>();
+		found.add(root);
+		var EObject toCheck = root.eGet(feat)as EObject;
+		while ((toCheck !== null) && !found.contains(toCheck)) {
+			val EObject temp = toCheck.eGet(feat) as EObject;
+			// Log that we found this one, remove it from the list to inspect and add it's children to the
+			found.add(toCheck);
+			toCheck = temp;				
+		}
+		return found;
+		
+	}
+	
+	/**
+	 * Identify the EObjects in the closure starting at root and following the specified 
+	 * feature. This assumes the feature points from parent to child.
+	 * 
+	 * @param context  The context from which we start - we search for everything
+	 *                 visible in to this context
+	 * @param root The root of the hierarchy
+	 * @param type The type of object to find
+	 * @param feat The feature used to determine the hierarchy
+	 * 
+	 * Note that to get the full hierarchy, we need the closure that comes from following the specified 
+	 * feature through an unknown number of levels. This means we need to loop on all the objects and keep
+	 * adding to the found list until the list doesn't change after a complete pass.
+	 * 
+	 * This version is for features that are cardinality > 1, use visibleClosure
+	 * 
+	 * 
+	 * @return A set of the EObjects of the specified type in the specified hierarchy
+	 *         that are visible from the context
+	 */
+	def Set<EObject> closureColn(EObject context, EObject root, EClass type, EStructuralFeature feat) {
+		var Set<EObject> found  = new HashSet<EObject>();
+		found.add(root);
+		val EList<EObject> toCheck = root.eGet(feat)as EList<EObject>;
+		for (EObject e : toCheck) {
+			if (!found.contains(e)) {
+				val EList<EObject> temp = e.eGet(feat) as EList<EObject>;
+				// Log that we found this one, remove it from the list to inspect and add it's children to the
+				found.add(e);
+				toCheck.addAll(temp);				
+			}
+			// Whether this one was new or not, remove it from the set to check. Because we do this here,
+			// we also ensure that it can't be added back in if it is found in a another reference (because we are adding
+			// newly found elements to a Set (so duplicates just overwrite/ don't get added), and then we remove just once.
+			toCheck.remove(e);				
+		}						
+		return found;
+		
+	}
+	
+
+	/**
+	 * Identify the EObjects in the closure starting at root and following the specified 
+	 * feature. This assumes the feature points from child to parent, so we follow the inverse of the 
+	 * feature.
+	 * 
+	 * @param context  The context from which we start - we search for everything
+	 *                 visible in to this context
+	 * @param root The root of the hierarchy
+	 * @param type The type of object to find
+	 * @param feat The feature used to determine the hierarchy
+	 * 
+	 * Note that to get the full hierarchy, we need the closure that comes from following the specified 
+	 * feature through an unknown number of levels. This means we need to loop on all the objects and keep
+	 * adding to the found list until the list doesn't change after a complete pass.
+	 * 
+	 * use Acceleo Query Language to navigate the EMF model.
+	 * 
+	 * This assumes the evaluation will return a set of objects
+	 * 
+	 * 
+	 * @return A set of the EObjects of the specified type in the specified hierarchy
+	 *         that are visible from the context
+	 */
+	def Set<EObject> visibleInverseClosure(EObject context, EObject root, EClass type, EStructuralFeature feat) {
+		val IQueryEnvironment queryEnvironment = Query.newEnvironmentWithDefaultServices(null);
+		queryEnvironment.registerEPackage(UddlPackage.eINSTANCE);
+		val QueryEvaluationEngine engine = new QueryEvaluationEngine(queryEnvironment);
+		val QueryBuilderEngine builder = new QueryBuilderEngine(queryEnvironment);
+		var Map<String, Object> variables = Maps.newHashMap();
+		val AstResult astResult = builder.build("root.eInverse("+feat.name+")");
+		/* From here we loop through all all found objects drilling down. Always check to see if something found is already
+		 * in the list so we don't infinite loop.
+		 */
+		variables.put("root", root);
+		var found = new HashSet<EObject>();
+		found.add(root);
+		var EvaluationResult evaluationResult = engine.eval(astResult, variables);
+		var Set<EObject> toCheck = evaluationResult.result as Set<EObject>;
+		for (e: toCheck) {
+			if (!found.contains(e)) {
+				variables.put("root",e);
+				evaluationResult = engine.eval(astResult, variables);
+				val Set<EObject> temp =  evaluationResult.result as Set<EObject>;
+				// Log that we found this one, remove it from the list to inspect and add it's children to the
+				found.add(e);
+				toCheck.addAll(temp);				
+			}
+			// Whether this one was new or not, remove it from the set to check. Because we do this here,
+			// we also ensure that it can't be added back in if it is found in a another reference (because we are adding
+			// newly found elements to a Set (so duplicates just overwrite/ don't get added), and then we remove just once.
+			toCheck.remove(e);
+			// Note that we could use removeAll here to remove everything that has already been found from the toCheck set.
+			// I think this would be, on average, less efficient. Eventually, each item in toCheck will be compared to found.
+			// If we remove them all here, it is possible that they will be added back in and removed multiple times. At worst
+			// this will be just as efficient this way as the removeAll way
+			
+		}		
+		return found;		
+		
+		// An alternative approach
+//		/**
+//		 * To find all specializations, we must find all references to the root in the collection of all
+//		 * EObjects of the appropriate type. Those references will be in the specified' feature.
+//		 */
+//		val List<EObject> allEObjects = IterableExtensions.toList(getVisibleObjects(context, type));
+//
+//		/** find the instance */
+//		try {
+//				found.add(root);
+//				val EList<EObject> xrefs = root.eCrossReferences;
+//				for (EObject xref: xrefs) {
+//					if (root == xref.eGet(feat)) {
+//						found.add(xref);
+//					}
+//				}
+//				val java.util.Collection<EStructuralFeature.Setting> usages = EcoreUtil.UsageCrossReferencer
+//						.find(root, allEObjects);
+//				// Now filter those usages for only the specializes feature - loop
+//				for (EStructuralFeature.Setting usage : usages) {
+//					if (usage.getEStructuralFeature().equals(feat)) {
+//						found.add(usage.getEObject());
+//					}
+//				}
+//			}
+//
+//		// Once we get here, that set should contain all the CEntity
+//		// hierarchy
+//		return allEObjects;
 	}
 
 	/**
