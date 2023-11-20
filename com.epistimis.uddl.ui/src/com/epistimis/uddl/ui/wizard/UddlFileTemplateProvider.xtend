@@ -26,7 +26,7 @@ class UddlFileTemplateProvider implements IFileTemplateProvider {
 final class HelloWorldFile {
 	override generateFiles(IFileGenerator generator) {
 		generator.generate('''«folder»/«name».uddl''', '''
-			dm Name "Description"		{
+			dm «name» "Description of the «name» data model"		{
 				
 			}
 		''')
