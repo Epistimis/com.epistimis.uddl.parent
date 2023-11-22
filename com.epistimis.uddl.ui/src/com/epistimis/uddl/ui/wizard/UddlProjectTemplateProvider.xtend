@@ -29,13 +29,13 @@ class UddlProjectTemplateProvider implements IProjectTemplateProvider {
 	}
 }
 
-@ProjectTemplate(label="Hello World", icon="project_template.png", description="<p><b>Hello World</b></p>
+@ProjectTemplate(label="Basic UDDL Model", icon="project_template.png", description="<p><b>Basic Model</b></p>
 <p>This is a parameterized hello world for Uddl. You can set a parameter to modify the content in the generated file
 and a parameter to set the package the file is created in.</p>")
 final class HelloWorldProject {
 	val advanced = check("Advanced:", false)
 	val advancedGroup = group("Properties")
-	val name = combo("Name:", #["Data Model", "Logical Data Model", "Platform Data Model", "Conceptual Data Model"],
+	val name = combo("Focus:", #["Data Model", "Conceptual Data Model", "Logical Data Model", "Platform Data Model"],
 		"Name of the data Model", advancedGroup)
 	val path = text("Package:", "", advancedGroup)
 
@@ -44,7 +44,7 @@ final class HelloWorldProject {
 		path.enabled = advanced.value
 		if (!advanced.value) {
 			name.value = "Data Model"
-			path.value = "uddl"
+			path.value = ""
 		}
 	}
 
