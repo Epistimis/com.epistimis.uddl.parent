@@ -142,7 +142,7 @@ ConceptualComposition:
 ConceptualAssociation:
 		'cassoc' name=ID (description=STRING)? (':' specializes=[ConceptualEntity|QN])? '{'
 		composition+=ConceptualComposition*
-		('basis:' '[' ConceptualBasisEntity+=[ConceptualBasisEntity|QN]+ ']')?
+		('basis:' '[' basisEntity+=[ConceptualBasisEntity|QN]+ ']')?
 		('participants:' '[' participant+=ConceptualParticipant+ ']')?
 	'};'
 ;
@@ -291,9 +291,7 @@ LogicalNonNegativeReal:			'real+' name=ID (description=STRING)? ';'	;
 
 /** An Enumerated is a value type representing a set of named values, each with specific meaning. */
 LogicalEnumerated:
-
-	'enum' 	name=ID (description=STRING)? 
-		('stdRef:' standardReference=STRING)?
+	'enum' 	name=ID (description=STRING)? ('stdRef:' standardReference=STRING)?
 		'['
 		label+=(LogicalEnumerationLabel | LogicalEnumeratedSet) ','? (label+=(LogicalEnumerationLabel| LogicalEnumeratedSet) ','?)*
 		']'
@@ -392,6 +390,7 @@ LogicalReferencePointPart:
 /** A ValueTypeUnit defines the logical representation of a MeasurementSystemAxis or MeasurementAxis value type in terms of a Unit and ValueType pair. */
 LogicalValueTypeUnit:
 	'vtu' valueType=[LogicalValueType|QN] unit=[LogicalUnit|QN] name=ID (description=STRING)?
+	// NOTE: This has a single, optional attribute - so the curlies are optional as well
 	('{' '!' constraint=LogicalConstraint '}')?
 	 ';'
 ;
@@ -478,7 +477,7 @@ LogicalMeasurement:
 		('axis:' '[' measurementAxis+=[LogicalMeasurementAxis|QN]+ ']')?
 		'sys:' measurementSystem=[LogicalAbstractMeasurementSystem|QN]
 		('![' constraint+=LogicalMeasurementConstraint ']')?
-		'};'
+	'};'
 ;
 
 /** A MeasurementAxis optionally establishes constraints for a MeasurementSystemAxis and may optionally override its default units and value types. */
@@ -588,7 +587,7 @@ LogicalCompositeQuery:
 
 /** A logical QueryComposition is the mechanism that allows a logical CompositeQuery to be constructed from logical Queries and other logical CompositeQueries. The “rolename” attribute defines the name of the composed logical View within the scope of the composing logical CompositeQuery. The “type” of a logical QueryComposition is the logical View being used to construct the logical CompositeQuery. */
 LogicalQueryComposition:
-	type=[LogicalView|QN] rolename=ID ( '->' realizes=[ConceptualQueryComposition|QN])?
+	type=[LogicalView|QN] rolename=ID ( '->' realizes=[ConceptualQueryComposition|QN])? ';'
 ;
 
 /* * * * * * * Platform Level Rules * * * * * *  */
@@ -731,12 +730,12 @@ PlatformStruct:
 		member+=PlatformStructMember
 		member+=PlatformStructMember
 		(member+=PlatformStructMember)?
-	'}'
+	'};'
 ;
 
 /** A StructMember is the mechanism that allows Structs to be constructed from other PlatformDataTypes. The “type” of a StructMember is the PlatformDataType being used to construct the Struct. If “type” is a Primitive, the “precision” attribute specifies a measure of the detail in which a quantity is captured. */
 PlatformStructMember:
-	type=[PlatformDataType|QN] rolename=ID '(' precision=FLOAT ')' ('->' realizes=[LogicalMeasurementAttribute|QN] ';')?
+	type=[PlatformDataType|QN] rolename=ID '(' precision=FLOAT ')' ('->' realizes=[LogicalMeasurementAttribute|QN] )? ';'
 ;
 
 /** A platform Characteristic contributes to the uniqueness of a platform Entity. The “rolename” attribute defines the name of the platform Characteristic within the scope of the platform Entity. The “lowerBound” and “upperBound” attributes define the multiplicity of the composed Characteristic. An “upperBound” multiplicity of –1 represents an unbounded sequence. */
@@ -756,6 +755,7 @@ PlatformEntity:
 /** A platform Composition is the mechanism that allows platform Entities to be constructed from other platform ComposableElements. The “type” of a Composition is the ComposableElement being used to construct the platform Entity. The “lowerBound” and “upperBound” define the multiplicity of the composed platform Entity. An “upperBound” multiplicity of –1 represents an unbounded sequence. If “type” is a Primitive, the “precision” attribute specifies a measure of the detail in which a quantity is captured.  */
 PlatformComposition:
 	type=[PlatformComposableElement|QN]  rolename=ID ('[' lowerBound=INT ':' upperBound=(INT|SIGNED_INT) ']')? (description=STRING)? (':' specializes=[PlatformCharacteristic|QN])?  '->' realizes=[LogicalComposition|QN]
+		// NOTE: This has a single, optional attribute - so the curlies are optional also
 		('{'
 			'prec:' precision=FLOAT
 		'}')? ';'
@@ -819,7 +819,7 @@ PlatformCompositeQuery:
 
 /** A platform QueryComposition is the mechanism that allows a platform CompositeQuery to be constructed from platform Queries and other platform CompositeQueries. The “rolename” attribute defines the name of the composed platform View within the scope of the composing platform CompositeQuery. The “type” of a platform QueryComposition is the platform View being used to construct the platform CompositeQuery. */
 PlatformQueryComposition:
-	type=[PlatformView|QN] rolename=ID ( '->' realizes=[LogicalQueryComposition|QN])?
+	type=[PlatformView|QN] rolename=ID ( '->' realizes=[LogicalQueryComposition|QN])? ';'
 ;
 
 
