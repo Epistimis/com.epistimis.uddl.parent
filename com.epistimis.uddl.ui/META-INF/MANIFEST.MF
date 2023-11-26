@@ -24,7 +24,7 @@ Require-Bundle: com.epistimis.uddl,
  org.eclipse.ui.forms
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.ui.codemining;resolution:=optional
-Bundle-RequiredExecutionEnvironment: JavaSE-20
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.epistimis.uddl.ui.contentassist,
  com.epistimis.uddl.ui.hover,
  com.epistimis.uddl.ui.internal,
