@@ -7,14 +7,14 @@ import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.extensions.InjectionExtension;
 import org.eclipse.xtext.testing.util.ParseHelper;
 import org.eclipse.xtext.ui.testing.AbstractHoverTest;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import com.epistimis.uddl.uddl.ConceptualDataModel;
+//import com.epistimis.uddl.uddl.ConceptualDataModel;
 import com.epistimis.uddl.uddl.DataModel;
-import com.epistimis.uddl.uddl.LogicalDataModel;
-import com.epistimis.uddl.uddl.PlatformDataModel;
+//import com.epistimis.uddl.uddl.LogicalDataModel;
+//import com.epistimis.uddl.uddl.PlatformDataModel;
 import com.epistimis.uddl.uddl.UddlElement;
-import com.epistimis.uddl.ui.hover.UddlKeywordHoverText;
+//import com.epistimis.uddl.ui.hover.UddlKeywordHoverText;
 import com.google.inject.Inject;
 
 /**
