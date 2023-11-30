@@ -106,8 +106,7 @@ class IDLDataStructureGenerator extends CommonDataStructureGenerator {
 			PlatformStruct: {
 				var result = "struct {\n";
 				// loop thru struct members
-				val struct = pdt as PlatformStruct;
-				for (m: struct.member) {
+				for (m: pdt.member) {
 					result += m.type.name + " " + m.rolename + ";\n"
 				}
 				result += "};\n";

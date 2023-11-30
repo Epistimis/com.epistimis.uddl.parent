@@ -34,10 +34,10 @@ import org.eclipse.emf.common.util.EList
 //import org.eclipse.acceleo.query.runtime.impl.QueryBuilderEngine
 //import org.eclipse.acceleo.query.runtime.IQueryBuilderEngine.AstResult
 //import org.eclipse.acceleo.query.runtime.impl.QueryEvaluationEngine
-import java.util.Map
-import com.google.common.collect.Maps
+//import java.util.Map
+//import com.google.common.collect.Maps
 //import org.eclipse.emf.ecore.EcorePackage
-import org.eclipse.acceleo.query.runtime.EvaluationResult
+//import org.eclipse.acceleo.query.runtime.EvaluationResult
 //import org.eclipse.ocl.pivot.values.OrderedSet
 
 /**

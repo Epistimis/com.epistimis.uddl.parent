@@ -86,8 +86,7 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 		initialize();
 		for (PlatformComposableElement rce : allComposableElements.keySet) {
 			if (rce instanceof PlatformEntity) {
-				val re = rce as PlatformEntity;
-				processAnEntity(re, fsa, context);
+				processAnEntity(rce, fsa, context);
 			}
 		}
 		cleanup();
