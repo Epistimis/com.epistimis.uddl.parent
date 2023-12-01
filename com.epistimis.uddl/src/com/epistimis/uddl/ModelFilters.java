@@ -1,6 +1,6 @@
 package com.epistimis.uddl;
 
-import org.eclipse.emf.common.util.EList;
+//import org.eclipse.emf.common.util.EList;
 
 import com.epistimis.uddl.uddl.ConceptualBasisEntity;
 import com.epistimis.uddl.uddl.ConceptualEntity;

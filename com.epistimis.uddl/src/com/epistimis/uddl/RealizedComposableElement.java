@@ -27,7 +27,7 @@ public class RealizedComposableElement {
 
 	public static void linkTypes() {
 		for (Map.Entry<PlatformComposableElement, RealizedComposableElement> entry: allComposableElements.entrySet()) {
-			PlatformComposableElement pce = entry.getKey();
+			//PlatformComposableElement pce = entry.getKey();
 			RealizedComposableElement rce = entry.getValue();
 			if (rce instanceof RealizedEntity) {
 				RealizedEntity re = (RealizedEntity) rce;
