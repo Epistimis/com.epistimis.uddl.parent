@@ -7,8 +7,8 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<xtextVersion>2.32.0</xtextVersion>
-		<mwe2Version>2.15.0</mwe2Version>
+		<xtextVersion>2.33.0</xtextVersion>
+		<mwe2Version>2.16.0</mwe2Version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
@@ -24,6 +24,7 @@
 		<module>com.epistimis.uddl</module>
 		<module>com.epistimis.uddl.ide</module>
 		<module>com.epistimis.uddl.ui</module>
+		<module>com.epistimis.uddl.web</module>
 		<module>com.epistimis.uddl.target</module>
 		<module>com.epistimis.uddl.feature</module>
 		<module>com.epistimis.uddl.repository</module>
