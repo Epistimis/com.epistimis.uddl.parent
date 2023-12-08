@@ -161,6 +161,8 @@ package uddl
 			ents->select(o|o.name = n)->asSet()
 	
 		/**
+		 * NOTE: You probably want to use referncedModelTyeps instead of this method
+		 * 
 		 * Return a set of all the model types referenced by this element.
 		 * This is a 'raw' or 'base' method that doesn't include 'self' because it it called by other defs
 		 * that add 'self'. This is an optimization issue - we want to track what has been processed -
@@ -342,6 +344,40 @@ package uddl
 		 	let comps =  self.composition->select(rolename.equalsIgnoreCase(role)) in
 		 	let usesType = comps->select(referencesModelType(checkType)) in
 		 	not usesType->isEmpty()
+
+		/**
+		 * Is this Entity of the specified type?
+		 */
+		def: isTypeOf(type:String): Boolean = 
+			let type = uddl::ConceptualEntity::findByName(type) in
+			type->exists(o|self.isTypeOrSpecializationOf(o))	
+
+		/**
+		 * Retrieve the entire type hierarchy rooted in the Entity with the specified name.
+		 * NOTE: This is a leaf name - it is not a FQN 
+		 */
+		static def: typeHierarchyRoot(type: String): ConceptualEntity =
+			let roots = uddl::ConceptualEntity::findByName(type)->asSequence() in
+			if (roots->size() = 1) then
+				roots->first()
+			else
+				null -- error either because we got zero or we got too many
+			endif
+
+		/**
+		 * We should have exactly 1 ConceptualEntity that uses this leaf name. That 
+		 * avoids confusion.
+		 */
+		def: ExactlyOneRoot(type:String): Boolean =
+			findByName(type)->size() = 1 
+
+		/**
+		 *  Does this entity contain data anywhere from the specified type?
+		 */
+		def: containsDataFromType(type: String): Boolean =
+			let root = typeHierarchyRoot(type) in
+			let typeHier = 	specializationHierarchy(root) in
+			not self.referencedModelTypes()->intersection(typeHier)->isEmpty()
 
 		/**
 		 * Is there a 'user' type (possibly this one, but maybe an embedded one) that has embedded

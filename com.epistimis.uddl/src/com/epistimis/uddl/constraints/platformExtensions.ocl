@@ -90,6 +90,40 @@ package uddl
 		 	not usesType->isEmpty()
 	
 		/**
+		 * Is this Entity of the specified type?
+		 */
+		def: isTypeOf(type:String): Boolean = 
+			let type = uddl::PlatformEntity::findByName(type) in
+			type->exists(o|self.isTypeOrSpecializationOf(o))	
+
+		/**
+		 * Retrieve the entire type hierarchy rooted in the Entity with the specified name.
+		 * NOTE: This is a leaf name - it is not a FQN 
+		 */
+		static def: typeHierarchyRoot(type: String): PlatformEntity =
+			let roots = uddl::PlatformEntity::findByName(type)->asSequence() in
+			if (roots->size() = 1) then
+				roots->first()
+			else
+				null -- error either because we got zero or we got too many
+			endif
+
+		/**
+		 * We should have exactly 1 ConceptualEntity that uses this leaf name. That 
+		 * avoids confusion.
+		 */
+		def: ExactlyOneRoot(type:String): Boolean =
+			findByName(type)->size() = 1 
+
+		/**
+		 *  Does this entity contain data anywhere from the specified type?
+		 */
+		def: containsDataFromType(type: String): Boolean =
+			let root = typeHierarchyRoot(type) in
+			let typeHier = 	specializationHierarchy(root) in
+			not self.referencedModelTypes()->intersection(typeHier)->isEmpty()
+	
+		/**
 		 * PlatformEntities cannot specialize a PlatformAssociation. Any specialization of
 		 * a PlatformAssociation must be a PlatformAssociation. Why? Because it's still a
 		 * PlatformAssociation even if the specialization does not add participants
