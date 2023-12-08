@@ -46,9 +46,11 @@ Workflow {
 			// Only enable this when we need to regenerate langium
 		    fragment = io.typefox.xtext2langium.Xtext2LangiumFragment {
 		        outputPath = './langium'
+			// Enable this when we figure out what to do with it. It will add to dependencies, thus making builds more complicated - so 
+			// don't do it before that.
+			//fragment = org.eclipse.xtext.xtext.generator.ui.codemining.CodeMiningFragment {}
 		    }
 
-			fragment = org.eclipse.xtext.xtext.generator.ui.codemining.CodeMiningFragment {}
 
 			serializer = {
 				generateStub = false
