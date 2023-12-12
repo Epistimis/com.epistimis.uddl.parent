@@ -5,7 +5,7 @@ import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
 
 --import uddl : 'http://www.epistimis.com/uddl/Uddl'
 --import  '../../../../../model/generated/Uddl.ecore'
-import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
+import  'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
 --include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/library.ocl'
 
 
@@ -368,11 +368,7 @@ package uddl
 		 * We should have exactly 1 ConceptualEntity that uses this leaf name. That 
 		 * avoids confusion.
 		 */
-<<<<<<< Upstream, based on 7c22c56183fe42af4222a9c0c199596ee38afcbb
-		def: ExactlyOneRoot(type:String): Boolean =
-=======
 		def: exactlyOneRoot(type:String): Boolean =
->>>>>>> a7bcfbe isTypeOf, typeHierarchyRoot, exactlyOneRoot, containsDataFromType,
 			findByName(type)->size() = 1 
 
 		/**
