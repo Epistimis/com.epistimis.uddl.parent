@@ -32,7 +32,9 @@
 <!--  There is some problem with the ui.tests module. It compiles but it causes the test harness to fail.
 		Commented out for now. 		
 		<module>com.epistimis.uddl.ui.tests</module>
+		<module>com.epistimis.uddl.product</module>
 -->
+
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -98,11 +100,17 @@
 							<version>${project.version}</version>
 						</artifact>
 					</target>
+   					<executionEnvironment>JavaSE-17</executionEnvironment>
 					<environments>
 						<environment>
 							<os>macosx</os>
 							<ws>cocoa</ws>
 							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>aarch64</arch>
 						</environment>
 						<environment>
 							<os>win32</os>
