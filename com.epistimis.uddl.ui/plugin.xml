@@ -488,22 +488,4 @@
 			<newWizardShortcut id="com.epistimis.uddl.ui.wizard.UddlNewFileWizard"/>
 		</perspectiveExtension>
 	</extension>
-	<!-- code mining -->
-	<extension point="org.eclipse.ui.workbench.texteditor.codeMiningProviders">
-		<codeMiningProvider
-			class="com.epistimis.uddl.ui.UddlExecutableExtensionFactory:org.eclipse.jface.text.codemining.ICodeMiningProvider"
-			id="com.epistimis.uddl.Uddl.CodeMiningProvider"
-			label="Uddl Codemining">
-			<enabledWhen>
-				<with variable="editorInput">
-					<adapt type="org.eclipse.core.resources.IFile">
-						<test
-							property="org.eclipse.core.resources.contentTypeId"
-							value="com.epistimis.uddl.Uddl.contenttype">
-						</test>
-					</adapt>
-				</with>
-			</enabledWhen>
-		</codeMiningProvider>
-	</extension>
 </plugin>
