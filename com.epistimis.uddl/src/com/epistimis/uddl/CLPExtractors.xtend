@@ -278,7 +278,7 @@ class CLPExtractors {
 	 * @return The found characteristic
 	 */
 	def  <Entity extends UddlElement,Characteristic extends EObject> Characteristic getCharacteristicByRolename(Entity ent, String roleName)
-			throws CharacteristicNotFoundException {
+			/*throws CharacteristicNotFoundException*/ {
 		// Look for the characteristic in this Entity and, if not found, go up the
 		// specializes chain until we find it
 		for (EObject obj : CLPExtractors.getComposition(ent)) {

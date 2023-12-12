@@ -588,7 +588,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * @return The found characteristic
 	 */
 	protected Characteristic getCharacteristicByRolename(Entity ent, String roleName)
-			throws CharacteristicNotFoundException {
+			/*throws CharacteristicNotFoundException*/ {
 		return clp.getCharacteristicByRolename(ent, roleName);
 	}
 
