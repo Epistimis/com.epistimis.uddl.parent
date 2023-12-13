@@ -484,11 +484,5 @@ class UddlFormatter extends AbstractFormatter2 {
 		formatAttributeElement(obj.regionFor.feature(PLATFORM_QUERY_COMPOSITION__TYPE), document);
 		formatAttributeElement(obj.regionFor.feature(PLATFORM_QUERY_COMPOSITION__ROLENAME), document);
 	}
-<<<<<<< Upstream, based on 7c22c56183fe42af4222a9c0c199596ee38afcbb
-
-
-// TODO: implement for LogicalDataModel, PlatformDataModel, ConceptualEntity, ConceptualAssociation, ConceptualParticipant, ConceptualParticipantPathNode, ConceptualCharacteristicPathNode, ConceptualCompositeQuery, LogicalEnumerated, LogicalEnumeratedSet, LogicalMeasurementSystem, LogicalMeasurementSystemAxis, LogicalReferencePoint, LogicalValueTypeUnit, LogicalMeasurement, LogicalMeasurementAxis, LogicalEntity, LogicalAssociation, LogicalParticipant, LogicalParticipantPathNode, LogicalCharacteristicPathNode, LogicalCompositeQuery, PlatformStruct, PlatformEntity, PlatformAssociation, PlatformParticipant, PlatformParticipantPathNode, PlatformCharacteristicPathNode, PlatformCompositeQuery
-=======
 	// TODO: implement for LogicalDataModel, PlatformDataModel, ConceptualEntity, ConceptualAssociation, ConceptualParticipant, ConceptualParticipantPathNode, ConceptualCharacteristicPathNode, ConceptualCompositeQuery, LogicalEnumerated, LogicalEnumeratedSet, LogicalMeasurementSystem, LogicalMeasurementSystemAxis, LogicalReferencePoint, LogicalValueTypeUnit, LogicalMeasurement, LogicalMeasurementAxis, LogicalEntity, LogicalAssociation, LogicalParticipant, LogicalParticipantPathNode, LogicalCharacteristicPathNode, LogicalCompositeQuery, PlatformStruct, PlatformEntity, PlatformAssociation, PlatformParticipant, PlatformParticipantPathNode, PlatformCharacteristicPathNode, PlatformCompositeQuery
->>>>>>> b69bfa9 More formatting
 }
