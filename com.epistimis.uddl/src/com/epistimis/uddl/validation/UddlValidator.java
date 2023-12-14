@@ -239,6 +239,10 @@ public class UddlValidator extends AbstractUddlValidator {
 		return results;
 	}
 
+	
+	
+	// ======================== Validations / Checks =====================
+	
 	/**
 	 * Every entity must have at least 2 characteristics.
 	 * @param ent

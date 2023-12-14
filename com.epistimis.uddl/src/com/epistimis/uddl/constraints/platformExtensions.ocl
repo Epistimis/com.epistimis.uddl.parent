@@ -124,6 +124,12 @@ package uddl
 			not self.referencedModelTypes()->intersection(typeHier)->isEmpty()
 	
 		/**
+		 * TODO: This should really use a QNP, which we don't have in OCL.
+		 */
+		def: hasBasisInAncestry(basisName: String): Boolean =
+			self.realizes.realizes.hasBasisInAncestry(basisName)
+
+		/**
 		 * PlatformEntities cannot specialize a PlatformAssociation. Any specialization of
 		 * a PlatformAssociation must be a PlatformAssociation. Why? Because it's still a
 		 * PlatformAssociation even if the specialization does not add participants

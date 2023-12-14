@@ -380,6 +380,13 @@ package uddl
 			not self.referencedModelTypes()->intersection(typeHier)->isEmpty()
 
 		/**
+		 * TODO: This should really use a QNP, which we don't have in OCL.
+		 */
+		def: hasBasisInAncestry(basisName: String): Boolean =
+			self.basisEntity->collect(name)->includes(basisName) or
+			(self.specializes?.hasBasisInAncestry(basisName))
+
+		/**
 		 * Is there a 'user' type (possibly this one, but maybe an embedded one) that has embedded
 		 * within it the 'used' type? Note that 'user' and 'used' types must include both root and
 		 * specializations of those 

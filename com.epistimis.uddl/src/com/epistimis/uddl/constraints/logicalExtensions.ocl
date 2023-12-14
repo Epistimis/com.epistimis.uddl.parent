@@ -334,6 +334,12 @@ package uddl
 			not self.referencedModelTypes()->intersection(typeHier)->isEmpty()
 
 		/**
+		 * TODO: This should really use a QNP, which we don't have in OCL.
+		 */
+		def: hasBasisInAncestry(basisName: String): Boolean =
+			self.realizes.hasBasisInAncestry(basisName)
+
+		/**
 		 * LogicalEntities cannot specialize a LogicalAssociation. Any specialization of
 		 * a LogicalAssociation must be a LogicalAssociation. Why? Because it's still a
 		 * LogicalAssociation even if the specialization does not add participants
