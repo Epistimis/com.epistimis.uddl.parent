@@ -355,13 +355,13 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 	 * @param comp the composition element to generate a member for
 	 * @param ndx the zero based index of this element in the structure
 	 */
-	def String compositionElement(PlatformComposition comp, int ndx);
+	def String compositionElement(PlatformComposition comp, int tabs, int ndx);
 
 	/**
 	 * @param participant the participant element to generate a member for
 	 * @param ndx the zero based index of this element in the structure
 	 */
-	def String participantElement(PlatformParticipant participant, int ndx);
+	def String participantElement(PlatformParticipant participant, int tabs, int ndx);
 
 	def compile(PlatformEntity entity) {
 		var entityIncludes = new ArrayList<PlatformEntity>
@@ -369,7 +369,7 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 		entityIncludes.add(entity)
 		var List<PlatformDataModel> pdmIncludes = new ArrayList<PlatformDataModel>
 		var ndx = 0
-
+		var nDent = 1
 		// Now generate the return value (the last value generated)
 		'''
 			«entity.fileHeader»
@@ -381,7 +381,7 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 			«ENDIF»
 			«entity.clazzDecl» 
 			«FOR composition : entity.composition»
-				«composition.compositionElement(ndx++)»
+				«composition.compositionElement(nDent, ndx++)»
 			«ENDFOR»
 			«entity.clazzEndDecl»
 		'''
@@ -393,7 +393,8 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 		entityIncludes.add(entity)
 		var List<PlatformDataModel> pdmIncludes = new ArrayList<PlatformDataModel>
 		var ndx = 0
-
+		var tabs = 1
+		
 		// Now generate the return value (the last value generated)
 		'''
 			«entity.fileHeader»
@@ -408,11 +409,11 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 			«ENDIF»
 			«entity.clazzDecl» 
 			«FOR composition : entity.composition»
-				«composition.compositionElement(ndx++)»
+				«composition.compositionElement(tabs, ndx++)»
 				«ndx = ndx+1»
 			«ENDFOR»
 			«FOR participant : entity.participant»
-				«participant.participantElement(ndx++)»
+				«participant.participantElement(tabs, ndx++)»
 				«ndx = ndx+1»
 			«ENDFOR»
 			

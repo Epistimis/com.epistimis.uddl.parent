@@ -105,14 +105,14 @@ class GoDataStructureGenerator extends CommonDataStructureGenerator {
 		«multiLineCmtEnd»		
 		'''
 	}
-	override String compositionElement(PlatformComposition composition, int ndx) {
+	override String compositionElement(PlatformComposition composition,int tabs,  int ndx) {
 		'''
-		«nDent(ndx)»«compositionVisibility» «composition.type.name» «composition.rolename»«IF composition.upperBound > 1»«arrStart»«composition.upperBound»«arrEnd»«ENDIF»«elemEnd» «singleLineCmtStart» «composition.description»
+		«nDent(tabs)»«compositionVisibility» «composition.type.name» «composition.rolename»«IF composition.upperBound > 1»«arrStart»«composition.upperBound»«arrEnd»«ENDIF»«elemEnd» «singleLineCmtStart» «composition.description»
 		'''
 	}
-	override String participantElement(PlatformParticipant participant, int ndx) {
+	override String participantElement(PlatformParticipant participant, int tabs, int ndx) {
 		'''
-		«nDent(ndx)»«compositionVisibility» «participant.type.name» «participant.rolename»«IF participant.upperBound > 1»«arrStart»«participant.upperBound»«arrEnd»«ENDIF»«elemEnd» «singleLineCmtStart» «participant.description»
+		«nDent(tabs)»«compositionVisibility» «participant.type.name» «participant.rolename»«IF participant.upperBound > 1»«arrStart»«participant.upperBound»«arrEnd»«ENDIF»«elemEnd» «singleLineCmtStart» «participant.description»
 		'''
 	}
 	override clazzDecl(PlatformEntity entity) '''

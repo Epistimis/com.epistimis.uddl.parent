@@ -117,17 +117,17 @@ class ProtobufDataStructureGenerator extends CommonDataStructureGenerator {
 		'''
 	}
 
-	override String compositionElement(PlatformComposition composition, int ndx) {
+	override String compositionElement(PlatformComposition composition, int tabs, int ndx) {
 		// ndx is zero based but protobuf needs 1 based 
 		'''
-		«nDent(ndx)»«IF composition.upperBound > 1»repeated «ENDIF»«compositionVisibility» «composition.type.name» «composition.rolename» = «ndx+1»«elemEnd» «singleLineCmtStart» «composition.description»
+		«nDent(tabs)»«IF composition.upperBound > 1»repeated «ENDIF»«compositionVisibility» «composition.type.name» «composition.rolename» = «ndx+1»«elemEnd» «singleLineCmtStart» «composition.description»
 		'''
 	}
 
-	override String participantElement(PlatformParticipant participant, int ndx) {
+	override String participantElement(PlatformParticipant participant,int tabs,  int ndx) {
 		// ndx is zero based but protobuf needs 1 based 
 		'''
-		«nDent(ndx)»«IF participant.upperBound > 1»repeated «ENDIF»«compositionVisibility» «participant.type.name» «participant.rolename» = «ndx+1»«elemEnd» «singleLineCmtStart» «participant.description»
+		«nDent(tabs)»«IF participant.upperBound > 1»repeated «ENDIF»«compositionVisibility» «participant.type.name» «participant.rolename» = «ndx+1»«elemEnd» «singleLineCmtStart» «participant.description»
 		'''
 	}
 

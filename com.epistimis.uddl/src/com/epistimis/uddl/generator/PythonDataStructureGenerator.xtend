@@ -128,14 +128,14 @@ class PythonDataStructureGenerator extends CommonDataStructureGenerator {
 		#from typing import List
 		'''
 	}
-	override String compositionElement(PlatformComposition composition, int ndx) {
+	override String compositionElement(PlatformComposition composition, int tabs, int ndx) {
 		'''
-		«nDent(ndx)»«composition.rolename»: «IF composition.upperBound > 1»list[«composition.type.genTypeName»]«ELSE»«composition.type.genTypeName»«ENDIF»   # «composition.description»
+		«nDent(tabs)»«composition.rolename»: «IF composition.upperBound > 1»list[«composition.type.genTypeName»]«ELSE»«composition.type.genTypeName»«ENDIF»   # «composition.description»
 		'''
 	}
-	override String participantElement(PlatformParticipant participant, int ndx) {
+	override String participantElement(PlatformParticipant participant, int tabs,  int ndx) {
 		'''
-		«nDent(ndx)»«participant.rolename»: «IF participant.upperBound > 1»list[«participant.type.genTypeName»]«ELSE»«participant.type.genTypeName»«ENDIF»   # «participant.description»
+		«nDent(tabs)»«participant.rolename»: «IF participant.upperBound > 1»list[«participant.type.genTypeName»]«ELSE»«participant.type.genTypeName»«ENDIF»   # «participant.description»
 		'''
 	}
 
