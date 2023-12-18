@@ -1,0 +1,63 @@
+/**
+ * 
+ */
+package com.epistimis.uddl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.naming.IQualifiedNameProvider;
+
+import com.epistimis.uddl.uddl.ConceptualAssociation;
+import com.epistimis.uddl.uddl.ConceptualCharacteristic;
+import com.epistimis.uddl.uddl.ConceptualComposition;
+import com.epistimis.uddl.uddl.ConceptualEntity;
+import com.epistimis.uddl.uddl.ConceptualParticipant;
+import com.google.inject.Inject;
+
+/**
+ * 
+ */
+public class ConceptualEntityProcessor extends
+		EntityProcessor<ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant> {
+
+	@Inject IQualifiedNameProvider qnp; // = new UddlQNP();
+
+
+	public String getCharacteristicRolename(ConceptualCharacteristic obj) {
+		return obj.getRolename();
+	}
+
+	@Override
+	public ConceptualEntity getSpecializes(ConceptualEntity ent) {
+		// TODO Auto-generated method stub
+		return ent.getSpecializes();
+	}
+
+	@Override
+	public boolean isAssociation(ConceptualEntity ent) {
+		// TODO Auto-generated method stub
+		return (ent instanceof ConceptualAssociation);
+	}
+
+	@Override
+	public ConceptualAssociation conv2Association(ConceptualEntity ent) {
+		// TODO Auto-generated method stub
+		return (ConceptualAssociation)ent;
+	}
+
+	@Override
+	public EList<ConceptualComposition> getComposition(ConceptualEntity obj) {
+		// TODO Auto-generated method stub
+		return obj.getComposition();
+	}
+
+	@Override
+	public EList<ConceptualParticipant> getParticipant(ConceptualAssociation obj) {
+		// TODO Auto-generated method stub
+		return obj.getParticipant();
+	}
+
+}

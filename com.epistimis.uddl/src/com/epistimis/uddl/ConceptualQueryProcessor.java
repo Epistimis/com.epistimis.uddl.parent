@@ -18,7 +18,9 @@ import com.epistimis.uddl.uddl.ConceptualView;
 import com.epistimis.uddl.uddl.UddlPackage;
 
 public class ConceptualQueryProcessor extends
-		QueryProcessor<ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualParticipant, ConceptualView, ConceptualQuery, ConceptualCompositeQuery, ConceptualQueryComposition> {
+		QueryProcessor<ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant, 
+		ConceptualView, ConceptualQuery, ConceptualCompositeQuery, ConceptualQueryComposition,
+		ConceptualEntityProcessor> {
 
 	protected EList<ConceptualQueryComposition> getComposition(ConceptualCompositeQuery ent) {
 		return ent.getComposition();

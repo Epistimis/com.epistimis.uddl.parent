@@ -18,7 +18,9 @@ import com.epistimis.uddl.uddl.LogicalView;
 import com.epistimis.uddl.uddl.UddlPackage;
 
 public class LogicalQueryProcessor extends
-		QueryProcessor<LogicalCharacteristic, LogicalEntity, LogicalAssociation, LogicalParticipant, LogicalView, LogicalQuery, LogicalCompositeQuery, LogicalQueryComposition> {
+		QueryProcessor<LogicalCharacteristic, LogicalEntity, LogicalAssociation, LogicalComposition, LogicalParticipant, 
+		LogicalView, LogicalQuery, LogicalCompositeQuery, LogicalQueryComposition,
+		LogicalEntityProcessor> {
 
 	protected EList<LogicalQueryComposition> getComposition(LogicalCompositeQuery ent) {
 		return ent.getComposition();

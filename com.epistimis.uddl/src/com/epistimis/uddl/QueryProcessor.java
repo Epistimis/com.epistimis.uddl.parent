@@ -62,8 +62,11 @@ import com.google.inject.Inject;
  * @param <CompositeQuery>
  * @param <QueryComposition>
  */
+// TODO: Insert references to EntityProcessor
 
-public abstract class QueryProcessor<Characteristic extends EObject, Entity extends UddlElement, Association extends Entity, Participant extends Characteristic, View extends UddlElement, Query extends View, CompositeQuery extends View, QueryComposition extends EObject> {
+public abstract class QueryProcessor<Characteristic extends EObject, Entity extends UddlElement, Association extends Entity, Composition extends Characteristic, Participant extends Characteristic, 
+										View extends UddlElement, Query extends View, CompositeQuery extends View, QueryComposition extends EObject,
+										EProcessor extends EntityProcessor<Characteristic,Entity, Association, Composition, Participant>> {
 	// @Inject
 //	private Provider<ResourceSet> resourceSetProvider;
 //
@@ -86,8 +89,11 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	@Inject
 	IQualifiedNameConverter qnc;
 
+//	@Inject
+//	CLPExtractors clp;
+	
 	@Inject
-	CLPExtractors clp;
+	EProcessor eproc;
 
 	static Logger logger = Logger.getLogger(QueryProcessor.class);
 
@@ -575,7 +581,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 */
 	protected Collection<Characteristic> getCharacteristics(Entity obj) {
 		Map<String, Characteristic> characteristics = new HashMap<>();
-		clp.getCharacteristicsAndRecurse(obj, characteristics);
+		eproc.getCharacteristicsAndRecurse(obj, characteristics);
 		return characteristics.values();
 	}
 
@@ -589,7 +595,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 */
 	protected Characteristic getCharacteristicByRolename(Entity ent, String roleName)
 			/*throws CharacteristicNotFoundException*/ {
-		return clp.getCharacteristicByRolename(ent, roleName);
+		return eproc.getCharacteristicByRolename(ent, roleName);
 	}
 
 	public void setupParsing() {
