@@ -4,12 +4,14 @@
 package com.epistimis.uddl;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
 
 import com.epistimis.uddl.uddl.LogicalAssociation;
 import com.epistimis.uddl.uddl.LogicalCharacteristic;
 import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalParticipant;
+import com.epistimis.uddl.uddl.UddlPackage;
 
 /**
  * 
@@ -17,6 +19,12 @@ import com.epistimis.uddl.uddl.LogicalParticipant;
 public class LogicalEntityProcessor extends
 		EntityProcessor<LogicalCharacteristic, LogicalEntity, LogicalAssociation, LogicalComposition, LogicalParticipant> {
 
+	@Override
+	public EClass getEntityEClass() {
+		// TODO Auto-generated method stub
+		return UddlPackage.eINSTANCE.getLogicalEntity();
+
+	}
 
 	public String getCharacteristicRolename(LogicalCharacteristic obj) {
 		return obj.getRolename();

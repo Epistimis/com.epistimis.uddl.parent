@@ -4,12 +4,14 @@
 package com.epistimis.uddl;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
 
 import com.epistimis.uddl.uddl.PlatformAssociation;
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
 import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
+import com.epistimis.uddl.uddl.UddlPackage;
 
 /**
  * 
@@ -17,6 +19,12 @@ import com.epistimis.uddl.uddl.PlatformParticipant;
 public class PlatformEntityProcessor extends
 		EntityProcessor<PlatformCharacteristic, PlatformEntity, PlatformAssociation, PlatformComposition, PlatformParticipant> {
 
+	@Override
+	public EClass getEntityEClass() {
+		// TODO Auto-generated method stub
+		return UddlPackage.eINSTANCE.getPlatformEntity();
+
+	}
 
 	public String getCharacteristicRolename(PlatformCharacteristic obj) {
 		return obj.getRolename();

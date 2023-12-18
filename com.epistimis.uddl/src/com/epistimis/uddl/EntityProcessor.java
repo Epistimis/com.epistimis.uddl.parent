@@ -8,8 +8,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
@@ -73,6 +75,8 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 
 	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
 			"Entity {0} does not have a characteristic with rolename {1}");
+
+	abstract public EClass getEntityEClass();
 
 	abstract public Entity getSpecializes(Entity ent);
 
@@ -198,7 +202,9 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 	}
 
 	/**
-	 * Get the characteristics from this Entity, without following the specialization hierarchy
+	 * Get the characteristics from this Entity, without following the
+	 * specialization hierarchy
+	 * 
 	 * @param obj
 	 * @param characteristics
 	 */
@@ -207,13 +213,14 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 			characteristics.putIfAbsent(getCharacteristicRolename(pc), pc);
 		}
 		if (isAssociation(obj)) {
-			Association assoc = (Association)obj;
+			Association assoc = (Association) obj;
 			for (Participant pp : getParticipant(assoc)) {
 				characteristics.putIfAbsent(getCharacteristicRolename(pp), (Characteristic) pp);
 			}
 		}
-		
+
 	}
+
 	/**
 	 * Get the set of all characteristics from this entity - across the entire
 	 * specialization hierarchy. Note that, because we start from the bottom, any
@@ -229,7 +236,7 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 	protected void getCharacteristicsAndRecurse(Entity obj, Map<String, Characteristic> characteristics) {
 
 		getLocalCharacteristics(obj, characteristics);
-		
+
 		// Now check for specialization
 		Entity specializes = getSpecializes(obj);
 		if (specializes != null) {
@@ -255,7 +262,7 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 				return comp;
 		}
 		if (isAssociation(ent)) {
-			Association assoc = (Association)ent;
+			Association assoc = (Association) ent;
 			for (Characteristic part : getParticipant(assoc)) {
 				if (getCharacteristicRolename(part).equals(roleName))
 					return part;
@@ -300,7 +307,7 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 		// drill down into those
 		for (Composition comp : getComposition(ent)) {
 			// if (comp.type instanceof Entity)
-
+			// TODO: THIS IS NOT FINISHED !!!!
 		}
 
 		return result;
@@ -309,17 +316,54 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 	}
 
 	/**
-	 * Return the in order list of specializations starting with this object and walking up
-	 * the specialization hierarchy
+	 * Return the in order list of specializations starting with this object and
+	 * walking up the specialization hierarchy
+	 * 
 	 * @param start - the first entity
-	 * @return - a list of entities that are the specialization hierarchy of this starting entity
+	 * @return - a list of entities that are the specialization ancestry of this
+	 *         starting entity
 	 */
-	public List<Entity> specializationHierarchy(Entity start) {
+	public List<Entity> specializationAncestry(Entity start) {
 		Entity spec = getSpecializes(start);
 		List<Entity> result = new ArrayList<Entity>();
 		result.add(start);
 		if (spec != null) {
-			result.addAll(specializationHierarchy(spec));
+			result.addAll(specializationAncestry(spec));
+		}
+		return result;
+	}
+
+	/**
+	 * oclIsKindOf uses the metamodel. We want to follow the UDDL specialization
+	 * hierarchy
+	 */
+	public boolean isTypeOrSpecializationOf(Entity obj, Entity targetType) {
+		if (obj == targetType) {
+			return true;
+		}
+		Entity spec = getSpecializes(obj);
+		if (spec != null) {
+			return isTypeOrSpecializationOf(spec, targetType);
+		}
+		// else
+		return false;
+	}
+
+	/**
+	 * Get all the Entities that specialize the root. (this is traversing
+	 * specialization in the inverse direction. If we cannot follow the inverse
+	 * directly, then we have to use allInstances)
+	 */
+	public Set<Entity> specializationHierarchy(Entity root) {
+		Set<Entity> result = new HashSet<Entity>();
+		EClass clz = getEntityEClass();
+		Iterable<EObject> vobjs = ndxUtil.getVisibleObjects(root, clz);
+		for (EObject obj : vobjs) {
+			@SuppressWarnings("unchecked") // getVisibleObjects has already filtered by type
+			Entity entity = (Entity) obj;
+			if (isTypeOrSpecializationOf(entity, root)) {
+				result.add(entity);
+			}
 		}
 		return result;
 	}
