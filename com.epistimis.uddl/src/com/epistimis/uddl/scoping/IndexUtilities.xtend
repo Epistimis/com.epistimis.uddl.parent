@@ -49,12 +49,18 @@ class IndexUtilities {
 	@Inject IContainer.Manager cm
 	@Inject IQualifiedNameProvider qnp
 
+	/**
+	 * Get all the EObjectDescriptions of the specified type visible from the context object
+	 */
 	def getVisibleEObjectDescriptions(EObject o, EClass type) {
 		o.getVisibleContainers.map [ container |
 			container.getExportedObjectsByType(type)
 		].flatten
 	}
 
+	/**
+	 * Get all the objects of the specified type visible from the context object
+	 */
 	def getVisibleObjects(EObject context, EClass type) {
 		context.getVisibleEObjectDescriptions(type).map([
 			context.eResource.objectFromDescription(it)
@@ -89,6 +95,9 @@ class IndexUtilities {
 		o.getResourceDescription.getExportedObjectsByType(type)
 	}
 
+	/**
+	 * Get *only* the external EObjectDescriptions visible from 'o' of 'type'
+	 */
 	def getVisibleExternalEObjectDescriptionsByType(EObject o, EClass type) {
 		val allVisibleEObjectDescriptions = o.getVisibleEObjectDescriptions(type)
 		val allExportedEObjectDescriptions = o.getExportedEObjectDescriptionsByType(type)
@@ -98,7 +107,7 @@ class IndexUtilities {
 	}
 
 	/**
-	 * Find all visible EObjects that match this type and name. The name may be 
+	 * Find all visible EObjectDescriptionss that match this type and name. The name may be 
 	 * a leaf, RQN, or FQN. Note the following:
 	 * 1) We are checking the name from the leaf up. The assumption here is that
 	 * in most cases, a leaf or RQN will be used - so starting with that comparison
@@ -120,7 +129,7 @@ class IndexUtilities {
 	}
 
 	/**
-	 * Find all visible EObjects that match this type and name. The name may be 
+	 * Find all visible EObjectDescriptions that match this type and name. The name may be 
 	 * a leaf, RQN, or FQN. Note the following:
 	 * 1) We are checking the name from the leaf up. The assumption here is that
 	 * in most cases, a leaf or RQN will be used - so starting with that comparison
@@ -162,7 +171,22 @@ class IndexUtilities {
 	}
 
 	/**
+	 * Find all visible EObjects that match this type and name. The name may be 
+	 * a leaf, RQN, or FQN. Note the following:
+	 * 1) We are checking the name from the leaf up. The assumption here is that
+	 * in most cases, a leaf or RQN will be used - so starting with that comparison
+	 * will return success more quickly.
+	 * 2) If the leaf is not in the name, then the name won't match at all - so 
+	 * there is no point in continuing to check.
 	 * 
+	 * @param context The context to search
+	 * @param type The EClass to search for
+	 * @param name The name of the instance to search for
+	 * @param ignoreCase true to ignore case, false to use case
+	 * 
+	 * NOTE: This method returns a synchronized list just in case there is a threading issue
+	 * @return A list of all the all the objects visible in this context of that type
+	 * with that name
 	 */
 	def searchAllVisibleObjects(EObject context, EClass type, String name) {
 		context.searchAllVisibleEObjectDescriptions(type, name).map([
@@ -170,6 +194,9 @@ class IndexUtilities {
 		]);
 	}
 
+	/**
+	 * Get the EObject from the EObjectDescription
+	 */
 	def static objectFromDescription(Resource res, IEObjectDescription desc) {
 		if (desc === null)
 			return null;
