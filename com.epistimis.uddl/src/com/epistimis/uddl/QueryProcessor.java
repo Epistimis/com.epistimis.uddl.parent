@@ -559,18 +559,19 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * @return
 	 */
 	protected IScope entityScope(EObject context) {
-		/*
-		 * the object will either be the original query or a containing PDM - so
-		 * containers will always be a (C/L/P)DM or a DataModel
-		 */
-		final Iterable<Entity> entities = IterableExtensions
-				.<Entity>filter(IteratorExtensions.<EObject>toIterable(context.eAllContents()), getEntityType());
-		EObject container = context.eContainer();
-		if (container != null) {
-			return Scopes.scopeFor(entities, entityScope(container));
-		} else {
-			return Scopes.scopeFor(entities, IScope.NULLSCOPE);
-		}
+		return eproc.entityScope(context);
+//		/*
+//		 * the object will either be the original query or a containing PDM - so
+//		 * containers will always be a (C/L/P)DM or a DataModel
+//		 */
+//		final Iterable<Entity> entities = IterableExtensions
+//				.<Entity>filter(IteratorExtensions.<EObject>toIterable(context.eAllContents()), getEntityType());
+//		EObject container = context.eContainer();
+//		if (container != null) {
+//			return Scopes.scopeFor(entities, entityScope(container));
+//		} else {
+//			return Scopes.scopeFor(entities, IScope.NULLSCOPE);
+//		}
 	}
 
 	/**
