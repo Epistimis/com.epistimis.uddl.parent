@@ -3,6 +3,7 @@ package com.epistimis.uddl;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -255,29 +256,6 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 	}
 
 	/**
-	 * Get all the descendants of the starting point (including the starting point)
-	 * 
-	 * TODO: Do we need to check the contents to select only those of the correct
-	 * type? I don't think so since taxonomies contain only the correct type by
-	 * definition
-	 * 
-	 * @param start
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public List<Base> collectDescendants(Base start) {
-		List<Base> descendants = new ArrayList<>();
-		descendants.add(start);
-		TreeIterator<EObject> titer = start.eAllContents();
-		while (titer.hasNext()) {
-			Base jb = (Base) titer.next();
-			descendants.add(jb);
-		}
-
-		return descendants;
-	}
-
-	/**
 	 * When we want to check to see if an invariant affects something related to a
 	 * taxonomy, we need to check for invariants associated with the taxonomy member
 	 * under consideration. However, because taxonomies are defined & used
@@ -336,6 +314,46 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 //		}
 //		return results;
 //	}
+	
+	/**
+	 * Get all the descendants of the starting point (including the starting point)
+	 * 
+	 * TODO: Do we need to check the contents to select only those of the correct
+	 * type? I don't think so since taxonomies contain only the correct type by
+	 * definition
+	 * 
+	 * @param start
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Base> collectDescendants(Base start) {
+		List<Base> descendants = new ArrayList<>();
+		descendants.add(start);
+		TreeIterator<EObject> titer = start.eAllContents();
+		while (titer.hasNext()) {
+			Base jb = (Base) titer.next();
+			descendants.add(jb);
+		}
+
+		return descendants;
+	}
+
+	/**
+	 * Get the flattened set of contents of the parent. 
+	 * This recursive call walks down the subtree - when it returns the contained LogicalEnumeratedBase
+	 * instances are in a single set (to avoid duplicates). NOTE that this eliminates duplicated 
+	 * instances, it does not eliminate duplicated leaf names. A separate constraint must deal with that.
+	 * 
+	 * @param parent The subtree root for which we will get the flattened contents
+	 * @return The flattened contents of the subtree
+	 */
+	 public Set<Base> flattenedContents(Base parent) {
+		Set<Base> result = new HashSet<Base>(Arrays.asList(parent));
+		
+		result.addAll(collectDescendants(parent));
+		return result;		
+	}
+
 	
 	/**
 	 * Check to see if the testedHierarchy overlaps with the hierarchyToCheck. There
@@ -441,7 +459,8 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 		}
 		return result;
 	}
-	
+
+
 }
 
 ///**
