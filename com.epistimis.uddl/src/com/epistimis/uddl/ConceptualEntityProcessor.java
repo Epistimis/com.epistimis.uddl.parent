@@ -3,12 +3,8 @@
  */
 package com.epistimis.uddl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 
 import com.epistimis.uddl.uddl.ConceptualAssociation;

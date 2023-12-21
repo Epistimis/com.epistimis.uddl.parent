@@ -6,7 +6,6 @@ package com.epistimis.uddl;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -154,6 +153,7 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 		 * the object will either be the original query or a containing PDM - so
 		 * containers will always be a (C/L/P)DM or a DataModel
 		 */
+		@SuppressWarnings("unchecked") // The experssion of type Class needs unchecked conversion to conform to Class<Entity>
 		final Iterable<Entity> entities = IterableExtensions
 				.<Entity>filter(IteratorExtensions.<EObject>toIterable(context.eAllContents()), getEntityType());
 		EObject container = context.eContainer();
