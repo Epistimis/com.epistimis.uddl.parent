@@ -213,6 +213,7 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 			characteristics.putIfAbsent(getCharacteristicRolename(pc), pc);
 		}
 		if (isAssociation(obj)) {
+			@SuppressWarnings("unchecked") // isAssociation ensures cast will work
 			Association assoc = (Association) obj;
 			for (Participant pp : getParticipant(assoc)) {
 				characteristics.putIfAbsent(getCharacteristicRolename(pp), (Characteristic) pp);
@@ -262,6 +263,7 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 				return comp;
 		}
 		if (isAssociation(ent)) {
+			@SuppressWarnings("unchecked") // isAssociation ensures cast will work
 			Association assoc = (Association) ent;
 			for (Characteristic part : getParticipant(assoc)) {
 				if (getCharacteristicRolename(part).equals(roleName))

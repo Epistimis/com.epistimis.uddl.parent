@@ -192,6 +192,7 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 	 * @return The found Object. If no object found, throws NamedObjectNotFoundException. Throws
 	 * 		NameCollisionException if multiple found with specified name (e.g. name is ambiguous)
 	 */
+	@SuppressWarnings("unchecked") // isCastableToBase ensures the cast will work
 	public Base getObjectForName(String name, EObject context) throws NamedObjectNotFoundException, NameCollisionException {
 			
 			EObject inst = ndxUtil.getUniqueObjectForName(context, getBaseMetaClass(), name);
@@ -384,20 +385,15 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 		return TriBool.FALSE;
 	}
 
-	/**
-	 * Find the object visible from the context of the specified type and name.
-	 * This just renames an existing function so the name matches what we're using
-	 * in OCL. Note that getUniqueObjectForName (which this calls) can process RQNs,
-	 * not just leaf names. In that sense it is more powerful than the OCL equivalent
-	 * @param context
-	 * @param type
-	 * @param name
-	 * @return
-	 */
-//	@SuppressWarnings("unchecked") // Use of BaseMetaClass ensures the cast will work
-//	public Base findByName(EObject context,  String name) {
-//		return (Base) ndxUtil.getUniqueObjectForName(context,getBaseMetaClass(),name);
-//	}
+//	 /**
+//	  * Find the root
+//	  */
+//	 def: root(): ProcessingBasisEnumerated =
+//	let container = self.oclContainer.oclAsType(ProcessingBasisBase) in
+//	container.root()
+	public EObject root(EObject obj) {
+		return NavigationUtilities.root(obj, getBaseMetaClass(), false);
+	}
 
 	/**
 	 * Find the object visible from the context of the specified type and name.
