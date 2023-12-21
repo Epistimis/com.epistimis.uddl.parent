@@ -4,7 +4,10 @@ import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.TreeIterator;
@@ -42,6 +45,7 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 	IQualifiedNameConverter qnc;
 
 	static Logger logger = Logger.getLogger(TaxonomyProcessor.class);
+	
 
 	public TaxonomyProcessor() {
 		// TODO Auto-generated constructor stub
@@ -54,6 +58,7 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 	};
 
 	abstract public EClass getBaseMetaClass();
+	abstract public Map<String, Base> getCache();
 
 	public boolean isCastableToBase(EObject obj) {
 		return getBaseType().isInstance(obj);
@@ -379,4 +384,172 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 		return TriBool.FALSE;
 	}
 
+	/**
+	 * Find the object visible from the context of the specified type and name.
+	 * This just renames an existing function so the name matches what we're using
+	 * in OCL. Note that getUniqueObjectForName (which this calls) can process RQNs,
+	 * not just leaf names. In that sense it is more powerful than the OCL equivalent
+	 * @param context
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+//	@SuppressWarnings("unchecked") // Use of BaseMetaClass ensures the cast will work
+//	public Base findByName(EObject context,  String name) {
+//		return (Base) ndxUtil.getUniqueObjectForName(context,getBaseMetaClass(),name);
+//	}
+
+	/**
+	 * Find the object visible from the context of the specified type and name.
+	 * This just renames an existing function so the name matches what we're using
+	 * in OCL. Note that getUniqueObjectForName (which this calls) can process RQNs,
+	 * not just leaf names. In that sense it is more powerful than the OCL equivalent
+	 * @param context
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	@SuppressWarnings("unchecked") // Use of BaseMetaClass ensures the cast will work
+	public Base findByName(EObject context, String name ) {
+		Map<String,Base> c = getCache();
+		Base found = c.get(name);
+		if (found == null) {
+			found = (Base) ndxUtil.getUniqueObjectForName(context,getBaseMetaClass(),name);
+			if (found != null) {
+				c.put(name, found);					
+			}
+		}
+		return found;
+		
+	}
+
+	/**
+	 * Find specific instances. Note that this looks through all of them. Use it sparingly.
+	 * Further, it does that for each name. Need to make getUniqueObjectForName more efficient. 
+	 */	
+	@SuppressWarnings("unchecked") // Use of BaseMetaClass ensures the cast will work
+	public Set<Base> findByNames(EObject context,  Set<String> names) {
+		Map<String,Base> c = getCache();
+		Set<Base> result = new HashSet<Base>();
+		for (String name: names) {
+			Base found = c.get(name);
+			if (found == null) {
+				found = (Base) ndxUtil.getUniqueObjectForName(context,getBaseMetaClass(),name);
+				if (found != null) {
+					c.put(name, found);						
+				}
+			}
+			if (found != null) {
+				result.add(found);
+			}
+		}
+		return result;
+	}
+	
 }
+
+///**
+//* Returns a collection rooted in starting object
+//* @param context
+//* @param bazeClz
+//* @return
+//*/
+//static List<EObject> flatten(EObject start, EClass bazeClz) {
+//	
+//}
+
+//context ProcessingBasisBase
+//  /**
+//	 * Declare a helper operation to map an ok/warning verdict to ok/error.
+//	 */
+//	def: asError(verdict : Boolean) : Boolean = if verdict then true else null endif
+//
+
+//    /*
+//    * Helper method that reroutes based on derived type
+//    */      
+//   def: flattenLabels(): Collection(ProcessingBasisBase) =
+//     if self.oclIsTypeOf(ProcessingBasisSet) then
+//       self.oclAsType(ProcessingBasisSet).flattenLabels()
+//     else -- 
+//       self.oclAsType(ProcessingBasisLabel).flattenLabels()
+//     endif    	
+
+
+
+//	/**
+//	 * All ProcessingBase classes can check containment using this method
+//	 * This determines if obj is contained in self's set labels (which includes self)
+//	 * 
+//	 * The check of the name is an optimization to avoid flattening if not needed
+//	 */
+//	def: contains(obj: ProcessingBasisBase): Boolean = 
+//		(self.name.toLowerCase() = obj.name.toLowerCase()) or
+//		self.flattenLabels()->includes(obj)
+//
+//	def: contains(s: String): Boolean = 
+//		(self.name.toLowerCase() = s.toLowerCase()) or
+//		self.flattenLabels()->exists(l|l.name.toLowerCase() = s.toLowerCase())
+//
+//	/**
+//	 * Is self contained in the passed in set (including any subelements)
+//	 */
+//	def: containedIn(s: Set(ProcessingBasisBase)): Boolean =
+//		s->includes(self) or
+//		s->collect(flattenLabels())->includes(self)
+//
+//	/**
+//	 * Is self contained in the hierarchy of the passed in element?
+//	 */
+//	def: containedIn(s: ProcessingBasisBase): Boolean =
+//		s.flattenLabels()->includes(self)
+//
+//
+//	def: containedIn(s: String): Boolean =
+//		findSetRootedInName(s)->includes(self)
+//
+//	def: containedIn(s: Set(String)): Boolean =
+//		s->collect(o|findSetRootedInName(o))->includes(self)
+//
+//
+//	/**
+//	 * Find specific instances. Note that this looks through all of them. Use it sparingly
+//	 * NOTE: static methods are invoked using '::' instead of '.'
+//	 */	
+//	static def: findByNames(names: Set(String)): Set(ProcessingBasisBase) =
+//		let lnames = names->collect(toLowerCase()) in
+//		ProcessingBasisBase.allInstances()->select(o|lnames->includes(o.name.toLowerCase())) 
+//
+//	/**
+//	 * Find the set of instances rooted at this instance. Use this version if you
+//	 * know self is not null
+//	 */	
+//	def: findSetRootedIn(): Set(ProcessingBasisBase) =
+//			self->collect(flattenLabels())->asSet()
+//
+//	/**
+//	 * Find the set of instances rooted at this instance. Use this version if you
+//	 * aren't sure if root is null or not
+//	 */	
+//	static def: findSetRootedIn(root: ProcessingBasisBase): Set(ProcessingBasisBase) =
+//		if (root->notEmpty()) then
+//			root->collect(flattenLabels())->asSet()
+//		else
+//			Set{}
+//		endif
+//	/**
+//	 * Find the set of instances rooted at this name. Note that this looks through all of them. Use it sparingly
+//	 * NOTE: static methods are invoked using '::' instead of '.'
+//	 */	
+//	static def: findSetRootedInName(n: String): Set(ProcessingBasisBase) =
+//		let root = findByName(n) in
+//			findSetRootedIn(root)
+//
+//	/**
+//	 * Find the set of instances rooted at this set of names. Note that this looks through all of them. Use it sparingly
+//	 * NOTE: static methods are invoked using '::' instead of '.'
+//	 */	
+//	static def: findSetRootedInNames(names: Set(String)): Set(ProcessingBasisBase) =
+//		findByNames(names)->collect(flattenLabels())->asSet()
+//
+//
