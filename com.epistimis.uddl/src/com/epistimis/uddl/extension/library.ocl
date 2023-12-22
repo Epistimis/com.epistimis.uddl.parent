@@ -12,77 +12,47 @@
  *******************************************************************************/
 import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
 import 'http://www.eclipse.org/2008/Xtext#/'
-include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/extension/library.ocl'
 
 /**
  * ecore section taken from CompleteOCLTutorial - ExtraEcoreValidation
  */
 package ecore
 
+	context EModelElement
+		/**
+		 * Declare a helper operation to map an ok/warning verdict to ok/error.
+		*/
+		def: asError(verdict : Boolean) : Boolean = if verdict then true else null endif
+	
 	/**
 	 * Extra validation for EReference and EAttribute.
 	 */
 	context EStructuralFeature
-				
-		/**
-		 * If a feature has an OCL derivation, it should be transient; otherwise it is not executed.
-		 */
-		inv DerivationIsTransient: hasDerivation implies transient
 		
 		/**
-		 * If a feature has an OCL derivation, it must be volatile; otherwise the cached value suppresses execution.
+		 * Declare a helper property to determine whether an EStructuralFeature has an OCL derivation. 
 		 */
-		inv DerivationIsVolatile: asError(hasDerivation implies volatile)
-		
-		/**
-		 * If a feature has an OCL derivation, it should not also have a default value.
-		 */
-		inv DerivationIsUninitialized: hasDerivation implies defaultValue.oclIsUndefined()
-	
-	/**
-	 * Extra validation for just EReference.
-	 */
-	context EReference
-	
-		/**
-		 * If a feature has an OCL derivation, it should not compete with built-in containment.
-		 */
-		inv DerivationIsNotComposed: asError(hasDerivation implies not containment)
-		
-		/**
-		 * If a feature has an OCL derivation, it should be not waste time resolving proxies.
-		 */
-		inv DerivationDoesNotResolveProxies: hasDerivation implies not resolveProxies
-		
-		/**
-		 * If a feature has an OCL derivation and an opposite, the opposite should also have an OCL derivation
-		 */
-		inv DerivationWithOppositeHasOppositeDerivation: hasDerivation and eOpposite <> null implies eOpposite.hasDerivation
+		def: hasDerivation : Boolean = eAnnotations->select(source?.startsWith('http://www.eclipse.org/emf/2002/Ecore/OCL'))->notEmpty()
+			
 
 endpackage
 
 
-/**
- * XText section from CompleteOCLTutotiral - ExtraXTextValidation
-  */
-package xtext
-
-	context ReferencedMetamodel
-		inv NoAnonymousImports: alias <> null
-	
-	context Action
-		inv NoActions : false
-	
-	context ParserRule
-		inv CamelCaseName : name <> null implies name.matches('[A-Z][A-Za-z]*')
-	
-	context xtext::TerminalRule
-		inv UpperName : name <> null implies name = name.toUpperCase()
- 
-endpackage
 
 package ocl
 
+	context OclAny
+	   /**
+		 * Declare a helper operation to map an ok/warning verdict to ok/error.
+		 */
+		def: asError(verdict : Boolean) : Boolean = if verdict then true else null endif
+
+	   /**
+		 * Declare a helper operation to map an ok/warning verdict to ok/warning. This doesn't 
+		 * do anything but gives us two functions with similar names in case developers forget
+		 * they can just use they inv return 'as is' for warnings.
+		 */
+		def: asWarning(verdict : Boolean) : Boolean = if verdict then true else false endif
 
 
 --context Collection::max():T
