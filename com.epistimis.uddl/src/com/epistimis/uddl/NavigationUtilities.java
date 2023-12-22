@@ -18,7 +18,6 @@ import com.google.inject.Inject;
 public class NavigationUtilities {
 
 	@Inject IndexUtilities iu;
-	@Inject ConceptualEntityProcessor cep;
 
 	/**
 	 * Walk up the containment hierarchy until we find a container that fails the test.

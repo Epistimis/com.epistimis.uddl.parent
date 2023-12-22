@@ -37,42 +37,7 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		// TODO Auto-generated method stub
 		return UddlQNP.class;
 	}
-	/** 
-	 * Inject this if you want the additional methods provided by this QNP
-	 * @return
-	 */
-	public Class<? extends UddlQNP> bindIUddlQNP() {
-		// TODO Auto-generated method stub
-		return UddlQNP.class;
-	}
 
-	public Class<? extends IndexUtilities> bindIndexUtilities() {
-		return IndexUtilities.class;
-	}
-
-
-	public Class<? extends IQualifiedNameConverter> bindIQualifiedNameConverter() {
-		return IQualifiedNameConverter.DefaultImpl.class;
-	}
-
-	public Class<? extends ConceptualQueryProcessor> bindConceptualQueryProcessor() {
-		return ConceptualQueryProcessor.class;
-	}
-	public Class<? extends LogicalQueryProcessor> bindLogicalQueryProcessor() {
-		return LogicalQueryProcessor.class;
-	}
-	public Class<? extends PlatformQueryProcessor> bindPlatformQueryProcessor() {
-		return PlatformQueryProcessor.class;
-	}
-
-	public Class<? extends com.epistimis.uddl.CLPExtractors> bindCLPExtractors() {
-		return CLPExtractors.class;
-	}
-	
-	public Class<? extends com.epistimis.uddl.LogicalEnumeratedProcessor> bindLogicalEnumeratedProcessor() {
-		return LogicalEnumeratedProcessor.class;
-	}
-	
 	/**
 	 * Enable this if there are performance issues with name resolution. And then
 	 * look at the strategy to see what should be excluded from the index
@@ -89,5 +54,46 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 //	Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
 //		return UddlGlobalScopeProvider.class;
 //	}
+	
+	public Class<? extends IQualifiedNameConverter> bindIQualifiedNameConverter() {
+		return IQualifiedNameConverter.DefaultImpl.class;
+	}
+
+	/** 
+	 * Inject this if you want the additional methods provided by this QNP
+	 * @return
+	 */
+	public Class<? extends UddlQNP> bindIUddlQNP() {
+		// TODO Auto-generated method stub
+		return UddlQNP.class;
+	}
+
+	public Class<? extends IndexUtilities> bindIndexUtilities() {
+		return IndexUtilities.class;
+	}
+
+
+	public Class<? extends com.epistimis.uddl.CLPExtractors> bindCLPExtractors() {
+		return CLPExtractors.class;
+	}
+	
+	public Class<? extends ConceptualQueryProcessor> bindConceptualQueryProcessor() {
+		return ConceptualQueryProcessor.class;
+	}
+	public Class<? extends LogicalQueryProcessor> bindLogicalQueryProcessor() {
+		return LogicalQueryProcessor.class;
+	}
+	public Class<? extends PlatformQueryProcessor> bindPlatformQueryProcessor() {
+		return PlatformQueryProcessor.class;
+	}
+
+	// ----------- Taxonomy processors
+	public Class<? extends com.epistimis.uddl.LogicalEnumeratedProcessor> bindLogicalEnumeratedProcessor() {
+		return LogicalEnumeratedProcessor.class;
+	}
+	public Class<? extends com.epistimis.uddl.TaxonomyBaseProcessor> bindTaxonomyBaseProcessor() {
+		return TaxonomyBaseProcessor.class;
+	}
+	
 
 }

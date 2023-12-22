@@ -56,9 +56,6 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 	@Inject
 	IQualifiedNameConverter qnc;
 
-	@Inject
-	CLPExtractors clp;
-
 	static Logger logger = Logger.getLogger(QueryProcessor.class);
 
 	/**
