@@ -3,15 +3,12 @@
  */
 import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
 --import 'http://www.epistimis.com/uddl/Uddl'
---import  '../../../../../model/generated/Uddl.ecore'
 import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
---include 'helpers.ocl'
---include 'conceptual.ocl'
---include 'conceptualExtensions.ocl'
-include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/helpers.ocl'
-include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl'
 
+include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/extension/helpers.ocl'
+--include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl'
 include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/extension/conceptualExtensions.ocl'
+
 include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/extension/logicalExtensions.ocl'
 
 

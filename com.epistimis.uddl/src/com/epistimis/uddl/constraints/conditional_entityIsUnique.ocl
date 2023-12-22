@@ -1,10 +1,8 @@
 /**
  * UDDL standard constraints - adjusted for this metamodel
  */
---import  '../../../../../model/generated/Uddl.ecore'
 import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
 
---include 'conceptual.ocl'
 include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl'
 
 

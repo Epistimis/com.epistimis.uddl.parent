@@ -7,7 +7,7 @@ import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
 
 --include 'helpers.ocl'
 --include 'logical.ocl'
-include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/helpers.ocl'
+include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/extension/helpers.ocl'
 include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/logical.ocl'
 
 package uddl

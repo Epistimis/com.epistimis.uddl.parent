@@ -1,10 +1,8 @@
 import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
 
---import  '../../../../../model/generated/Uddl.ecore'
 import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
 
---include 'helpers.ocl'
-include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/helpers.ocl'
+include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/extension/helpers.ocl'
 
 
 package uddl 
