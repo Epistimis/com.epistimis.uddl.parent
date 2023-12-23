@@ -1,6 +1,7 @@
 package com.epistimis.uddl;
 
 import java.io.ByteArrayInputStream;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -95,7 +96,7 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	@Inject
 	EProcessor eproc;
 
-	static Logger logger = Logger.getLogger(QueryProcessor.class);
+	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
 	/**
 	 * Get the individual QueryCompositions from this CompositeQuery

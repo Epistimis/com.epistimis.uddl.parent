@@ -1,5 +1,6 @@
 package com.epistimis.uddl;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 	@Inject
 	IQualifiedNameConverter qnc;
 
-	static Logger logger = Logger.getLogger(TaxonomyProcessor.class);
+	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 	
 
 	public TaxonomyProcessor() {

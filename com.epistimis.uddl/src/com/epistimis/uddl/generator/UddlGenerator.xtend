@@ -19,6 +19,7 @@ import com.epistimis.uddl.RealizedDataType
 import com.epistimis.uddl.RealizedEntity
 import com.epistimis.uddl.RealizedComposableElement
 import org.apache.log4j.Logger
+import java.lang.invoke.MethodHandles
 
 /**
  * Generates code from your model files on save.
@@ -27,7 +28,7 @@ import org.apache.log4j.Logger
  */
 class UddlGenerator extends AbstractGenerator {
 
-	static Logger logger = Logger.getLogger(UddlGenerator);
+	static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 

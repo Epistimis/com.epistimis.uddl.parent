@@ -8,6 +8,7 @@ package com.epistimis.uddl.generator;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -34,7 +35,7 @@ import com.google.inject.Provider;
 
 public class Main {
 
-	static Logger logger = Logger.getLogger(Main.class);
+	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static void main(String[] args) {
 		if (args.length == 0) {

@@ -23,6 +23,7 @@ import org.eclipse.xtext.generator.IGeneratorContext
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import com.epistimis.uddl.RealizedComposableElement
 import org.apache.log4j.Logger
+import java.lang.invoke.MethodHandles
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.
@@ -37,7 +38,7 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 	@Inject
 	extension protected IQualifiedNameProvider qnp;
 
-	static Logger logger = Logger.getLogger(CommonDataStructureGenerator);
+	static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
 	List<PlatformEntity> processedEntities;
 	List<PlatformDataModel> processedPDMs;

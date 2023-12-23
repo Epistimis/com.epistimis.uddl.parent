@@ -6,6 +6,7 @@
  */
 package com.epistimis.uddl.validation;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +41,7 @@ import com.epistimis.uddl.uddl.UddlPackage;
  */
 public class UddlValidator extends AbstractUddlValidator {
 	
-	static Logger logger = Logger.getLogger(UddlValidator.class);
+	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 	//static OCL ocl = OCL.newInstance();
 
 	protected static String ISSUE_CODE_PREFIX = "com.epistimis.uddl.";
@@ -100,7 +101,7 @@ public class UddlValidator extends AbstractUddlValidator {
 		 * 
 		 * getInputURI replaces that example's URI creation
 		 */
-		URI oclURI = getInputURI(resourceAddress, pluginId);
+		URI oclURI = FileLoadingSupport.getInputURI(resourceAddress, pluginId);
 		registrar.register(ePackage, new CompleteOCLEObjectValidator(ePackage, oclURI));
 	}
 
@@ -160,25 +161,9 @@ public class UddlValidator extends AbstractUddlValidator {
 	 * @return a properly constructed URI
 	 */
 	protected @NonNull URI getInputURI(@NonNull String localFileName) {
-		return getInputURI(localFileName, com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
+		return FileLoadingSupport.getInputURI(localFileName, com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
 	}
 
-	/**
-	 * Get the URI to file from the specified plugin
-	 * @param localFileName The filename (relative to/ inside of) the specified plugin
-	 * @param pluginId The ID of the plugin containing the file
-	 * @return URI to the desired file
-	 */
-	protected static @NonNull URI getInputURI(@NonNull String localFileName, @NonNull String pluginId) {
-		String plugInPrefix = pluginId + "/";
-		URI plugURI = EcorePlugin.IS_ECLIPSE_RUNNING ? URI.createPlatformPluginURI(plugInPrefix, true)
-				: URI.createPlatformResourceURI(plugInPrefix, true);
-		URI localURI = URI.createURI(localFileName.startsWith("/") ? localFileName.substring(1) : localFileName);
-		return localURI.resolve(plugURI);
-		// NOTE: See alternative implementation at 
-		// https://stackoverflow.com/questions/40086759/how-to-access-the-member-files-and-folders-of-a-plug-in-in-eclipse
-		
-	}
 
 
 	protected void augmentRegistry(EPackage.Registry registry) {

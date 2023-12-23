@@ -1,6 +1,7 @@
 package com.epistimis.uddl;
 
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import com.epistimis.uddl.uddl.PlatformComposableElement;
 
 public class RealizedComposableElement {
 
-	static Logger logger = Logger.getLogger(RealizedComposableElement.class);
+	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
 	/**
 	 * This is, essentially, a compiler name table. It contains the results of processing all the composable elements in the model to
