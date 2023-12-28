@@ -173,7 +173,7 @@ package uddl
 		 */
 		def: typeReferences(): Set(ConceptualComposableElement) =
 			let myComps = self.composition->collect(type.referencedModelTypes())->flatten()->asSet() in
-			let parentTypes = if (self.specializes.oclIsUndefined()) then  Bag {} 
+			let parentTypes = if (self.specializes.oclIsUndefined()) then  Set {} 
 			else 
 				if self.specializes.oclIsKindOf(ConceptualAssociation) then
 					self.specializes.oclAsType(ConceptualAssociation).referencedModelTypes() 
