@@ -1,5 +1,6 @@
 package com.epistimis.uddl.validation;
 
+import org.eclipse.emf.ecore.EObject;
 //import org.eclipse.emf.ecore.EAttribute;
 //import org.eclipse.emf.ecore.ENamedElement;
 //import org.eclipse.emf.ecore.EReference;
@@ -12,8 +13,9 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 //@Data
 public class MsgAndLocation {
 
-		public MsgAndLocation(String m, EStructuralFeature l, int n) {
+		public MsgAndLocation(String m, EStructuralFeature l, EObject i, int n) {
 			msg = m;
+			instance = i;
 			location = l;
 			ndx = n;
 		}
@@ -25,6 +27,8 @@ public class MsgAndLocation {
 		 * The model element location it is associated with
 		 */
 		public final EStructuralFeature location;
+		
+		public final EObject instance;
 		/**
 		 * For collections, this is the index into the collection
 		 */
