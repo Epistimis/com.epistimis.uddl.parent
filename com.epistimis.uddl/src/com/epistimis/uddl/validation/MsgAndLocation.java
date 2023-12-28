@@ -19,6 +19,10 @@ public class MsgAndLocation {
 			location = l;
 			ndx = n;
 		}
+		public MsgAndLocation(String m, EStructuralFeature l,  int n) {
+			this(m,l,null,n);
+		}
+
 		/**
 		 * The message content
 		 */
