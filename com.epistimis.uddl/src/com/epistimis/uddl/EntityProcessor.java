@@ -26,15 +26,22 @@ import org.eclipse.xtext.scoping.Scopes;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
+//import com.epistimis.face.face.UopPortableComponent;
 import com.epistimis.uddl.exceptions.CharacteristicNotFoundException;
 import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
 import com.google.inject.Inject;
 
 /**
- * 
+ * C/L/P Entity and Association processing
  */
-public abstract class EntityProcessor<Characteristic extends EObject, Entity extends UddlElement, Association extends Entity, Composition extends Characteristic, Participant extends Characteristic> {
+public abstract class EntityProcessor<ComposableElement extends UddlElement, 
+										Characteristic extends EObject, 
+										Entity extends ComposableElement, 
+										Association extends Entity, 
+										Composition extends Characteristic, 
+										Participant extends Characteristic, 
+										ElementalComposable extends ComposableElement> {
 	// @Inject
 //		private Provider<ResourceSet> resourceSetProvider;
 	//
@@ -103,22 +110,33 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 	 * 
 	 * @return
 	 */
-	public Class getCharacteristicType() {
+	public Class getComposableElementType() {
 		return returnedTypeParameter(0);
 	}
 
-	public Class getEntityType() {
+	public Class getCharacteristicType() {
 		return returnedTypeParameter(1);
 	}
 
-	public Class getAssociationType() {
+	public Class getEntityType() {
 		return returnedTypeParameter(2);
 	}
 
-	public Class getParticipantType() {
+	public Class getAssociationType() {
 		return returnedTypeParameter(3);
 	}
 
+	public Class getCompositionType() {
+		return returnedTypeParameter(4);
+	}
+
+	public Class getParticipantType() {
+		return returnedTypeParameter(5);
+	}
+
+	public Class getElementalComposableType() {
+		return returnedTypeParameter(6);
+	}
 	/**
 	 * Taken from the book, SmallJavaLib.getSmallJavaObjectClass - and converted
 	 * from XTend to Java
@@ -151,7 +169,8 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 		 * the object will either be the original query or a containing PDM - so
 		 * containers will always be a (C/L/P)DM or a DataModel
 		 */
-		@SuppressWarnings("unchecked") // The experssion of type Class needs unchecked conversion to conform to Class<Entity>
+		@SuppressWarnings("unchecked") // The experssion of type Class needs unchecked conversion to conform to
+										// Class<Entity>
 		final Iterable<Entity> entities = IterableExtensions
 				.<Entity>filter(IteratorExtensions.<EObject>toIterable(context.eAllContents()), getEntityType());
 		EObject container = context.eContainer();
@@ -188,6 +207,93 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 //		}
 
 	/**
+	 * Because we can have duplicate leaf names even when the FQNs are distinct
+	 * we return the full set. The caller will need to filter these in more
+	 * detail. Note further: We do not have a generic QualifiedNameProvider
+	 * defined in OCL because that duplicates what we have in Java. So we don't
+	 * parse QNs here.
+	 */
+//	static def: findByName(n: String): Set(ConceptualEntity) =
+//		let ents = uddl::ConceptualEntity.allInstances() in
+//		ents->select(o|o.name = n)->asSet()
+	@SuppressWarnings("unchecked") // call to getEntityEClass() ensures cast will work
+	public Set<Entity> findByName(EObject context, String name) {
+		List<EObject> objs = ndxUtil.searchAllVisibleObjects(context, getEntityEClass(), name);
+
+		// Convert this to a Set of the appropriate type - this does the cast and conversion from List to Set
+		Set<Entity> result = new HashSet<Entity>();
+		for (Object o : objs) {
+			result.add((Entity)o);
+		}
+		return result;
+	}
+
+//	/**
+//	 * Return a set of all the model types referenced by this element
+//	 */
+////	    def: referencedModelTypes(): Set(ConceptualComposableElement) =
+////	 		if (self.oclIsKindOf(ConceptualObservable)) then
+////				self.oclAsType(ConceptualObservable).referencedModelTypes()
+////			else
+////				self.oclAsType(ConceptualEntity).referencedModelTypes()
+////			endif
+//
+//	
+//	public Set<ComposableElement> referencedModelTypes(ComposableElement self) {
+//		if (getElementalComposableType().isInstance(self)) {
+//			return referencedElementalModelTypes((ElementalComposable) self);
+//		} else {
+//			return referencedEntityModelTypes((Entity) self);
+//		}
+//	
+//	public Set<ComposableElement> referencedElementalModelTypes(ElementalComposable self) {
+//		Set<ComposableElement> result = new HashSet<ComposableElement>();
+//		return result;
+//	}
+//		
+//	public Set<ComposableElement> referencedEntityModelTypes(Entity self) {
+//		Set<ComposableElement> result = new HashSet<ComposableElement>();
+//		return result;
+//	}
+//	
+//	/**
+//	 * NOTE: You probably want to use referncedModelTyeps instead of this method
+//	 * 
+//	 * Return a set of all the model types referenced by this element. This is a
+//	 * 'raw' or 'base' method that doesn't include 'self' because it it called by
+//	 * other defs that add 'self'. This is an optimization issue - we want to track
+//	 * what has been processed - and we want to know if a type is self referential
+//	 * because we need to terminate any recursion immediately. This method won't
+//	 * recurse since it only walks the specialization hierarchy, and we have
+//	 * invariants that already check for recursion in specialization.
+//	 * 
+//	 */
+////	def: typeReferences(): Set(ConceptualComposableElement) =
+////		let myComps = self.composition->collect(type.referencedModelTypes())->flatten()->asSet() in
+////		let parentTypes = if (self.specializes.oclIsUndefined()) then  Set {} 
+////		else 
+////			if self.specializes.oclIsKindOf(ConceptualAssociation) then
+////				self.specializes.oclAsType(ConceptualAssociation).referencedModelTypes() 
+////			else 
+////				self.specializes.referencedModelTypes() 
+////			endif
+////		endif in
+////		myComps->union(parentTypes)->asSet()
+//	public Set<ComposableElement> typeReferences(Entity self) {
+//		Set<ComposableElement> result = getComposition(self).stream()
+//				.map(Composition::getType)
+//				.map(referencedModelTypes)
+//				.flatMap(list -> list.stream())
+//				.collect(Collectors.toSet());
+//
+//		if (self.getSpecializes() != null) {
+//			
+//		}
+//		
+//		return result;
+//	}
+	
+	/**
 	 * Get all the characteristics
 	 * 
 	 * @param obj
@@ -199,6 +305,17 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 		return characteristics;
 	}
 
+	/**
+	 * Get all the characteristics
+	 * 
+	 * @param obj
+	 * @return the list of participants.
+	 */
+	public Map<String, Participant> getParticipants(Association assoc) {
+		Map<String, Participant> characteristics = new HashMap<String, Participant>();
+		getParticipantsAndRecurse(assoc, characteristics);
+		return characteristics;
+	}
 	/**
 	 * Get the characteristics from this Entity, without following the
 	 * specialization hierarchy
@@ -221,6 +338,19 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 	}
 
 	/**
+	 * Get the participants from this Association, without following the
+	 * specialization hierarchy
+	 * 
+	 * @param obj
+	 * @param participants
+	 */
+	public void getLocalParticipants(Association assoc, Map<String, Participant> participants) {
+		for (Participant pp : getParticipant(assoc)) {
+			participants.putIfAbsent(getCharacteristicRolename(pp), pp);
+		}
+	}
+
+	/**
 	 * Get the set of all characteristics from this entity - across the entire
 	 * specialization hierarchy. Note that, because we start from the bottom, any
 	 * specializing characteristics will override same named elements higher in the
@@ -240,6 +370,31 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 		Entity specializes = getSpecializes(obj);
 		if (specializes != null) {
 			getCharacteristicsAndRecurse(specializes, characteristics);
+		}
+
+	}
+
+	/**
+	 * Get the set of all participants from this association - across the entire
+	 * specialization hierarchy. Note that, because we start from the bottom, any
+	 * specializing participants will override same named elements higher in the
+	 * hierarchy
+	 * 
+	 * This actually implements collecting the participants. It handles the
+	 * recursion
+	 * 
+	 * @param obj
+	 * @param the map of participants. Starts empty and gets filled.
+	 */
+	@SuppressWarnings("unchecked") // isAssociation check ensures cast will work
+	protected void getParticipantsAndRecurse(Association assoc, Map<String, Participant> participants) {
+
+		getLocalParticipants(assoc, participants);
+
+		// Now check for specialization
+		Entity specializes = getSpecializes(assoc);
+		if (specializes != null && isAssociation(specializes)) {
+			getParticipantsAndRecurse((Association)specializes, participants);
 		}
 
 	}
@@ -293,6 +448,7 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 	 * Net result: We can't just use Scopes.scopeFor to find what we want.
 	 */
 	public Map<QualifiedName, Characteristic> getFQRoleName(Entity ent, String roleName) {
+		logger.error("This method has not been finished!");
 		// The simple approach just looks at what is contained in the specified entity.
 		// It does not follow references to other entities.
 		Map<QualifiedName, Characteristic> result = new HashMap<QualifiedName, Characteristic>();
@@ -309,8 +465,8 @@ public abstract class EntityProcessor<Characteristic extends EObject, Entity ext
 			// if (comp.type instanceof Entity)
 			// TODO: THIS IS NOT FINISHED !!!!
 		}
-
-		return result;
+		throw new RuntimeException("Method not yet implemented");
+//		return result;
 
 		// TODO: follow participants
 	}

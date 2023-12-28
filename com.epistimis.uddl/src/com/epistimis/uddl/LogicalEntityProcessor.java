@@ -8,8 +8,10 @@ import org.eclipse.emf.ecore.EClass;
 
 import com.epistimis.uddl.uddl.LogicalAssociation;
 import com.epistimis.uddl.uddl.LogicalCharacteristic;
+import com.epistimis.uddl.uddl.LogicalComposableElement;
 import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalEntity;
+import com.epistimis.uddl.uddl.LogicalMeasurement;
 import com.epistimis.uddl.uddl.LogicalParticipant;
 import com.epistimis.uddl.uddl.UddlPackage;
 
@@ -17,7 +19,7 @@ import com.epistimis.uddl.uddl.UddlPackage;
  * 
  */
 public class LogicalEntityProcessor extends
-		EntityProcessor<LogicalCharacteristic, LogicalEntity, LogicalAssociation, LogicalComposition, LogicalParticipant> {
+		EntityProcessor<LogicalComposableElement, LogicalCharacteristic, LogicalEntity, LogicalAssociation, LogicalComposition, LogicalParticipant, LogicalMeasurement> {
 
 	@Override
 	public EClass getEntityEClass() {

@@ -9,8 +9,10 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider;
 
 import com.epistimis.uddl.uddl.ConceptualAssociation;
 import com.epistimis.uddl.uddl.ConceptualCharacteristic;
+import com.epistimis.uddl.uddl.ConceptualComposableElement;
 import com.epistimis.uddl.uddl.ConceptualComposition;
 import com.epistimis.uddl.uddl.ConceptualEntity;
+import com.epistimis.uddl.uddl.ConceptualObservable;
 import com.epistimis.uddl.uddl.ConceptualParticipant;
 import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.inject.Inject;
@@ -19,7 +21,7 @@ import com.google.inject.Inject;
  * 
  */
 public class ConceptualEntityProcessor extends
-		EntityProcessor<ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant> {
+		EntityProcessor<ConceptualComposableElement, ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant, ConceptualObservable> {
 
 	@Inject
 	IQualifiedNameProvider qnp; // = new UddlQNP();
