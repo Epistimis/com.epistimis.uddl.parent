@@ -12,6 +12,10 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
 //import org.eclipse.xtext.scoping.IGlobalScopeProvider;
 
+import com.epistimis.uddl.extension.ConceptualComposableElementExt;
+import com.epistimis.uddl.extension.ConceptualEntityExt;
+import com.epistimis.uddl.extension.ConceptualObservableExt;
+import com.epistimis.uddl.extension.UddlElementExt;
 import com.epistimis.uddl.scoping.IndexUtilities;
 //import com.epistimis.uddl.scoping.UddlGlobalScopeProvider;
 import com.epistimis.uddl.scoping.UddlResourceDescriptionStrategy;
@@ -72,6 +76,7 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		return IndexUtilities.class;
 	}
 
+	// ------------- Entity processing
 
 	public Class<? extends com.epistimis.uddl.CLPExtractors> bindCLPExtractors() {
 		return CLPExtractors.class;
@@ -96,4 +101,18 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 	}
 	
 
+	// ----------- Extension classes
+	public Class<? extends com.epistimis.uddl.extension.UddlElementExt> bindUddlElementExt() {
+		return UddlElementExt.class;
+	}
+	public Class<? extends com.epistimis.uddl.extension.ConceptualComposableElementExt> bindConceptualComposableElementExt() {
+		return ConceptualComposableElementExt.class;
+	}
+	public Class<? extends com.epistimis.uddl.extension.ConceptualObservableExt> bindConceptualObservableExt() {
+		return ConceptualObservableExt.class;
+	}
+	public Class<? extends com.epistimis.uddl.extension.ConceptualEntityExt> bindConceptualEntityExt() {
+		return ConceptualEntityExt.class;
+	}
+	
 }
