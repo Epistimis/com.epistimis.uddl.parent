@@ -8,9 +8,11 @@ import org.eclipse.emf.ecore.EClass;
 
 import com.epistimis.uddl.uddl.ConceptualAssociation;
 import com.epistimis.uddl.uddl.ConceptualCharacteristic;
+import com.epistimis.uddl.uddl.ConceptualComposableElement;
 import com.epistimis.uddl.uddl.ConceptualCompositeQuery;
 import com.epistimis.uddl.uddl.ConceptualComposition;
 import com.epistimis.uddl.uddl.ConceptualEntity;
+import com.epistimis.uddl.uddl.ConceptualObservable;
 import com.epistimis.uddl.uddl.ConceptualParticipant;
 import com.epistimis.uddl.uddl.ConceptualQuery;
 import com.epistimis.uddl.uddl.ConceptualQueryComposition;
@@ -18,8 +20,8 @@ import com.epistimis.uddl.uddl.ConceptualView;
 import com.epistimis.uddl.uddl.UddlPackage;
 
 public class ConceptualQueryProcessor extends
-		QueryProcessor<ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant, 
-		ConceptualView, ConceptualQuery, ConceptualCompositeQuery, ConceptualQueryComposition,
+		QueryProcessor<ConceptualComposableElement,ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant, 
+		ConceptualView, ConceptualQuery, ConceptualCompositeQuery, ConceptualQueryComposition,ConceptualObservable,
 		ConceptualEntityProcessor> {
 
 	protected EList<ConceptualQueryComposition> getComposition(ConceptualCompositeQuery ent) {

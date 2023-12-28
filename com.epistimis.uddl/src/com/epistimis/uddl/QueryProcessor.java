@@ -65,9 +65,18 @@ import com.google.inject.Inject;
  */
 // TODO: Insert references to EntityProcessor
 
-public abstract class QueryProcessor<Characteristic extends EObject, Entity extends UddlElement, Association extends Entity, Composition extends Characteristic, Participant extends Characteristic, 
-										View extends UddlElement, Query extends View, CompositeQuery extends View, QueryComposition extends EObject,
-										EProcessor extends EntityProcessor<Characteristic,Entity, Association, Composition, Participant>> {
+public abstract class QueryProcessor<ComposableElement extends UddlElement, 
+									Characteristic extends EObject, 
+									Entity extends ComposableElement, 
+									Association extends Entity, 
+									Composition extends Characteristic, 
+									Participant extends Characteristic, 
+									View extends UddlElement, 
+									Query extends View, 
+									CompositeQuery extends View, 
+									QueryComposition extends EObject, 
+									ElementalComposable extends ComposableElement,
+									EProcessor extends EntityProcessor<ComposableElement,Characteristic,Entity, Association, Composition, Participant,ElementalComposable>> {
 	// @Inject
 //	private Provider<ResourceSet> resourceSetProvider;
 //
@@ -163,36 +172,52 @@ public abstract class QueryProcessor<Characteristic extends EObject, Entity exte
 	 * 
 	 * @return
 	 */
-	public Class getCharacteristicType() {
+	public Class getComposableElementType() {
 		return returnedTypeParameter(0);
 	}
 
-	public Class getEntityType() {
+	public Class getCharacteristicType() {
 		return returnedTypeParameter(1);
 	}
 
-	public Class getAssociationType() {
+	public Class getEntityType() {
 		return returnedTypeParameter(2);
 	}
 
-	public Class getParticipantType() {
+	public Class getAssociationType() {
 		return returnedTypeParameter(3);
 	}
 
-	public Class getViewType() {
+	public Class getCompositionType() {
 		return returnedTypeParameter(4);
 	}
 
-	public Class getQueryType() {
+	public Class getParticipantType() {
 		return returnedTypeParameter(5);
 	}
 
-	public Class getCompositeQueryType() {
+	public Class getViewType() {
 		return returnedTypeParameter(6);
 	}
 
-	public Class getQueryCompositionType() {
+	public Class getQueryType() {
 		return returnedTypeParameter(7);
+	}
+
+	public Class getCompositeQueryType() {
+		return returnedTypeParameter(8);
+	}
+
+	public Class getQueryCompositionType() {
+		return returnedTypeParameter(9);
+	}
+
+	public Class getElementalComposableType() {
+		return returnedTypeParameter(10);
+	}
+
+	public Class getEntityProcessorType() {
+		return returnedTypeParameter(11);
 	}
 
 	public QueryProcessor() {

@@ -5,8 +5,10 @@ import org.eclipse.emf.ecore.EClass;
 
 import com.epistimis.uddl.uddl.PlatformAssociation;
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
+import com.epistimis.uddl.uddl.PlatformComposableElement;
 import com.epistimis.uddl.uddl.PlatformCompositeQuery;
 import com.epistimis.uddl.uddl.PlatformComposition;
+import com.epistimis.uddl.uddl.PlatformDataType;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
 import com.epistimis.uddl.uddl.PlatformQuery;
@@ -15,8 +17,8 @@ import com.epistimis.uddl.uddl.PlatformView;
 import com.epistimis.uddl.uddl.UddlPackage;
 
 public class PlatformQueryProcessor extends
-		QueryProcessor<PlatformCharacteristic, PlatformEntity, PlatformAssociation, PlatformComposition, PlatformParticipant, 
-		PlatformView, PlatformQuery, PlatformCompositeQuery, PlatformQueryComposition,
+		QueryProcessor<PlatformComposableElement, PlatformCharacteristic, PlatformEntity, PlatformAssociation, PlatformComposition, PlatformParticipant, 
+		PlatformView, PlatformQuery, PlatformCompositeQuery, PlatformQueryComposition, PlatformDataType, 
 		PlatformEntityProcessor> {
 
 	protected EList<PlatformQueryComposition> getComposition(PlatformCompositeQuery ent) {
