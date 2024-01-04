@@ -19,13 +19,11 @@ import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.ocl.internal.helper.PluginFinder;
-import org.eclipse.ocl.pivot.internal.utilities.EnvironmentFactoryInternal;
 import org.eclipse.ocl.pivot.model.OCLstdlib;
+import org.eclipse.ocl.pivot.utilities.OCL;
 import org.eclipse.ocl.pivot.validation.ValidationRegistryAdapter;
 import org.eclipse.ocl.xtext.completeocl.CompleteOCLStandaloneSetup;
-import org.eclipse.ocl.xtext.completeocl.utilities.CompleteOCLLoader;
 //import org.eclipse.swt.widgets.Display; - if we use this, it must be in the UI project
 //import org.eclipse.emf.edit.ui.action.LoadResourceAction.LoadResourceDialog; // if we use this, it must be in the UI project
 //import org.eclipse.ocl.pivot.utilities.OCL;
@@ -36,8 +34,6 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.validation.CheckType;
 import org.eclipse.xtext.validation.EValidatorRegistrar;
-//import org.eclipse.emf.common.util.URI;
-import org.eclipse.xtext.validation.ValidationMessageAcceptor;
 
 import com.epistimis.uddl.uddl.ConceptualAssociation;
 import com.epistimis.uddl.uddl.ConceptualEntity;
@@ -50,26 +46,26 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 
 /**
- * This class contains custom validation rules. 
+ * This class contains custom validation rules.
  *
  * See
  * https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class UddlValidator extends AbstractUddlValidator {
-	
+
 	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
 	static ClassLoader classLoader = UddlValidator.class.getClassLoader();
-	
-	
 
-	//static OCL ocl = OCL.newInstance();
-	
+	protected static OCL ocl;
+	protected static ResourceSet resourceSet;
+	protected static ValidationRegistryAdapter vra;
+
 	private static Map<String, ValidationRegistryAdapter> resourceAdaptors = new HashMap<>();
 
 	@Inject
-	IQualifiedNameProvider qnp;
-	
+	protected IQualifiedNameProvider qnp;
+
 	static ConceptualEntityValidator cev = new ConceptualEntityValidator();
 	static LogicalEntityValidator lev = new LogicalEntityValidator();
 	static PlatformEntityValidator pev = new PlatformEntityValidator();
@@ -77,15 +73,16 @@ public class UddlValidator extends AbstractUddlValidator {
 	public static String ISSUE_CODE_PREFIX = "com.epistimis.uddl.";
 
 	static {
-		// Per https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.ocl.doc%2Fhelp%2FPivotThreadSafety.html
+		// Per
+		// https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.ocl.doc%2Fhelp%2FPivotThreadSafety.html
 		org.eclipse.ocl.pivot.utilities.ValueUtil.initAllStatics();
 	}
-	
+
 	public UddlValidator() {
-		// Since we're going to use OCL, make sure we can 
-		doCompleteOCLSetup();
-		doOCLstdlibSetup();
-		//ResourcesPlugin.
+		// Since we're going to use OCL, make sure we can
+//		doCompleteOCLSetup();
+//		doOCLstdlibSetup();
+//		ResourcesPlugin.getWorkspace();
 	}
 
 	public IQualifiedNameProvider getQNP() {
@@ -95,10 +92,11 @@ public class UddlValidator extends AbstractUddlValidator {
 	public ClassLoader getClzLoader() {
 		return UddlValidator.classLoader;
 	}
+
 	public EPackage getPackage() {
 		return UddlPackage.eINSTANCE;
 	}
-	
+
 	public String getPluginID() {
 		return com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID;
 	}
@@ -115,15 +113,15 @@ public class UddlValidator extends AbstractUddlValidator {
 	 * @return a Package Registry for this package
 	 */
 	protected EPackage.Registry createMinimalRegistry() {
-		
+
 		EPackage.Registry registry = new EPackageRegistryImpl();
 		registry.put(UddlPackage.eNS_URI, UddlPackage.eINSTANCE);
 		return registry;
 	}
-	
-	
+
 	/**
 	 * Get an appropriate URI to load a file
+	 * 
 	 * @param localFileName - relative to the plugin root directory (not the Maven
 	 *                      parent directory) - see examples
 	 * @return a properly constructed URI
@@ -133,33 +131,33 @@ public class UddlValidator extends AbstractUddlValidator {
 	}
 
 	/**
-	 * Perform the appropriate initialization to support Complete OCL parsing and editing using Xtext.
-	 * NB. This must be called before setUp() creates a GlobalStateMemento if the aggressive DEBUG_GC
-	 * garbage collection is enabled.
+	 * Perform the appropriate initialization to support Complete OCL parsing and
+	 * editing using Xtext. NB. This must be called before setUp() creates a
+	 * GlobalStateMemento if the aggressive DEBUG_GC garbage collection is enabled.
 	 * 
-	 * Taken from: https://eclipse.googlesource.com/ocl/org.eclipse.ocl/+/refs/heads/master/tests/org.eclipse.ocl.examples.xtext.tests/src/org/eclipse/ocl/examples/xtext/tests/TestUtil.java
+	 * Taken from:
+	 * https://eclipse.googlesource.com/ocl/org.eclipse.ocl/+/refs/heads/master/tests/org.eclipse.ocl.examples.xtext.tests/src/org/eclipse/ocl/examples/xtext/tests/TestUtil.java
 	 */
 	public static void doCompleteOCLSetup() {
 		if (!EMFPlugin.IS_ECLIPSE_RUNNING) {
 			CompleteOCLStandaloneSetup.doSetup();
-		}
-		else {
+		} else {
 			Guice.createInjector(new org.eclipse.ocl.xtext.completeocl.CompleteOCLRuntimeModule());
 		}
 	}
 
 	/**
-	 * Perform the appropriate initialization to support OCLstdlib parsing and editing using Xtext.
-	 * NB. This must be called before setUp() creates a GlobalStateMemento if the aggressive DEBUG_GC
-	 * garbage collection is enabled.
+	 * Perform the appropriate initialization to support OCLstdlib parsing and
+	 * editing using Xtext. NB. This must be called before setUp() creates a
+	 * GlobalStateMemento if the aggressive DEBUG_GC garbage collection is enabled.
 	 * 
-	 * Taken from https://eclipse.googlesource.com/ocl/org.eclipse.ocl/+/refs/heads/master/tests/org.eclipse.ocl.examples.xtext.tests/src/org/eclipse/ocl/examples/xtext/tests/TestUtil.java
+	 * Taken from
+	 * https://eclipse.googlesource.com/ocl/org.eclipse.ocl/+/refs/heads/master/tests/org.eclipse.ocl.examples.xtext.tests/src/org/eclipse/ocl/examples/xtext/tests/TestUtil.java
 	 */
 	public static void doOCLstdlibSetup() {
 		if (!EMFPlugin.IS_ECLIPSE_RUNNING) {
-			OCLstdlibStandaloneSetup.doSetup();			// FIXME BUG 382058
-		}
-		else {
+			OCLstdlibStandaloneSetup.doSetup(); // FIXME BUG 382058
+		} else {
 			Guice.createInjector(new org.eclipse.ocl.xtext.oclstdlib.OCLstdlibRuntimeModule());
 		}
 	}
@@ -169,18 +167,18 @@ public class UddlValidator extends AbstractUddlValidator {
 	 *
 	 * If Eclipse is running all registered bundles are made available.
 	 *
-	 * If standalone only those explicitly named bundleNames are resolved on the classPath.
+	 * If standalone only those explicitly named bundleNames are resolved on the
+	 * classPath.
 	 * 
 	 * Taken from org.eclipse.ocl.tests.GenericTestSuite.java
 	 */
 	public static void initializeResourceSet(ResourceSet resourceSet, String... bundleNames) {
 		Map<URI, URI> uriMap = resourceSet.getURIConverter().getURIMap();
 		if (EcorePlugin.IS_ECLIPSE_RUNNING) {
-			EcorePlugin.ExtensionProcessor.process(null);;
+			EcorePlugin.ExtensionProcessor.process(null);
 			Map<URI, URI> computePlatformURIMap = EcorePlugin.computePlatformURIMap(true);
 			uriMap.putAll(computePlatformURIMap);
-		}
-		else {
+		} else {
 			PluginFinder finder = new PluginFinder(bundleNames);
 			finder.resolve();
 			for (String bundleName : bundleNames) {
@@ -190,8 +188,7 @@ public class UddlValidator extends AbstractUddlValidator {
 				if (locationURI != null) {
 					uriMap.put(resourceURI, pluginURI);
 					uriMap.put(pluginURI, locationURI);
-				}
-				else {
+				} else {
 					System.err.println("initializeResourceSet failed to resolve '" + bundleName + "'");
 				}
 			}
@@ -200,39 +197,70 @@ public class UddlValidator extends AbstractUddlValidator {
 
 	protected void loadAndRegister(EValidatorRegistrar registrar, String resourceToLoad) {
 		EPackage ePackage = getPackage();
-		loadAndRegister(registrar,resourceToLoad,ePackage);
+		loadAndRegister(registrar, resourceToLoad, ePackage);
 	}
 
-	static class COLoader extends CompleteOCLLoader {
-		ValidationMessageAcceptor vma;
-		
-		COLoader(ValidationMessageAcceptor vma, EnvironmentFactoryInternal ef) {
-			super(ef);
-			this.vma =  vma;
-		}
-		@Override
-		protected boolean error(@NonNull String primaryMessage, @Nullable String detailMessage) {
-			logger.error(primaryMessage);
-//			protected void error(String message, EObject source, EStructuralFeature feature, String code, String... issueData) {
+//	static class COLoader extends CompleteOCLLoader {
+//		ValidationMessageAcceptor vma;
+//		
+//		COLoader(ValidationMessageAcceptor vma, EnvironmentFactoryInternal ef) {
+//			super(ef);
+//			this.vma =  vma;
+//		}
+//		@Override
+//		protected boolean error(@NonNull String primaryMessage, @Nullable String detailMessage) {
+//			logger.error(primaryMessage);
+////			protected void error(String message, EObject source, EStructuralFeature feature, String code, String... issueData) {
+//
+////			// This error message should go to the Problems pane
+////			Display.getDefault().asyncExec(new Runnable()
+////			{
+////				@Override
+////				public void run() {
+////					ResourceDialog.this.error(primaryMessage, detailMessage);
+////				}
+////			});
+//			return false;
+//		}
+//	};
 
-//			// This error message should go to the Problems pane
-//			Display.getDefault().asyncExec(new Runnable()
-//			{
-//				@Override
-//				public void run() {
-//					ResourceDialog.this.error(primaryMessage, detailMessage);
-//				}
-//			});
-			return false;
+	protected ValidationRegistryAdapter getValidationRegistryAdapter() {
+		if (ocl == null) {
+			synchronized (UddlValidator.class) {
+				/**
+				 * Use of CLASS_PATH should make everything in the workspace accessible - which
+				 * is what we want. It has the side effect of making OCL responsible for the
+				 * resources. But we don't dispose of OCL until we exit the application because
+				 * it's static here, so that shouldn't matter.
+				 */
+				ocl = OCL.newInstance(OCL.CLASS_PATH);
+				resourceSet = ocl.getResourceSet();
+				/**
+				 * This call to initialize the ResourceSet assumes running inside Eclispe since
+				 * no bundle names are listed
+				 */
+				//initializeResourceSet(resourceSet);
+				vra = ValidationRegistryAdapter.getAdapter(resourceSet);				
+			}
 		}
-	};
+		return vra;
+
+	}
+
 	protected void loadAndRegister(EValidatorRegistrar registrar, String oclResourceToLoad, EPackage ePackage) {
+//			 ServiceCaller.callOnce(getClass(), IWorkspace.class, workspace -> {
+//				 	// do something with the workspace
+//				 	IWorkspaceRoot root = workspace.getRoot();
+//				 	root.
+//				 });
+
 		/**
-		 * NOTE: AbstractInjectableValidator::register registers 'this' validator for the
-		 * entire inheritance hierarchy ( because of the base class implementation of
-		 * getEPackages() ). 
+		 * NOTE: AbstractInjectableValidator::register registers 'this' validator for
+		 * the entire inheritance hierarchy ( because of the base class implementation
+		 * of getEPackages() ).
 		 * 
-		 * ?We do something similar here because the OCL could refer to any of the packages in the hierarchy?
+		 * ?We do something similar here because the OCL could refer to any of the
+		 * packages in the hierarchy?
 		 * 
 		 * 
 		 * See
@@ -243,13 +271,16 @@ public class UddlValidator extends AbstractUddlValidator {
 		 */
 		URI oclURI = getInputURI(oclResourceToLoad);
 		CompleteOCLEObjectValidator v = new CompleteOCLEObjectValidator(ePackage, oclURI);
+		ValidationRegistryAdapter vra = getValidationRegistryAdapter();
 		for (EPackage pkg : getEPackages()) {
-			registrar.register(pkg, v);
+			vra.put(pkg, v);
+//			registrar.register(pkg, v);
 		}
-		logger.debug(MessageFormat.format("Validator constructed from {0} and registered",oclResourceToLoad));
+		logger.debug(MessageFormat.format("Validator constructed from {0} and registered", oclResourceToLoad));
 	}
 
-	protected void loadOCLAndRegister(EValidatorRegistrar registrar, String resourceAddress, EPackage ePackage, @NonNull String pluginId) {
+	protected void loadOCLAndRegister(EValidatorRegistrar registrar, String resourceAddress, EPackage ePackage,
+			@NonNull String pluginId) {
 		/**
 		 * NOTE: AbstractInjectableValidator::register registers validators for the
 		 * entire inheritance hierarchy ( because of the base class implementation of
@@ -263,7 +294,7 @@ public class UddlValidator extends AbstractUddlValidator {
 		 * https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.ocl.doc%2Fhelp%2FInstallation.html
 		 * for sample code
 		 * 
-		 * or 
+		 * or
 		 * https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.ocl.doc%2Fhelp%2FEvaluatingConstraints.html
 		 * 
 		 * getInputURI replaces that example's URI creation
@@ -276,13 +307,12 @@ public class UddlValidator extends AbstractUddlValidator {
 	public void register(EValidatorRegistrar registrar) {
 		super.register(registrar);
 
-
 		/**
-		 * Registrations here are for OCL we ALWAYS want available.
-		 * These provide foundational rules about the UDDL metamodel
-		 */	
-//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/all-invariants.ocl"					,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
-
+		 * Registrations here are for OCL we ALWAYS want available. These provide
+		 * foundational rules about the UDDL metamodel
+		 */
+//		loadOCLAndRegister(registrar, "src/com/epistimis/uddl/constraints/all-invariants.ocl", UddlPackage.eINSTANCE,
+//				com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
 
 		// TODO: May want to use this - or not - this should be recreated in the above
 //      loadOCLAndRegister(registrar,"src/com/epistimis/uddl/constraints/all-standard-opt-invariants.ocl"	,UddlPackage.eINSTANCE,com.epistimis.uddl.UddlRuntimeModule.PLUGIN_ID);
@@ -291,23 +321,39 @@ public class UddlValidator extends AbstractUddlValidator {
 		/**
 		 * TODO: These don't appear to be having any effect. It could be because we have
 		 * no way to invoke the validators created here. Or that they are invoked and
-		 * fail silently.  Or is it because they are created by a newly created environmentFactory (i.e., should the 
-		 * CompleteOCLEObjectValidator constructor take more parameters?)
+		 * fail silently. Or is it because they are created by a newly created
+		 * environmentFactory (i.e., should the CompleteOCLEObjectValidator constructor
+		 * take more parameters?)
 		 * 
-		 * Commented out to eliminate potential performance problems. These should be loaded and run only 
-		 * on command - not here where they get triggered in the editor constantly.
+		 * Commented out to eliminate potential performance problems. These should be
+		 * loaded and run only on command - not here where they get triggered in the
+		 * editor constantly.
 		 */
 
-
-		// Per https://www.eclipse.org/forums/index.php/t/1092285/, calling this before registering OCL validators
-		// may have made thing worse in the past - so call it here - after registration but before use
+		// Per https://www.eclipse.org/forums/index.php/t/1092285/, calling this before
+		// registering OCL validators
+		// may have made thing worse in the past - so call it here - after registration
+		// but before use
 		OCLstdlib.install();
-		
-}
-	
+
+	}
+
+	/**
+	 * Common functionality needed before doing validation
+	 * 
+	 * @param obj
+	 */
+//	protected void setupValidation(EObject obj) {
+//		ResourceSet rs = obj.eResource().getResourceSet();
+//		EPackage.Registry reg = rs.getPackageRegistry();
+//		// Insure that everything we need is registered
+//		augmentRegistry(reg);
+//	}
+
 	// ======================== Validations / Checks =====================
 	/**
 	 * Every entity must have at least 2 characteristics.
+	 * 
 	 * @param ent
 	 */
 	@Check(CheckType.EXPENSIVE)
@@ -326,6 +372,7 @@ public class UddlValidator extends AbstractUddlValidator {
 
 	/**
 	 * Every association must have at least 2 participants.
+	 * 
 	 * @param ent
 	 */
 	@Check(CheckType.EXPENSIVE)
@@ -344,6 +391,7 @@ public class UddlValidator extends AbstractUddlValidator {
 
 	/**
 	 * Every entity must have at least 2 characteristics.
+	 * 
 	 * @param ent
 	 */
 	@Check(CheckType.EXPENSIVE)
@@ -362,6 +410,7 @@ public class UddlValidator extends AbstractUddlValidator {
 
 	/**
 	 * Every association must have at least 2 participants.
+	 * 
 	 * @param ent
 	 */
 	@Check(CheckType.EXPENSIVE)
@@ -380,6 +429,7 @@ public class UddlValidator extends AbstractUddlValidator {
 
 	/**
 	 * Every entity must have at least 2 characteristics.
+	 * 
 	 * @param ent
 	 */
 	@Check(CheckType.EXPENSIVE)
@@ -395,9 +445,10 @@ public class UddlValidator extends AbstractUddlValidator {
 //					UddlPackage.eINSTANCE.getUddlElement_Name(), ENTITY_NEEDS_2_CHARACTERISTICS, ent.getName());
 //		}
 	}
-	
+
 	/**
 	 * Every association must have at least 2 participants.
+	 * 
 	 * @param ent
 	 */
 	@Check(CheckType.EXPENSIVE)
@@ -414,5 +465,4 @@ public class UddlValidator extends AbstractUddlValidator {
 //		}
 	}
 
-	
 }
