@@ -2,9 +2,8 @@
  * UDDL Conceptual level - Epistimis extensions outside of the UDDL spec
  */
 import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
-
 --import uddl : 'http://www.epistimis.com/uddl/Uddl'
---import  '../../../../../model/generated/Uddl.ecore'
+
 import  'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
 --include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/constraints/library.ocl'
 

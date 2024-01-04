@@ -5,7 +5,7 @@ import ecore : 'http://www.eclipse.org/emf/2002/Ecore#/'
 --import 'http://www.epistimis.com/uddl/Uddl'
 import 'platform:/plugin/com.epistimis.uddl/model/generated/Uddl.ecore'
 
-include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/extension/platformExtensions.ocl'
+--include 'platform:/plugin/com.epistimis.uddl/src/com/epistimis/uddl/extension/platformExtensions.ocl'
 
 package uddl
 		
