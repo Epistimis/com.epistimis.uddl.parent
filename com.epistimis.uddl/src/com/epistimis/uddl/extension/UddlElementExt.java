@@ -4,7 +4,6 @@
 package com.epistimis.uddl.extension;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EObject;
