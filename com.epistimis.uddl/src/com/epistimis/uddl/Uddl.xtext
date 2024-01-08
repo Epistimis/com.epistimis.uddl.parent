@@ -26,7 +26,7 @@ DataModel:
 terminal SIGNED_INT returns ecore::EInt:  ('+'|'-') INT;
 // Handling LONGs also requires recognizing numerical representations that are too large to fit in an integer
 terminal LONG returns ecore::ELong:  SIGNED_INT ("L"|"l");
-terminal FLOAT returns ecore::EFloat : ('+'|'-')? DEC '.' DEC;
+terminal FLOAT returns ecore::EFloat : ('+'|'-')? DEC '.' DEC (('E'|'e') DEC)? ;
 //DOUBLE returns ecore::EDouble : ('+'|'-')? DEC '.' DEC ('D'|'d');
 
 // A few generic rules

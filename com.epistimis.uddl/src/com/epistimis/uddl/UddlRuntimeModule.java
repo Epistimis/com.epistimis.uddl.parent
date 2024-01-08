@@ -7,6 +7,7 @@
 package com.epistimis.uddl;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
@@ -63,6 +64,10 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		return IQualifiedNameConverter.DefaultImpl.class;
 	}
 
+    public Class<? extends IValueConverterService> bindIValueConverterService() {
+        return UddlValueConverters.class ;
+    }
+	
 	/** 
 	 * Inject this if you want the additional methods provided by this QNP
 	 * @return
