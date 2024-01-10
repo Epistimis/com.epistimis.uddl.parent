@@ -65,7 +65,25 @@ public class UddlValueConverters extends DefaultTerminalConverters {
 
     };
 
-    
+ 
+    IValueConverter<Boolean> booleanValueConverter = new IValueConverter<Boolean>() {
+
+        @Override
+        public Boolean toValue(String string, INode node) throws ValueConverterException {
+            // TODO make this more robust
+            return Boolean.parseBoolean(string);
+        }
+
+        @Override
+        public String toString(Boolean value) throws ValueConverterException {
+            // TODO make this more robust
+            return Boolean.toString(value);
+        }
+
+
+    };
+
+
     @ValueConverter(rule = "LONG")
     public IValueConverter<Long> LONG() {
         return longValueConverter;
@@ -80,5 +98,11 @@ public class UddlValueConverters extends DefaultTerminalConverters {
     public IValueConverter<Double> DOUBLE() {
         return doubleValueConverter;
     }
-    
+
+    @ValueConverter(rule = "BOOLEAN")
+    public IValueConverter<Boolean> BOOLEAN() {
+        return booleanValueConverter;
+    }
+
+
 }

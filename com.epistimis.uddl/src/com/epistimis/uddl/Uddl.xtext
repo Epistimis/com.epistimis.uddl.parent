@@ -28,6 +28,7 @@ terminal SIGNED_INT returns ecore::EInt:  ('+'|'-') INT;
 terminal LONG returns ecore::ELong:  SIGNED_INT ("L"|"l");
 terminal FLOAT returns ecore::EFloat : ('+'|'-')? DEC '.' DEC (('E'|'e') DEC)? ;
 //DOUBLE returns ecore::EDouble : ('+'|'-')? DEC '.' DEC ('D'|'d');
+terminal BOOLEAN returns ecore::EBoolean : ('true'|'false'|'TRUE'|'FALSE');
 
 // A few generic rules
 terminal fragment DEC:  ('0'..'9')+;
@@ -356,7 +357,7 @@ LogicalLandmark:
 /** A MeasurementSystem relates a CoordinateSystem to an origin and orientation for the purpose of establishing a common basis for describing points in an N-dimensional space. Defining a MeasurementSystem establishes additional properties of the CoordinateSystem including units and value types for each axis, and a set of reference points that can be used to establish an origin and indicate the direction of each axis. */
 LogicalMeasurementSystem:
 	'msys' name=ID (description=STRING)? '{'
-		'maxis:' '[' measurementSystemAxis+=[LogicalMeasurementSystemAxis|QN]+ ']'
+		'msa:' '[' measurementSystemAxis+=[LogicalMeasurementSystemAxis|QN]+ ']'
 		'coord:' coordinateSystem=[LogicalCoordinateSystem|QN]
 		('extRefStd:' externalStandardReference=STRING)?
 		('orient:' orientation=STRING)?
@@ -483,8 +484,8 @@ LogicalMeasurement:
 /** A MeasurementAxis optionally establishes constraints for a MeasurementSystemAxis and may optionally override its default units and value types. */
 LogicalMeasurementAxis:
 	'maxis' name=ID  (description=STRING)? ('->' realizes=[ConceptualObservable|QN])? '{'
-		('vtu:' '[' valueTypeUnit+=[LogicalValueTypeUnit|QN]+ ']')?
 		'msaxis:' measurementSystemAxis=[LogicalMeasurementSystemAxis|QN]
+		('vtu:' '[' valueTypeUnit+=[LogicalValueTypeUnit|QN]+ ']')?
 		('![' constraint+=LogicalMeasurementConstraint+ ']')?
 	'};'
 ;
