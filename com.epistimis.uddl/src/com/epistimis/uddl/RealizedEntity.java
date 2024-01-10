@@ -43,8 +43,8 @@ public class RealizedEntity extends RealizedComposableElement {
 	 */
 	private Map<String, RealizedComposition> composition;
 
-	public static void realize(PlatformEntity pe) {
-		new RealizedEntity(pe);
+	public static RealizedEntity realize(PlatformEntity pe) {
+		return new RealizedEntity(pe);
 	}
 
 	public RealizedEntity(PlatformEntity pe) {
@@ -101,6 +101,10 @@ public class RealizedEntity extends RealizedComposableElement {
 		return results;
 	}
 
+	/**
+	 * Get all the composition elements. Key is the rolename
+	 * @return
+	 */
 	public Map<String, RealizedComposition> getComposition() {
 		return composition;
 	}

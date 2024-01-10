@@ -13,6 +13,8 @@ public class RealizedCharacteristic {
 	 * The FACE spec itself does not support overriding. Specialization just adds composition elements. So the override capability here
 	 * is overkill for now.
 	 */
+	
+	private PlatformCharacteristic realizedCharacteristic;
 
 	/**
 	 * Use the lowest level rolename (Platform)
@@ -32,10 +34,6 @@ public class RealizedCharacteristic {
 	 */
 	private int upperBound;
 
-	/**
-	 * Track the original type because we need this later to do linkage
-	 */
-	private PlatformComposableElement type;
 
 	/**
 	 * The realizedType of this composition Element
@@ -53,6 +51,7 @@ public class RealizedCharacteristic {
 		this.description= pc.getDescription();
 		this.lowerBound = pc.getLowerBound();
 		this.upperBound = pc.getUpperBound();
+		this.realizedCharacteristic = pc;
 		this.realizedType = rce;
 	}
 
@@ -94,10 +93,9 @@ public class RealizedCharacteristic {
 
 	}
 
-	public PlatformComposableElement getType() {
-		return this.type;
+	public PlatformCharacteristic getRealizedCharacteristic() {
+		return this.realizedCharacteristic;
 	}
-
 	public RealizedComposableElement getRealizeType() {
 		return this.realizedType;
 	}

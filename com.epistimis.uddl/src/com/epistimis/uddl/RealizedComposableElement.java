@@ -21,9 +21,11 @@ public class RealizedComposableElement {
 	 * Note that this contains Platform level info
 	 */
 	public static Map<PlatformComposableElement,RealizedComposableElement> allComposableElements = new HashMap<PlatformComposableElement, RealizedComposableElement>();
+	public static Map<RealizedComposableElement,PlatformComposableElement> allRealizedElements = new HashMap<RealizedComposableElement,PlatformComposableElement>();
 
 	public RealizedComposableElement(PlatformComposableElement pce) {
 		allComposableElements.put(pce, this);
+		allRealizedElements.put(this,pce);
 	}
 
 	public static void linkTypes() {
