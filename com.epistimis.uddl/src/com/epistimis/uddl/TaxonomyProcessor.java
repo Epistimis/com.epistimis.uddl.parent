@@ -326,10 +326,26 @@ public abstract class TaxonomyProcessor<Base extends Taxonomy> {
 	 * @param start
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Base> collectDescendants(Base start) {
+		return collectDescendants(start,true);
+	}
+	/**
+	 * Get all the descendants of the starting point (including the starting point)
+	 * 
+	 * TODO: Do we need to check the contents to select only those of the correct
+	 * type? I don't think so since taxonomies contain only the correct type by
+	 * definition
+	 * 
+	 * @param start
+	 * @param includeStart - whether to include the starting point
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Base> collectDescendants(Base start, boolean includeStart) {
 		List<Base> descendants = new ArrayList<>();
-		descendants.add(start);
+		if (includeStart) {
+			descendants.add(start);
+		}
 		TreeIterator<EObject> titer = start.eAllContents();
 		while (titer.hasNext()) {
 			Base jb = (Base) titer.next();
