@@ -1,15 +1,26 @@
 package com.epistimis.uddl;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.naming.QualifiedName;
+
+import com.epistimis.uddl.exceptions.WrongTypeException;
 
 //import org.eclipse.emf.common.util.EList;
 
 import com.epistimis.uddl.uddl.ConceptualBasisEntity;
 import com.epistimis.uddl.uddl.ConceptualEntity;
+import com.epistimis.uddl.uddl.LogicalElement;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalMeasurement;
+import com.epistimis.uddl.uddl.LogicalMeasurementAxis;
+import com.epistimis.uddl.uddl.LogicalValueTypeUnit;
+import com.epistimis.uddl.uddl.PlatformDataType;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.google.inject.Inject;
 
@@ -21,12 +32,8 @@ import com.google.inject.Inject;
  */
 public class ModelFilters {
 
-	@Inject
-	static IQualifiedNameProvider qnp;
-	@Inject
-	static IQualifiedNameConverter qnc;
-
-
+	@Inject IQualifiedNameProvider qnp;
+	@Inject IQualifiedNameConverter qnc;
 
 	/**
 	 * Determine if the specified ConceptualEntity has a reference to the
@@ -37,7 +44,7 @@ public class ModelFilters {
 	 * to be in multiple Domains. For now, ignore Domain.
 	 * 
 	 * @param ce the ConceptualEntity to check
-	 * @param be the BasisEntity to check for 
+	 * @param be the BasisEntity to check for
 	 * @return
 	 */
 	public static boolean hasBasisInAncestry(ConceptualEntity ce, ConceptualBasisEntity be) {
@@ -54,15 +61,16 @@ public class ModelFilters {
 	 * Determine if the specified ConceptualEntity has a reference to the
 	 * BasisEntity.
 	 * 
-	 * @param ce the ConceptualEntity to check
+	 * @param ce        the ConceptualEntity to check
 	 * @param basisName the name of the BasisEntity to check for
 	 * @return
 	 */
-	public static boolean hasBasisInAncestry(ConceptualEntity ce, String basisName) {
+	public  boolean hasBasisInAncestry(ConceptualEntity ce, String basisName) {
 		QualifiedName qn = qnc.toQualifiedName(basisName);
 
-		return hasBasisInAncestry(ce,qn);
+		return hasBasisInAncestry(ce, qn);
 	}
+
 	/**
 	 * Check to see if this ConceptualEntity references the specified BasisEntity
 	 * 
@@ -70,7 +78,7 @@ public class ModelFilters {
 	 * @param basisName
 	 * @return
 	 */
-	public static boolean hasBasisInAncestry(ConceptualEntity ce, QualifiedName basisName) {
+	public  boolean hasBasisInAncestry(ConceptualEntity ce, QualifiedName basisName) {
 		// Find all visible BasisEntities with this QN - pick the best match
 		// When matching names, we may have a RQN, not a FQN - so compare segment counts
 		// and skip the difference
@@ -94,24 +102,25 @@ public class ModelFilters {
 		return false;
 	}
 
-	public static boolean hasBasisInAncestry(LogicalEntity le, String basisName) {
+	public  boolean hasBasisInAncestry(LogicalEntity le, String basisName) {
 
 		QualifiedName qn = qnc.toQualifiedName(basisName);
 		return hasBasisInAncestry(le.getRealizes(), qn);
 	}
-	public static boolean hasBasisInAncestry(LogicalEntity le, ConceptualBasisEntity be) {
+
+	public  boolean hasBasisInAncestry(LogicalEntity le, ConceptualBasisEntity be) {
 		return hasBasisInAncestry(le.getRealizes(), be);
 	}
 
-	public static boolean hasBasisInAncestry(PlatformEntity pe, String basisName) {
+	public  boolean hasBasisInAncestry(PlatformEntity pe, String basisName) {
 
 		QualifiedName qn = qnc.toQualifiedName(basisName);
 		return hasBasisInAncestry(pe.getRealizes().getRealizes(), qn);
 	}
-	public static boolean hasBasisInAncestry(PlatformEntity le, ConceptualBasisEntity be) {
+
+	public  boolean hasBasisInAncestry(PlatformEntity le, ConceptualBasisEntity be) {
 		return hasBasisInAncestry(le.getRealizes(), be);
 	}
-
 
 	/**
 	 * Does this Measurement realize this ConceptualObservable?
@@ -123,6 +132,35 @@ public class ModelFilters {
 	 */
 	public static boolean measurementOf(LogicalMeasurement lm, String observableName) {
 		return lm.getRealizes().getName().equalsIgnoreCase(observableName);
+	}
+
+	/**
+	 * Get the VTU associated with this PDT realization.
+	 * 
+	 * @param pdt
+	 * @return
+	 */
+	public List<LogicalValueTypeUnit> getValueTypeUnit(PlatformDataType pdt) {
+		List<LogicalValueTypeUnit> result = new ArrayList<>();
+		LogicalElement absMeasure = pdt.getRealizes();
+		if (absMeasure instanceof LogicalMeasurement) {
+			EList<LogicalMeasurementAxis> axes = ((LogicalMeasurement)absMeasure).getMeasurementAxis();
+			for (LogicalMeasurementAxis axis: axes) {
+				result.addAll(axis.getValueTypeUnit());
+			}
+			return result;
+		}
+		else if (absMeasure instanceof LogicalMeasurementAxis) {
+			return ((LogicalMeasurementAxis)absMeasure).getValueTypeUnit();
+		}
+		else if (absMeasure instanceof LogicalValueTypeUnit) {
+			result.add((LogicalValueTypeUnit)absMeasure);
+			return result;
+		}
+		else {
+			throw new WrongTypeException(MessageFormat.format("{0} has type {0} which cannot be realized by a PlatformDataType", 
+					qnp.getFullyQualifiedName(absMeasure).toString(),absMeasure.getClass().getName()));
+		}
 	}
 
 }

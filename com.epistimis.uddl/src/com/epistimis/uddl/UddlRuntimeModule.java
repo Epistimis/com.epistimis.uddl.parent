@@ -80,7 +80,11 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 	public Class<? extends IndexUtilities> bindIndexUtilities() {
 		return IndexUtilities.class;
 	}
+	public Class<? extends ModelFilters> bindModelFilters() {
+		return ModelFilters.class;
+	}
 
+	
 	// ------------- Entity processing
 
 	public Class<? extends com.epistimis.uddl.CLPExtractors> bindCLPExtractors() {
