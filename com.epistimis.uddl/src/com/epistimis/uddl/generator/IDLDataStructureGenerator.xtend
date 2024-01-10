@@ -1,7 +1,7 @@
 package com.epistimis.uddl.generator
 
-import com.epistimis.uddl.uddl.LogicalMeasurement
-import com.epistimis.uddl.uddl.LogicalMeasurementAxis
+import com.epistimis.uddl.ModelFilters
+import com.epistimis.uddl.RealizedComposableElement
 import com.epistimis.uddl.uddl.LogicalValueTypeUnit
 import com.epistimis.uddl.uddl.PlatformArray
 import com.epistimis.uddl.uddl.PlatformBoolean
@@ -9,8 +9,11 @@ import com.epistimis.uddl.uddl.PlatformBoundedString
 import com.epistimis.uddl.uddl.PlatformChar
 import com.epistimis.uddl.uddl.PlatformCharArray
 import com.epistimis.uddl.uddl.PlatformComposableElement
+import com.epistimis.uddl.uddl.PlatformComposition
+import com.epistimis.uddl.uddl.PlatformDataModel
 import com.epistimis.uddl.uddl.PlatformDataType
 import com.epistimis.uddl.uddl.PlatformDouble
+import com.epistimis.uddl.uddl.PlatformEntity
 import com.epistimis.uddl.uddl.PlatformEnumeration
 import com.epistimis.uddl.uddl.PlatformFixed
 import com.epistimis.uddl.uddl.PlatformFloat
@@ -18,6 +21,7 @@ import com.epistimis.uddl.uddl.PlatformLong
 import com.epistimis.uddl.uddl.PlatformLongDouble
 import com.epistimis.uddl.uddl.PlatformLongLong
 import com.epistimis.uddl.uddl.PlatformOctet
+import com.epistimis.uddl.uddl.PlatformParticipant
 import com.epistimis.uddl.uddl.PlatformSequence
 import com.epistimis.uddl.uddl.PlatformShort
 import com.epistimis.uddl.uddl.PlatformString
@@ -25,13 +29,10 @@ import com.epistimis.uddl.uddl.PlatformStruct
 import com.epistimis.uddl.uddl.PlatformULong
 import com.epistimis.uddl.uddl.PlatformULongLong
 import com.epistimis.uddl.uddl.PlatformUShort
+import java.util.List
 import java.util.Map
-import com.epistimis.uddl.uddl.PlatformDataModel
-import com.epistimis.uddl.uddl.PlatformEntity
-import com.epistimis.uddl.uddl.PlatformComposition
-import com.epistimis.uddl.uddl.PlatformParticipant
 import org.eclipse.emf.ecore.EObject
-import com.epistimis.uddl.RealizedComposableElement
+import com.google.inject.Inject
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.
@@ -41,6 +42,9 @@ import com.epistimis.uddl.RealizedComposableElement
  * This is based on FACE spec Appendix J.8 - the rule for PlatformDataType
  */
 class IDLDataStructureGenerator extends CommonDataStructureGenerator {
+	
+	@Inject
+	ModelFilters modelFilters;
 
 	new(Map<PlatformComposableElement,RealizedComposableElement> ace) {
 		super(ace);
@@ -80,24 +84,26 @@ class IDLDataStructureGenerator extends CommonDataStructureGenerator {
 			PlatformSequence:   "sequence<octet,"+pdt.maxSize+">"
 			PlatformArray:		"octet["+pdt.size+"]"
 			PlatformEnumeration: {
-				val absMeasure = pdt.realizes;
-				var LogicalValueTypeUnit vtu = null;
-				switch (absMeasure) {
-					case LogicalMeasurement: {
-						val axis = (absMeasure as LogicalMeasurement).measurementAxis.get(0);
-						vtu =  axis.valueTypeUnit.get(0);
-					}
-					case LogicalMeasurementAxis: {
-						vtu =  (absMeasure as LogicalMeasurementAxis).valueTypeUnit.get(0);
-					}
-					case LogicalValueTypeUnit: {
-						vtu = (absMeasure as LogicalValueTypeUnit);
-					}
-					
-				}
-				if (vtu.constraint !== null) {
-					// list is only the constraint content
-					" enum not finished"
+				var List<LogicalValueTypeUnit> vtus = modelFilters.getValueTypeUnit(pdt);
+//				val absMeasure = pdt.realizes;
+//				switch (absMeasure) {
+//					case LogicalMeasurement: {
+//						val axis = (absMeasure as LogicalMeasurement).measurementAxis.get(0);
+//						vtu =  axis.valueTypeUnit.get(0);
+//					}
+//					case LogicalMeasurementAxis: {
+//						vtu =  (absMeasure as LogicalMeasurementAxis).valueTypeUnit.get(0);
+//					}
+//					case LogicalValueTypeUnit: {
+//						vtu = (absMeasure as LogicalValueTypeUnit);
+//					}					
+//				}
+				if (vtus.size == 0 ) {
+					" enum not finished "
+//				}
+//				if (vtu.constraint !== null) {
+//					// list is only the constraint content
+//					" enum not finished"
 				} else {
 					// list is the entire enum
 					"enum not finished"
