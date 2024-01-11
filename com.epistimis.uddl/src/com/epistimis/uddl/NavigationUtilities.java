@@ -57,5 +57,43 @@ public class NavigationUtilities {
 		}
 	}
 	
+	/**
+	 * Walk up the containment hierarchy until we find a container that fails the test.
+	 * when ofType is true, we walk until the rootClz matches the container type.
+	 * when ofType is false, we stop when the parent container does not match the rootClz (and then return the current container as the root).
+	 * 
+	 * @param context
+	 * @param rootClz
+	 * @param ofType
+	 * @return
+	 */
+	public static int nestingLevels(EObject context, EClass rootClz,boolean ofType) {
+		EObject container = context.eContainer();
+		if (container == null) {
+			// If there is no container, then context must be the root
+			return 0;
+		}
+		if (ofType) {
+			if (container.eClass().equals(rootClz))
+			{
+				return 0;
+			}
+			else {
+				// keep going
+				return nestingLevels(container,rootClz,ofType) + 1;
+			}
+		}
+		else {
+			if (!container.eClass().equals(rootClz))
+			{
+				return 0;
+			}
+			else {
+				// keep going
+				return nestingLevels(container,rootClz,ofType) + 1;
+			}
+		}
+		
+	}
 
 }
