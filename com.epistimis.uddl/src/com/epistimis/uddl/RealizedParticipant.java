@@ -1,7 +1,5 @@
 package com.epistimis.uddl;
 
-import com.epistimis.uddl.uddl.PlatformComposableElement;
-import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
 

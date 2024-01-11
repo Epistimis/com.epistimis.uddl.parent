@@ -1,5 +1,6 @@
 package com.epistimis.uddl
 
+import com.epistimis.uddl.exceptions.CharacteristicNotFoundException
 import com.epistimis.uddl.uddl.ConceptualAssociation
 import com.epistimis.uddl.uddl.ConceptualCharacteristic
 import com.epistimis.uddl.uddl.ConceptualComposableElement
@@ -41,7 +42,6 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.QualifiedName
-import com.epistimis.uddl.exceptions.CharacteristicNotFoundException
 
 /**
  * This is a set of methods that extract values from instances for use with templated methods

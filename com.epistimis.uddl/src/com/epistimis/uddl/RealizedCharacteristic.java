@@ -1,7 +1,6 @@
 package com.epistimis.uddl;
 
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
-import com.epistimis.uddl.uddl.PlatformComposableElement;
 
 public class RealizedCharacteristic {
 	/**

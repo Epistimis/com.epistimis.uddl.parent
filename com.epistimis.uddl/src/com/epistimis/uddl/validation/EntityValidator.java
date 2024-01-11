@@ -72,34 +72,42 @@ public abstract class EntityValidator<ComposableElement extends UddlElement,
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public Class getComposableElementType() {
 		return returnedTypeParameter(0);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getCharacteristicType() {
 		return returnedTypeParameter(1);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getEntityType() {
 		return returnedTypeParameter(2);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getAssociationType() {
 		return returnedTypeParameter(3);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getCompositionType() {
 		return returnedTypeParameter(4);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getParticipantType() {
 		return returnedTypeParameter(5);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getElementalComposableType() {
 		return returnedTypeParameter(6);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getEntityProcessorType() {
 		return returnedTypeParameter(7);
 	}

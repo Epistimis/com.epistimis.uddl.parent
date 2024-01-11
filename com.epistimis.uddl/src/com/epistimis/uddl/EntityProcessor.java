@@ -110,30 +110,37 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public Class getComposableElementType() {
 		return returnedTypeParameter(0);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getCharacteristicType() {
 		return returnedTypeParameter(1);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getEntityType() {
 		return returnedTypeParameter(2);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getAssociationType() {
 		return returnedTypeParameter(3);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getCompositionType() {
 		return returnedTypeParameter(4);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getParticipantType() {
 		return returnedTypeParameter(5);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getElementalComposableType() {
 		return returnedTypeParameter(6);
 	}
@@ -524,4 +531,95 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 		return result;
 	}
 
+	/**
+	 * Recurse up the Entity specializaton hierarchy to collect the list of Composition elements
+	 * already specified. By walking up the hierarchy and creating a Map, we enable shadowing
+	 * if a specialization wants to override the Entity it specializes
+	 * @param entity
+	 * @return
+	 */
+	public Map<String, Composition> allCompositions(Entity entity) {
+		if (entity == null) {
+			return new HashMap<String,Composition>();
+		}
+		else {
+			Map<String,Composition> prevElements = allCompositions(getSpecializes(entity));
+			for (Composition c: getComposition(entity)) {
+				// By overwriting prior values, we allow specializations to shadow the entities they
+				// specialize
+				prevElements.put(getCharacteristicRolename(c), c);
+			}
+			return prevElements;
+		}
+	}
+
+	/**
+	 * Recurse up the Association specializaton hierarchy to collect all the Participants. This 
+	 * automatically enables shadowing
+	 * @param entity
+	 * @return
+	 */
+	public Map<String,Participant> allParticipants(Association entity) {
+		if (entity == null) {
+			return new HashMap<String,Participant>();
+		}
+		else {
+			Map<String,Participant> prevElements = new HashMap<String,Participant>();
+			Entity spec = getSpecializes(entity);
+			// Associations can specialize an Entity but not the otherway around (because once
+			// you have participants, you can't get rid of them). So, once we find a specialization
+			// that is *not* an Association, we can stop.
+			if (isAssociation(spec)) {
+				prevElements = allParticipants(conv2Association(spec));
+			}
+			for (Participant p: getParticipant(entity) ) {
+				// By overwriting prior values, we allow specializations to shadow the entities they
+				// specialize
+				prevElements.put(getCharacteristicRolename(p), p);				
+			}
+			return prevElements;
+		}
+	}
+
+	/**
+	 * Recurse up the Entity specialization hierarchy to generate the Composition appropriate scope. This 
+	 * automatically enables shadowing
+	 * @param entity
+	 * @return
+	 */
+	public IScope scopeForCompositionSelection(Entity entity) {
+		if (entity == null) {
+			return IScope.NULLSCOPE;
+		}
+		else {
+			return Scopes.scopeFor(getComposition(entity),
+					scopeForCompositionSelection(getSpecializes(entity)));
+		}
+	}
+
+	/**
+	 * Recurse up the Association specializaton hierarchy to generate the Participant appropriate scope. This 
+	 * automatically enables shadowing
+	 * @param entity
+	 * @return
+	 */
+	public IScope scopeForParticipantSelection(Association entity) {
+		if (entity == null) {
+			return IScope.NULLSCOPE;
+		}
+		else {
+			Entity spec = getSpecializes(entity);
+			// Associations can specialize an Entity but not the otherway around (because once
+			// you have participants, you can't get rid of them). So, once we find a specialization
+			// that is *not* an Association, we can stop.
+			if (isAssociation(spec)) {
+				return Scopes.scopeFor(getParticipant(entity),
+						scopeForParticipantSelection(conv2Association(spec)));
+			} else
+			{
+				return Scopes.scopeFor(getParticipant(entity),IScope.NULLSCOPE);			
+			}
+		}
+	}
+	
 }
