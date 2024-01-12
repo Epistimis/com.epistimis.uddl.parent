@@ -11,9 +11,12 @@ import com.epistimis.uddl.uddl.ConceptualAssociation;
 import com.epistimis.uddl.uddl.ConceptualCharacteristic;
 import com.epistimis.uddl.uddl.ConceptualComposableElement;
 import com.epistimis.uddl.uddl.ConceptualComposition;
+import com.epistimis.uddl.uddl.ConceptualDataModel;
+import com.epistimis.uddl.uddl.ConceptualElement;
 import com.epistimis.uddl.uddl.ConceptualEntity;
 import com.epistimis.uddl.uddl.ConceptualObservable;
 import com.epistimis.uddl.uddl.ConceptualParticipant;
+import com.epistimis.uddl.uddl.UddlElement;
 import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.inject.Inject;
 
@@ -21,7 +24,7 @@ import com.google.inject.Inject;
  * 
  */
 public class ConceptualEntityProcessor extends
-		EntityProcessor<ConceptualComposableElement, ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant, ConceptualObservable> {
+		EntityProcessor<ConceptualComposableElement, ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant, ConceptualObservable, ConceptualDataModel> {
 
 	@Inject
 	IQualifiedNameProvider qnp; // = new UddlQNP();
@@ -65,6 +68,24 @@ public class ConceptualEntityProcessor extends
 	public EList<ConceptualParticipant> getParticipant(ConceptualAssociation obj) {
 		// TODO Auto-generated method stub
 		return obj.getParticipant();
+	}
+
+	@Override
+	public boolean isContainer(UddlElement obj) {
+		// TODO Auto-generated method stub
+		return (obj instanceof ConceptualDataModel);
+	}
+
+	@Override
+	public ConceptualDataModel conv2Container(UddlElement obj) {
+		// TODO Auto-generated method stub
+		return (ConceptualDataModel) obj;
+	}
+
+	@Override
+	public EList<? extends UddlElement> getElement(ConceptualDataModel obj) {
+		// TODO Auto-generated method stub
+		return obj.getElement();
 	}
 
 }

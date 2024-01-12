@@ -11,6 +11,7 @@ import com.epistimis.uddl.uddl.LogicalCharacteristic;
 import com.epistimis.uddl.uddl.LogicalComposableElement;
 import com.epistimis.uddl.uddl.LogicalCompositeQuery;
 import com.epistimis.uddl.uddl.LogicalComposition;
+import com.epistimis.uddl.uddl.LogicalDataModel;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalMeasurement;
 import com.epistimis.uddl.uddl.LogicalParticipant;
@@ -21,7 +22,7 @@ import com.epistimis.uddl.uddl.UddlPackage;
 
 public class LogicalQueryProcessor extends
 		QueryProcessor<LogicalComposableElement,LogicalCharacteristic, LogicalEntity, LogicalAssociation, LogicalComposition, LogicalParticipant, 
-		LogicalView, LogicalQuery, LogicalCompositeQuery, LogicalQueryComposition,LogicalMeasurement,
+		LogicalView, LogicalQuery, LogicalCompositeQuery, LogicalQueryComposition,LogicalMeasurement, LogicalDataModel,
 		LogicalEntityProcessor> {
 
 	protected EList<LogicalQueryComposition> getComposition(LogicalCompositeQuery ent) {

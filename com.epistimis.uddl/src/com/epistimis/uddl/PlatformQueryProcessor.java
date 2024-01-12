@@ -8,6 +8,7 @@ import com.epistimis.uddl.uddl.PlatformCharacteristic;
 import com.epistimis.uddl.uddl.PlatformComposableElement;
 import com.epistimis.uddl.uddl.PlatformCompositeQuery;
 import com.epistimis.uddl.uddl.PlatformComposition;
+import com.epistimis.uddl.uddl.PlatformDataModel;
 import com.epistimis.uddl.uddl.PlatformDataType;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
@@ -18,7 +19,7 @@ import com.epistimis.uddl.uddl.UddlPackage;
 
 public class PlatformQueryProcessor extends
 		QueryProcessor<PlatformComposableElement, PlatformCharacteristic, PlatformEntity, PlatformAssociation, PlatformComposition, PlatformParticipant, 
-		PlatformView, PlatformQuery, PlatformCompositeQuery, PlatformQueryComposition, PlatformDataType, 
+		PlatformView, PlatformQuery, PlatformCompositeQuery, PlatformQueryComposition, PlatformDataType, PlatformDataModel,
 		PlatformEntityProcessor> {
 
 	protected EList<PlatformQueryComposition> getComposition(PlatformCompositeQuery ent) {

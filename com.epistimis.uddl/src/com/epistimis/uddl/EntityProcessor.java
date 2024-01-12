@@ -41,7 +41,8 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 										Association extends Entity, 
 										Composition extends Characteristic, 
 										Participant extends Characteristic, 
-										ElementalComposable extends ComposableElement> {
+										ElementalComposable extends ComposableElement,
+										Container extends UddlElement> {
 	// @Inject
 //		private Provider<ResourceSet> resourceSetProvider;
 	//
@@ -92,6 +93,10 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 
 	abstract public EList<Participant> getParticipant(Association obj);
 
+	abstract public boolean isContainer(UddlElement obj);
+	abstract public Container conv2Container(UddlElement obj);
+	abstract public EList<? extends UddlElement> getElement(Container obj);
+	
 	/**
 	 * Get the type parameters for this generic class See also
 	 * https://stackoverflow.com/questions/4213972/java-generics-get-class-of-generic-methods-return-type
@@ -144,6 +149,12 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 	public Class getElementalComposableType() {
 		return returnedTypeParameter(6);
 	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getContainerType() {
+		return returnedTypeParameter(7);
+	}
+	
 	/**
 	 * Taken from the book, SmallJavaLib.getSmallJavaObjectClass - and converted
 	 * from XTend to Java
@@ -165,18 +176,19 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 	}
 
 	/**
-	 * Find all the Entities in this hierarchy
+	 * Find all the Entities in this hierarchy.  
+	 * This looks externally once the hierarchy in this Resource has been exhausted.
 	 * 
 	 * @param q
 	 * @param context
 	 * @return
 	 */
-	protected IScope entityScope(EObject context) {
+	public IScope entityScope(EObject context) {
 		/*
-		 * the object will either be the original query or a containing PDM - so
+		 * 
 		 * containers will always be a (C/L/P)DM or a DataModel
 		 */
-		@SuppressWarnings("unchecked") // The experssion of type Class needs unchecked conversion to conform to
+		@SuppressWarnings("unchecked") // The expression of type Class needs unchecked conversion to conform to
 										// Class<Entity>
 		final Iterable<Entity> entities = IterableExtensions
 				.<Entity>filter(IteratorExtensions.<EObject>toIterable(context.eAllContents()), getEntityType());
@@ -184,7 +196,11 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 		if (container != null) {
 			return Scopes.scopeFor(entities, entityScope(container));
 		} else {
-			return Scopes.scopeFor(entities, IScope.NULLSCOPE);
+			// When we reach the top, we can include externally visible entities
+			// TODO: Will this create a problem for RQNs?
+			return Scopes.scopeFor(entities,
+									Scopes.scopeFor(ndxUtil.getVisibleExternalEObjectsByType(context, getEntityEClass()),IScope.NULLSCOPE)
+							);
 		}
 	}
 
@@ -580,6 +596,7 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 			return prevElements;
 		}
 	}
+
 
 	/**
 	 * Recurse up the Entity specialization hierarchy to generate the Composition appropriate scope. This 

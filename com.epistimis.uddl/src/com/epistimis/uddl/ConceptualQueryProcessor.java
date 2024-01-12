@@ -11,6 +11,7 @@ import com.epistimis.uddl.uddl.ConceptualCharacteristic;
 import com.epistimis.uddl.uddl.ConceptualComposableElement;
 import com.epistimis.uddl.uddl.ConceptualCompositeQuery;
 import com.epistimis.uddl.uddl.ConceptualComposition;
+import com.epistimis.uddl.uddl.ConceptualDataModel;
 import com.epistimis.uddl.uddl.ConceptualEntity;
 import com.epistimis.uddl.uddl.ConceptualObservable;
 import com.epistimis.uddl.uddl.ConceptualParticipant;
@@ -21,7 +22,7 @@ import com.epistimis.uddl.uddl.UddlPackage;
 
 public class ConceptualQueryProcessor extends
 		QueryProcessor<ConceptualComposableElement,ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant, 
-		ConceptualView, ConceptualQuery, ConceptualCompositeQuery, ConceptualQueryComposition,ConceptualObservable,
+		ConceptualView, ConceptualQuery, ConceptualCompositeQuery, ConceptualQueryComposition,ConceptualObservable, ConceptualDataModel,
 		ConceptualEntityProcessor> {
 
 	protected EList<ConceptualQueryComposition> getComposition(ConceptualCompositeQuery ent) {

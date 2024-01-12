@@ -75,7 +75,8 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 									CompositeQuery extends View, 
 									QueryComposition extends EObject, 
 									ElementalComposable extends ComposableElement,
-									EProcessor extends EntityProcessor<ComposableElement,Characteristic,Entity, Association, Composition, Participant,ElementalComposable>> {
+									Container extends UddlElement,
+									EProcessor extends EntityProcessor<ComposableElement,Characteristic,Entity, Association, Composition, Participant,ElementalComposable,Container>> {
 	// @Inject
 //	private Provider<ResourceSet> resourceSetProvider;
 //
@@ -395,7 +396,7 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 	public Map<String, Entity> matchQuerytoUDDL(Query q, QueryStatement qstmt)
 			throws NamedObjectNotFoundException, NameCollisionException, WrongTypeException {
 		// Create an exception that we might throw later. We will store suppressed
-		// exceptions here and throw only if somethin was suppressed.
+		// exceptions here and throw only if something was suppressed.
 		QueryMatchException potentialExcp = new QueryMatchException(
 				"Errors occurred while attempting to match Query to UDDL. See suppressed:");
 		Resource resource = q.eResource();
@@ -597,18 +598,6 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 	 */
 	protected IScope entityScope(EObject context) {
 		return eproc.entityScope(context);
-//		/*
-//		 * the object will either be the original query or a containing PDM - so
-//		 * containers will always be a (C/L/P)DM or a DataModel
-//		 */
-//		final Iterable<Entity> entities = IterableExtensions
-//				.<Entity>filter(IteratorExtensions.<EObject>toIterable(context.eAllContents()), getEntityType());
-//		EObject container = context.eContainer();
-//		if (container != null) {
-//			return Scopes.scopeFor(entities, entityScope(container));
-//		} else {
-//			return Scopes.scopeFor(entities, IScope.NULLSCOPE);
-//		}
 	}
 
 	/**
