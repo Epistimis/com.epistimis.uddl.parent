@@ -67,6 +67,9 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 
 	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
+	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
+			"Entity {0} does not have a characteristic with rolename {1}");
+
 	/**
 	 * Get the Characteristic's rolename
 	 * 
@@ -77,9 +80,6 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 																			// getCharacteristicByRolename(Entity ent,
 																			// String roleName) throws
 																			// CharacteristicNotFoundException;
-
-	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
-			"Entity {0} does not have a characteristic with rolename {1}");
 
 	abstract public EClass getEntityEClass();
 
