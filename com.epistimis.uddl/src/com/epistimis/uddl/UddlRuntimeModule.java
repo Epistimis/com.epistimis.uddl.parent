@@ -100,6 +100,12 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 	public Class<? extends PlatformQueryProcessor> bindPlatformQueryProcessor() {
 		return PlatformQueryProcessor.class;
 	}
+	public Class<? extends CLRealizationProcessor> bindCLRealizationProcessor() {
+		return CLRealizationProcessor.class;
+	}
+	public Class<? extends LPRealizationProcessor> bindLPRealizationProcessor() {
+		return LPRealizationProcessor.class;
+	}
 
 	// ----------- Taxonomy processors
 	public Class<? extends com.epistimis.uddl.LogicalEnumeratedProcessor> bindLogicalEnumeratedProcessor() {
