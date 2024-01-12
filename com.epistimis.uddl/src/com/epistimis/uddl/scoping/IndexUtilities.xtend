@@ -29,6 +29,7 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import java.util.Set
 import java.util.HashSet
 import org.eclipse.emf.common.util.EList
+
 //import org.eclipse.acceleo.query.runtime.IQueryEnvironment
 //import org.eclipse.acceleo.query.runtime.Query
 //import org.eclipse.acceleo.query.runtime.impl.QueryBuilderEngine
@@ -39,7 +40,6 @@ import org.eclipse.emf.common.util.EList
 //import org.eclipse.emf.ecore.EcorePackage
 //import org.eclipse.acceleo.query.runtime.EvaluationResult
 //import org.eclipse.ocl.pivot.values.OrderedSet
-
 /**
  * This is modified from the book (See https://github.com/LorenzoBettini/packtpub-xtext-book-2nd-examples)
  * Smalljava = SmallJavaIndex.xtend
@@ -82,15 +82,26 @@ class IndexUtilities {
 		}
 	}
 
+	/**
+	 * Get the description of the Resource containing this object
+	 */
 	def getResourceDescription(EObject o) {
 		val index = rdp.getResourceDescriptions(o.eResource)
 		index.getResourceDescription(o.eResource.URI)
 	}
 
+	/**
+	 * Get all the exported EObjectDescriptions from the Resource containing this object
+	 */
 	def getExportedEObjectDescriptions(EObject o) {
 		o.getResourceDescription.getExportedObjects
 	}
 
+
+	/**
+	 * Get all the exported EObjectDescriptions from the Resource containing this object,
+	 * filtered by the specified EClass
+	 */
 	def getExportedEObjectDescriptionsByType(EObject o, EClass type) {
 		o.getResourceDescription.getExportedObjectsByType(type)
 	}
@@ -104,6 +115,27 @@ class IndexUtilities {
 		val difference = allVisibleEObjectDescriptions.toSet
 		difference.removeAll(allExportedEObjectDescriptions.toSet)
 		return difference.toMap[qualifiedName]
+	}
+	/*	
+	 * The original version of this method is below. Specific implementations found below use
+	 * the general implementation above.
+	 */
+	/*
+	 * 	def getVisibleExternalClassesDescriptions(EObject o) {
+	 * 		val allVisibleClasses =
+	 * 			o.getVisibleClassesDescriptions
+	 * 		val allExportedClasses =
+	 * 			o.getExportedClassesEObjectDescriptions
+	 * 		val difference = allVisibleClasses.toSet
+	 * 		difference.removeAll(allExportedClasses.toSet)
+	 * 		return difference.toMap[qualifiedName]
+	 * 	}
+	 */
+
+	def getVisibleExternalEObjectsByType(EObject context, EClass type) {
+		context.getVisibleExternalEObjectDescriptionsByType(type).values.map([
+			context.eResource.objectFromDescription(it)
+		]);
 	}
 
 	/**
@@ -143,13 +175,13 @@ class IndexUtilities {
 	 * @param ignoreCase true to ignore case, false to use case
 	 * 
 	 * NOTE: This method returns a synchronized list just in case there is a threading issue
+	 * 
 	 * @return A list of all the all the objects visible in this context of that type
 	 * with that name
-
 	 */
 	def searchAllVisibleEObjectDescriptions(EObject context, EClass type, String name, boolean ignoreCase) {
 
-		Collections.synchronizedList( context.getVisibleEObjectDescriptions(type).filter [
+		Collections.synchronizedList(context.getVisibleEObjectDescriptions(type).filter [
 			val QualifiedName qn = it.getQualifiedName();
 			for (var i = qn.getSegmentCount() - 1; i >= 0; i--) {
 				val rqn = qn.skipFirst(i).toString();
@@ -222,12 +254,13 @@ class IndexUtilities {
 				objList.get(0)
 			default: {
 				throw new NameCollisionException(printEObjectNameCollisions(name, type.getName(), objList));
-				//return null;
+			// return null;
 			}
 		}
 	}
 
 	static String COLLISION_MSG_FMT = "{0} makes ambiguous reference to instances of type {1}. It could be: \n";
+
 	/**
 	 * It is possible that there are name collisions from searches. This is a standard way to list them.
 	 * @param qn A string version of a possibly qualified name
@@ -235,9 +268,9 @@ class IndexUtilities {
 	 * @param descriptions What we found
 	 */
 	def printIEObjectDescriptionNameCollisions(String qn, String typeName, List<IEObjectDescription> descriptions) {
-		var msg = MessageFormat.format(COLLISION_MSG_FMT,qn,typeName);
+		var msg = MessageFormat.format(COLLISION_MSG_FMT, qn, typeName);
 		for (IEObjectDescription d : descriptions) {
-			msg += MessageFormat.format("\t {0}\n",d.getQualifiedName().toString());
+			msg += MessageFormat.format("\t {0}\n", d.getQualifiedName().toString());
 		}
 		return msg;
 	}
@@ -249,13 +282,12 @@ class IndexUtilities {
 	 * @param objects What we found
 	 */
 	def printEObjectNameCollisions(String qn, String typeName, List<EObject> objects) {
-		var msg = MessageFormat.format(COLLISION_MSG_FMT,qn,typeName);
+		var msg = MessageFormat.format(COLLISION_MSG_FMT, qn, typeName);
 		for (EObject o : objects) {
-			msg += MessageFormat.format("\t {0}\n",qnp.getFullyQualifiedName(o).toString());
+			msg += MessageFormat.format("\t {0}\n", qnp.getFullyQualifiedName(o).toString());
 		}
 		return msg;
 	}
-
 
 	/**
 	 * Identify the EObjects in the closure starting at root and following the specified 
@@ -280,22 +312,22 @@ class IndexUtilities {
 	def Set<EObject> closure(EObject context, EObject root, EClass type, EStructuralFeature feat) {
 		// If this is a collection feature, handle that differently
 		if (feat.isMany) {
-			return closureColn(context,root, type, feat);
+			return closureColn(context, root, type, feat);
 		}
 
-		var Set<EObject> found  = new HashSet<EObject>();
+		var Set<EObject> found = new HashSet<EObject>();
 		found.add(root);
-		var EObject toCheck = root.eGet(feat)as EObject;
+		var EObject toCheck = root.eGet(feat) as EObject;
 		while ((toCheck !== null) && !found.contains(toCheck)) {
 			val EObject temp = toCheck.eGet(feat) as EObject;
 			// Log that we found this one, remove it from the list to inspect and add it's children to the
 			found.add(toCheck);
-			toCheck = temp;				
+			toCheck = temp;
 		}
 		return found;
-		
+
 	}
-	
+
 	/**
 	 * Identify the EObjects in the closure starting at root and following the specified 
 	 * feature. This assumes the feature points from parent to child.
@@ -317,25 +349,24 @@ class IndexUtilities {
 	 *         that are visible from the context
 	 */
 	def Set<EObject> closureColn(EObject context, EObject root, EClass type, EStructuralFeature feat) {
-		var Set<EObject> found  = new HashSet<EObject>();
+		var Set<EObject> found = new HashSet<EObject>();
 		found.add(root);
-		val EList<EObject> toCheck = root.eGet(feat)as EList<EObject>;
+		val EList<EObject> toCheck = root.eGet(feat) as EList<EObject>;
 		for (EObject e : toCheck) {
 			if (!found.contains(e)) {
 				val EList<EObject> temp = e.eGet(feat) as EList<EObject>;
 				// Log that we found this one, remove it from the list to inspect and add it's children to the
 				found.add(e);
-				toCheck.addAll(temp);				
+				toCheck.addAll(temp);
 			}
 			// Whether this one was new or not, remove it from the set to check. Because we do this here,
 			// we also ensure that it can't be added back in if it is found in a another reference (because we are adding
 			// newly found elements to a Set (so duplicates just overwrite/ don't get added), and then we remove just once.
-			toCheck.remove(e);				
-		}						
+			toCheck.remove(e);
+		}
 		return found;
-		
+
 	}
-	
 
 	/**
 	 * Identify the EObjects in the closure starting at root and following the specified 
@@ -427,53 +458,24 @@ class IndexUtilities {
 ////		return allEObjects;
 //	}
 
+
 	/**
-	 * These methods are specific to this package
+	 * Find all the resources that reference the referenceTarget
+	 * from: https://www.eclipse.org/forums/index.php/t/165076/
+	 * NOTE: This is from an old post - UsageCrossReferencer is likely newer
 	 */
-	def getVisibleDataModelDescriptions(EObject o) {
-		o.getVisibleEObjectDescriptions(UddlPackage.eINSTANCE.dataModel)
-	}
-
-	def getExportedDataModelEObjectDescriptions(EObject o) {
-		o.getResourceDescription.getExportedObjectsByType(UddlPackage.eINSTANCE.dataModel)
-	}
-
-	def getVisibleExternalDataModelDescriptions(EObject o) {
-		o.getVisibleExternalEObjectDescriptionsByType(UddlPackage.eINSTANCE.dataModel)
-	}
-/*	
- * The original version of this method is below. This was recoded to use the general
- * implementation to make any maintenance simpler.
- */
-/*
- * 	def getVisibleExternalClassesDescriptions(EObject o) {
- * 		val allVisibleClasses =
- * 			o.getVisibleClassesDescriptions
- * 		val allExportedClasses =
- * 			o.getExportedClassesEObjectDescriptions
- * 		val difference = allVisibleClasses.toSet
- * 		difference.removeAll(allExportedClasses.toSet)
- * 		return difference.toMap[qualifiedName]
- * 	}
- */
- 
- 	/**
- 	 * Find all the resources that reference the referenceTarget
- 	 * from: https://www.eclipse.org/forums/index.php/t/165076/
- 	 * NOTE: This is from an old post - UsageCrossReferencer is likely newer
- 	 */
-	 def List<Resource> getReferencingResources(EObject referenceTarget) {
+	def List<Resource> getReferencingResources(EObject referenceTarget) {
 		val Resource res = referenceTarget.eResource();
 		val ResourceSet rs = res.getResourceSet();
 		var ECrossReferenceAdapter crossReferencer = null;
 		var List<Adapter> adapters = rs.eAdapters();
 		for (Adapter adapter : adapters) {
-			if(adapter instanceof ECrossReferenceAdapter){
-				crossReferencer =  adapter as ECrossReferenceAdapter;
-				//break;
+			if (adapter instanceof ECrossReferenceAdapter) {
+				crossReferencer = adapter as ECrossReferenceAdapter;
+			// break;
 			}
 		}
-		if(crossReferencer === null){
+		if (crossReferencer === null) {
 			crossReferencer = new ECrossReferenceAdapter();
 			rs.eAdapters().add(crossReferencer);
 		}
@@ -482,27 +484,50 @@ class IndexUtilities {
 		for (Setting setting : referencers) {
 			val EObject referer = setting.getEObject();
 			val Resource resource = referer.eResource();
-			if(!resource.equals(res)){
+			if (!resource.equals(res)) {
 				// Only need to check the other resources not containing the referenceTarget
 				var URI uri = resource.getURI();
 				uri = rs.getURIConverter().normalize(uri);
-				if(uri.isPlatformResource()){
+				if (uri.isPlatformResource()) {
 					referers.add(resource);
 				}
 			}
 		}
 		return referers;
 	}
-	
+
 	/**
 	 * Find all the cross references to the specified target, no matter
 	 * where they are in the resource set
 	 * 
 	 * See EcoreUtil.delete() for an example of why it might be done this way
 	 */
- 	def Collection<EStructuralFeature.Setting> getReferencingObjects(EObject referenceTarget) {
+	def Collection<EStructuralFeature.Setting> getReferencingObjects(EObject referenceTarget) {
 		val Resource res = referenceTarget.eResource();
 		val ResourceSet rs = res.getResourceSet();
- 		return EcoreUtil.UsageCrossReferencer.find(referenceTarget,rs);
- 	}
+		return EcoreUtil.UsageCrossReferencer.find(referenceTarget, rs);
+	}
+	
+	
+//	/**
+//	 * ================ These methods are specific to this package
+//	 */
+
+
+	/**
+	 * Get all the DataModel Descriptions visible from this object
+	 */
+	def getVisibleDataModelDescriptions(EObject o) {
+		o.getVisibleEObjectDescriptions(UddlPackage.eINSTANCE.dataModel)
+	}
+
+	
+	def getExportedDataModelEObjectDescriptions(EObject o) {
+		o.getResourceDescription.getExportedObjectsByType(UddlPackage.eINSTANCE.dataModel)
+	}
+
+	def getVisibleExternalDataModelDescriptions(EObject o) {
+		o.getVisibleExternalEObjectDescriptionsByType(UddlPackage.eINSTANCE.dataModel)
+	}
+	
 }

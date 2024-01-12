@@ -28,7 +28,8 @@ public abstract class EntityValidator<ComposableElement extends UddlElement,
 //										Query extends View, 
 //										CompositeQuery extends View, 
 //										QueryComposition extends EObject, 
-										EProcessor extends EntityProcessor<ComposableElement,Characteristic, Entity, Association, Composition, Participant,ElementalComposable>> {
+										Container extends UddlElement,
+										EProcessor extends EntityProcessor<ComposableElement,Characteristic, Entity, Association, Composition, Participant,ElementalComposable,Container>> {
 
 	@Inject
 	EProcessor eproc;
