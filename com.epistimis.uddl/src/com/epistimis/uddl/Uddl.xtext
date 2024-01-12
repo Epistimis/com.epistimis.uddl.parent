@@ -110,7 +110,9 @@ ConceptualBasisEntity:
 
 /** A Domain represents a space defined by a set of BasisEntities relating to well understood concepts by practitioners within a particular domain.  */
 ConceptualDomain:
-	'domain' name=ID (description=STRING)? ';'
+	'domain' name=ID (description=STRING)? 
+		('[' basis+=[ConceptualBasisEntity|QN]+ ']')?
+	';'
 ;
 
 /** An Observable is something that can be observed but not further characterized, and is typically quantified through measurements of the physical world. An observable is independent of any specific data representation, units, or reference frame. For example, “length” may be thought of as an observable in that it can be measured, but at the conceptual level the nature of the measurement is not specified. */
