@@ -4,11 +4,11 @@ generate uddl "http://www.epistimis.com/uddl/Uddl"
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
-//// Starter rule comes first
-//ModelFile:
-//	includes+=Include*
-//	dataModel=DataModel
-//;
+// Starter rule comes first
+ModelFile:
+	(includes+=Include)*
+	dataModel=DataModel
+;
 
 /** A DataModel is a container for ConceptualDataModels, LogicalDataModels, and PlatformDataModels */
 DataModel:
@@ -37,10 +37,11 @@ QN:
     ID ('.' ID)*;
 
 /**
- * Use 'include' because 'import' is an XBase keyword
+ * Use 'include' because 'import' is an XBase keyword ?
+ * Probably not - examples use 'import' and doc knows of XBase
  */
 Include:
-    'include' importedNamespace=QualifiedNameWithWildcard;
+    'import' importedNamespace=QualifiedNameWithWildcard ';' ;
 
 /**
  * Already defined in XBase
