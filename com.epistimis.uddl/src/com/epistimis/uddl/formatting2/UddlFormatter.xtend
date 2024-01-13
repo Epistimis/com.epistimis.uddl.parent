@@ -94,7 +94,7 @@ class UddlFormatter extends AbstractFormatter2 {
 	 */
 	/** General functions */
 	def void objOpen(EObject obj, extension IFormattableDocument document) {
-		obj.regionFor.keyword('{').prepend[newLine];
+		obj.regionFor.keyword('{').prepend[setNewLines(1, 1, 2)];
 	}
 
 	def void objClose(EObject obj, extension IFormattableDocument document) {
@@ -110,7 +110,7 @@ class UddlFormatter extends AbstractFormatter2 {
 	def void formatContainer(EObject obj, extension IFormattableDocument document) {
 		val open = obj.regionFor.keyword("{")
 		val close = obj.regionFor.keyword("}")
-		open.prepend[setNewLines(1, 1, 2)].append[newLine]
+		open.prepend[setNewLines(1, 1, 2)].append[setNewLines(1, 1, 2)]
 		close.prepend[setNewLines(1, 1, 2)].append[setNewLines(1, 1, 2)]
 		interior(open, close)[indent]
 	}
@@ -118,7 +118,7 @@ class UddlFormatter extends AbstractFormatter2 {
 	def void formatObj(EObject obj, extension IFormattableDocument document) {
 		val open = obj.regionFor.keyword("{")
 		val close = obj.regionFor.keyword("};")
-		open.prepend[setNewLines(1, 1, 2)].append[newLine]
+		open.prepend[setNewLines(1, 1, 2)].append[setNewLines(1, 1, 2)]
 		close.prepend[setNewLines(1, 1, 2)].append[setNewLines(1, 1, 2)];
 		interior(open, close)[indent]
 
@@ -146,7 +146,7 @@ class UddlFormatter extends AbstractFormatter2 {
 
 	def void formatAttribute(ISemanticRegion attrStart, ISemanticRegion attrEnd,
 		extension IFormattableDocument document) {
-		attrStart.prepend[newLine]
+		attrStart.prepend[setNewLines(1, 1, 2)]
 		attrEnd.append[setNewLines(1, 1, 2)]
 	}
 
@@ -217,7 +217,7 @@ class UddlFormatter extends AbstractFormatter2 {
 
 	/** Conceptual */
 	def dispatch void format(ConceptualElement obj, extension IFormattableDocument document) {
-		obj.prepend[newLine]
+		obj.prepend[setNewLines(1, 1, 2)]
 		// obj.regionFor.feature(UDDL_ELEMENT__DESCRIPTION).append[newLine]
 		formatObj(obj, document);
 		for (EObject contained : obj.eContents) {
@@ -282,7 +282,7 @@ class UddlFormatter extends AbstractFormatter2 {
 
 	/** Logical  */
 	def dispatch void format(LogicalElement obj, extension IFormattableDocument document) {
-		obj.prepend[newLine]
+		obj.prepend[setNewLines(1, 1, 2)]
 		formatObj(obj, document);
 		for (EObject contained : obj.eContents) {
 			contained.format
@@ -416,7 +416,7 @@ class UddlFormatter extends AbstractFormatter2 {
 
 	/** Platform */
 	def dispatch void format(PlatformElement obj, extension IFormattableDocument document) {
-		obj.prepend[newLine]
+		obj.prepend[setNewLines(1, 1, 2)]
 		formatObj(obj, document);
 		for (EObject contained : obj.eContents) {
 			contained.format
