@@ -23,6 +23,8 @@ import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.scoping.Scopes;
+import org.eclipse.xtext.scoping.impl.FilteringScope;
+import org.eclipse.xtext.util.SimpleAttributeResolver;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
@@ -30,6 +32,8 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 import com.epistimis.uddl.exceptions.CharacteristicNotFoundException;
 import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
+import com.epistimis.uddl.uddl.UddlPackage;
+import com.google.common.base.Objects;
 import com.google.inject.Inject;
 
 /**
@@ -82,6 +86,8 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 																			// CharacteristicNotFoundException;
 
 	abstract public EClass getEntityEClass();
+	abstract public EClass getCompositionEClass();
+	abstract public EClass getParticipantEClass();
 
 	abstract public Entity getSpecializes(Entity ent);
 
@@ -609,8 +615,19 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 			return IScope.NULLSCOPE;
 		}
 		else {
-			return Scopes.scopeFor(getComposition(entity),
-					scopeForCompositionSelection(getSpecializes(entity)));
+			EList<Composition> comps = getComposition(entity);
+			// Can't use the default scopeFor because Compositions have a 'rolename' instead of a 'name'. 
+			// See the implementation of the default Scopes.scopeFor method.
+			// So, do this instead:
+//			return Scopes.scopeFor(comps, QualifiedName.wrapper(SimpleAttributeResolver.newResolver(String.class,"rolename")),
+//					scopeForCompositionSelection(getSpecializes(entity)));
+			
+            IScope existingScope = Scopes.scopeFor(ndxUtil.getVisibleObjects(entity, getCompositionEClass()),
+            		scopeForCompositionSelection(getSpecializes(entity)));
+                       
+            // Scope that filters to select only the parts that are relevant
+			return new FilteringScope(existingScope, (e) -> comps.contains(e.getEObjectOrProxy()));
+		
 		}
 	}
 
@@ -626,15 +643,39 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 		}
 		else {
 			Entity spec = getSpecializes(entity);
+			EList<Participant> parts = getParticipant(entity);
 			// Associations can specialize an Entity but not the otherway around (because once
 			// you have participants, you can't get rid of them). So, once we find a specialization
 			// that is *not* an Association, we can stop.
 			if (isAssociation(spec)) {
-				return Scopes.scopeFor(getParticipant(entity),
-						scopeForParticipantSelection(conv2Association(spec)));
+				// Can't use the default scopeFor because Compositions have a 'rolename' instead of a 'name'. 
+				// See the implementation of the default Scopes.scopeFor method.
+				// So, do this instead:
+//				return Scopes.scopeFor(parts,QualifiedName.wrapper(SimpleAttributeResolver.newResolver(String.class,"rolename")),
+//						scopeForParticipantSelection(conv2Association(spec)));
+
+	            IScope existingScope = Scopes.scopeFor(ndxUtil.getVisibleObjects(entity, getCompositionEClass()),
+	            		scopeForParticipantSelection(conv2Association(spec)));
+	                       
+	            // Scope that filters to select only the parts that are relevant
+				return new FilteringScope(existingScope, (e) -> parts.contains(e.getEObjectOrProxy()));
+
+			
 			} else
 			{
-				return Scopes.scopeFor(getParticipant(entity),IScope.NULLSCOPE);			
+				// Can't use the default scopeFor because Compositions have a 'rolename' instead of a 'name'. 
+				// See the implementation of the default Scopes.scopeFor method.
+				// So, do this instead:
+//				return Scopes.scopeFor(parts,QualifiedName.wrapper(SimpleAttributeResolver.newResolver(String.class,"rolename")),
+//						IScope.NULLSCOPE);			
+
+	            IScope existingScope = Scopes.scopeFor(ndxUtil.getVisibleObjects(entity, getCompositionEClass()),
+	            		scopeForParticipantSelection(conv2Association(spec)));
+	                       
+	            // Scope that filters to select only the parts that are relevant
+				return new FilteringScope(existingScope, (e) -> parts.contains(e.getEObjectOrProxy()));
+
+			
 			}
 		}
 	}

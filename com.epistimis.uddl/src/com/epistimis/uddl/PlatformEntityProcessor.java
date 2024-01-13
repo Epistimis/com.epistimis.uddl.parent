@@ -30,6 +30,18 @@ public class PlatformEntityProcessor extends
 
 	}
 
+	@Override
+	public EClass getCompositionEClass() {
+		// TODO Auto-generated method stub
+		return UddlPackage.eINSTANCE.getPlatformComposition();
+	}
+
+	@Override
+	public EClass getParticipantEClass() {
+		// TODO Auto-generated method stub
+		return UddlPackage.eINSTANCE.getPlatformParticipant();
+	}
+
 	public String getCharacteristicRolename(PlatformCharacteristic obj) {
 		return obj.getRolename();
 	}

@@ -30,6 +30,18 @@ public class LogicalEntityProcessor extends
 		return UddlPackage.eINSTANCE.getLogicalEntity();
 
 	}
+	
+	@Override
+	public EClass getCompositionEClass() {
+		// TODO Auto-generated method stub
+		return UddlPackage.eINSTANCE.getLogicalComposition();
+	}
+
+	@Override
+	public EClass getParticipantEClass() {
+		// TODO Auto-generated method stub
+		return UddlPackage.eINSTANCE.getLogicalParticipant();
+	}
 
 	public String getCharacteristicRolename(LogicalCharacteristic obj) {
 		return obj.getRolename();

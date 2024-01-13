@@ -35,6 +35,17 @@ public class ConceptualEntityProcessor extends
 		return UddlPackage.eINSTANCE.getConceptualEntity();
 
 	}
+	@Override
+	public EClass getCompositionEClass() {
+		// TODO Auto-generated method stub
+		return UddlPackage.eINSTANCE.getConceptualComposition();
+	}
+
+	@Override
+	public EClass getParticipantEClass() {
+		// TODO Auto-generated method stub
+		return UddlPackage.eINSTANCE.getConceptualParticipant();
+	}
 
 	public String getCharacteristicRolename(ConceptualCharacteristic obj) {
 		return obj.getRolename();
@@ -87,5 +98,6 @@ public class ConceptualEntityProcessor extends
 		// TODO Auto-generated method stub
 		return obj.getElement();
 	}
+
 
 }
