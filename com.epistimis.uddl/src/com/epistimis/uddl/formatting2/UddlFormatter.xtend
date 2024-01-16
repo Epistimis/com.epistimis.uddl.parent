@@ -6,16 +6,21 @@
  */
 package com.epistimis.uddl.formatting2
 
+import com.epistimis.uddl.services.UddlGrammarAccess
 import com.epistimis.uddl.uddl.ConceptualAssociation
 import com.epistimis.uddl.uddl.ConceptualCharacteristic
+import com.epistimis.uddl.uddl.ConceptualCompositeQuery
 import com.epistimis.uddl.uddl.ConceptualComposition
 import com.epistimis.uddl.uddl.ConceptualDataModel
 import com.epistimis.uddl.uddl.ConceptualElement
 import com.epistimis.uddl.uddl.ConceptualEntity
 import com.epistimis.uddl.uddl.ConceptualParticipant
+import com.epistimis.uddl.uddl.ConceptualQuery
+import com.epistimis.uddl.uddl.ConceptualQueryComposition
 import com.epistimis.uddl.uddl.DataModel
 import com.epistimis.uddl.uddl.LogicalAssociation
 import com.epistimis.uddl.uddl.LogicalCharacteristic
+import com.epistimis.uddl.uddl.LogicalCompositeQuery
 import com.epistimis.uddl.uddl.LogicalComposition
 import com.epistimis.uddl.uddl.LogicalCoordinateSystem
 import com.epistimis.uddl.uddl.LogicalDataModel
@@ -24,42 +29,40 @@ import com.epistimis.uddl.uddl.LogicalEntity
 import com.epistimis.uddl.uddl.LogicalEnumerated
 import com.epistimis.uddl.uddl.LogicalMeasurementSystem
 import com.epistimis.uddl.uddl.LogicalParticipant
+import com.epistimis.uddl.uddl.LogicalQuery
+import com.epistimis.uddl.uddl.LogicalQueryComposition
 import com.epistimis.uddl.uddl.LogicalReferencePoint
 import com.epistimis.uddl.uddl.LogicalReferencePointPart
 import com.epistimis.uddl.uddl.LogicalValueTypeUnit
 import com.epistimis.uddl.uddl.PlatformAssociation
 import com.epistimis.uddl.uddl.PlatformCharacteristic
+import com.epistimis.uddl.uddl.PlatformCompositeQuery
 import com.epistimis.uddl.uddl.PlatformComposition
 import com.epistimis.uddl.uddl.PlatformDataModel
+import com.epistimis.uddl.uddl.PlatformDataType
 import com.epistimis.uddl.uddl.PlatformElement
 import com.epistimis.uddl.uddl.PlatformEntity
 import com.epistimis.uddl.uddl.PlatformParticipant
+import com.epistimis.uddl.uddl.PlatformQuery
+import com.epistimis.uddl.uddl.PlatformQueryComposition
+import com.google.inject.Inject
+import java.util.List
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.formatting.impl.FormattingConfig
 import org.eclipse.xtext.formatting2.AbstractFormatter2
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.formatting2.regionaccess.ISemanticRegion
 
 import static com.epistimis.uddl.uddl.UddlPackage.Literals.*
-import com.epistimis.uddl.uddl.PlatformDataType
-import org.eclipse.xtext.formatting.impl.FormattingConfig
-
-import com.google.inject.Inject
-import com.epistimis.uddl.services.UddlGrammarAccess
-import com.epistimis.uddl.uddl.ConceptualQuery
-import com.epistimis.uddl.uddl.ConceptualQueryComposition
-import com.epistimis.uddl.uddl.ConceptualCompositeQuery
-import com.epistimis.uddl.uddl.LogicalQuery
-import com.epistimis.uddl.uddl.LogicalCompositeQuery
-import com.epistimis.uddl.uddl.LogicalQueryComposition
-import com.epistimis.uddl.uddl.PlatformQuery
-import com.epistimis.uddl.uddl.PlatformCompositeQuery
-import com.epistimis.uddl.uddl.PlatformQueryComposition
+import org.eclipse.xtext.formatting2.FormatterRequest
 
 class UddlFormatter extends AbstractFormatter2 {
 
 	@Inject extension UddlGrammarAccess
 
+	// This API works with Formatting v1, not v2
+	// TODO: What is the V2 equivalent for this?
 	// Suggested by https://github.com/cdietrich/xtext-maven-example/blob/master/org.xtext.example.mydsl/src/org/xtext/example/mydsl/formatting/MyDslFormatter.java
 	def protected void configureFormatting(FormattingConfig c) {
 		// It's usually a good idea to activate the following three statements.
@@ -67,8 +70,15 @@ class UddlFormatter extends AbstractFormatter2 {
 		c.setLinewrap(0, 1, 2).before(getSL_COMMENTRule());
 		c.setLinewrap(0, 1, 2).before(getML_COMMENTRule());
 		c.setLinewrap(0, 1, 1).after(getML_COMMENTRule());
+		c.autoLinewrap = 120; // Default is 500 if not set. // See https://www.eclipse.org/forums/index.php/t/531139/
 	}
 
+// TODO: It looks like this is the method that should be overridden to do configuration - but how to do the configuration?
+//	override void initialize(FormatterRequest request) {
+//		super.initialize(request);
+//		//configureFormatting()
+//	}
+	
 	/**
 	 * Several standard methods needed for formatting
 	 * 1) All objects will have
@@ -101,7 +111,7 @@ class UddlFormatter extends AbstractFormatter2 {
 		obj.regionFor.keyword('};').surround[noSpace].append[setNewLines(1, 1, 2)];
 	}
 
-	def void formatContainerContents(EList<EObject> objs, extension IFormattableDocument document) {
+	def void formatContainerContents(EList<? extends EObject> objs, extension IFormattableDocument document) {
 		for (obj : objs) {
 			obj.prepend[setNewLines(1, 1, 2)].append[setNewLines(1, 1, 2)]
 		}
@@ -131,14 +141,16 @@ class UddlFormatter extends AbstractFormatter2 {
 		interior(open, close)[indent]
 	}
 
-	def void formatListContainer(EObject obj, EList<EObject> contents, extension IFormattableDocument document) {
-		obj.regionFor.keyword("[").surround[oneSpace];
-		obj.regionFor.keyword("]").surround[oneSpace];
+	def void formatListContainer(EObject obj, List<EObject> contents, extension IFormattableDocument document) {
+		val open = obj.regionFor.keyword("[")
+		val close = obj.regionFor.keyword("]")
+		open.surround[oneSpace];
+		close.surround[oneSpace];
 		contents.formatList(document);
-
+		interior(open, close)[indent]		
 	}
 
-	def void formatList(EList<EObject> objs, extension IFormattableDocument document) {
+	def void formatList(List<EObject> objs, extension IFormattableDocument document) {
 		for (EObject obj : objs) {
 			obj.surround[oneSpace]
 		}
@@ -342,11 +354,14 @@ class UddlFormatter extends AbstractFormatter2 {
 	}
 
 	def dispatch void format(LogicalEnumerated obj, extension IFormattableDocument document) {
-		formatObj(obj, document);
+		obj.formatObj( document);
 		formatAttributeElement(obj.regionFor.feature(LOGICAL_ENUMERATED__STANDARD_REFERENCE), document);
-		for (EObject elem : obj.label) {
-			elem.surround[oneSpace]
-		}
+		// To get around the type issues, we convert the EList<LogicalEnumerated> -> List<LogicalEnumerated> -> List<EObject>
+		obj.formatListContainer( List.copyOf(obj.label.toList), document);
+//		for (EObject elem : obj.label) {
+//			elem.surround[oneSpace]
+//		}
+		
 	}
 
 	def dispatch void format(LogicalMeasurementSystem obj, extension IFormattableDocument document) {
