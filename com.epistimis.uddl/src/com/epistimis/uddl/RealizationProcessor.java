@@ -16,6 +16,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 
+import com.epistimis.uddl.exceptions.RealizationException;
 import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
 import com.google.inject.Inject;
@@ -23,7 +24,13 @@ import com.google.inject.Inject;
 /**
  * 
  */
-public abstract class RealizationProcessor<BaseEntity extends UddlElement, RealizingEntity extends UddlElement, BaseCharacteristic extends EObject, RealizingCharacteristic extends EObject, BaseComposition extends BaseCharacteristic, RealizingComposition extends RealizingCharacteristic, BaseParticipant extends BaseCharacteristic, RealizingParticipant extends RealizingCharacteristic, BaseProcessor extends EntityProcessor<?, BaseCharacteristic, BaseEntity, ?, BaseComposition, BaseParticipant, ?, ?>, RealizingProcessor extends EntityProcessor<?, RealizingCharacteristic, RealizingEntity, ?, RealizingComposition, RealizingParticipant, ?, ?>> {
+public abstract class RealizationProcessor<BaseEntity extends EObject, RealizingEntity extends UddlElement, 
+											BaseCharacteristic extends EObject, RealizingCharacteristic extends EObject, 
+											BaseComposition extends BaseCharacteristic, RealizingComposition extends RealizingCharacteristic, 
+											BaseParticipant extends BaseCharacteristic, RealizingParticipant extends RealizingCharacteristic, 
+											BaseAssociation extends BaseEntity, RealizingAssociation extends RealizingEntity,
+											BaseProcessor extends EntityProcessor<?, BaseCharacteristic, BaseEntity, BaseAssociation, BaseComposition, BaseParticipant, ?, ?>, 
+											RealizingProcessor extends EntityProcessor<?, RealizingCharacteristic, RealizingEntity, RealizingAssociation, RealizingComposition, RealizingParticipant, ?, ?>> {
 // @Inject
 //private Provider<ResourceSet> resourceSetProvider;
 //
@@ -121,13 +128,24 @@ public abstract class RealizationProcessor<BaseEntity extends UddlElement, Reali
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getBaseProcessorType() {
+	public Class getBaseAssociationType() {
 		return returnedTypeParameter(8);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getRealizingProcessorType() {
+	public Class getRealizingAssociationType() {
 		return returnedTypeParameter(9);
+	}
+
+
+	@SuppressWarnings("rawtypes")
+	public Class getBaseProcessorType() {
+		return returnedTypeParameter(10);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getRealizingProcessorType() {
+		return returnedTypeParameter(11);
 	}
 
 	public List<BaseComposition> getRealizedCompositions(RealizingEntity rentity) {
@@ -149,6 +167,52 @@ public abstract class RealizationProcessor<BaseEntity extends UddlElement, Reali
 		Collection<BaseComposition> remainingValues = allBaseCompositions.values();
 		remainingValues.removeAll(realized);
 		return remainingValues;
+	}
+
+	public List<BaseParticipant> getRealizedParticipants(RealizingEntity rentity) {
+		if (!realizingProcessor.isAssociation(rentity)) {
+			// If it isn't an association then it has no participants
+			BaseEntity be = getRealizeEntity(rentity);
+			if (baseProcessor.isAssociation(be)) {
+				// If the base is an association but the realization isn't, then that's an error
+				String msg = MessageFormat.format("Association {0} must be realized by an Association but {0} is an Entity", 
+						qnp.getFullyQualifiedName(be).toString(), qnp.getFullyQualifiedName(rentity).toString());
+				logger.error(msg);
+				//throw new RealizationException(msg); // TODO: Throw or return empty list? See also (logical/platform)Extensions.ocl invariants - this is checked there
+				return new ArrayList<BaseParticipant>();
+			}
+			else {
+				// This is not an association - it has no participants
+				return new ArrayList<BaseParticipant>();
+			}
+		}
+		else {
+			Map<String, RealizingParticipant> allParticipants = realizingProcessor.allParticipants(realizingProcessor.conv2Association(rentity));
+			// Select the keys from allCompositions - filter out all other CCs
+			List<BaseParticipant> result = new ArrayList<BaseParticipant>();
+			for (RealizingParticipant p : allParticipants.values()) {
+				result.add(getRealizedParticipant(p));
+			}
+			return result;
+			
+		}
+	}
+
+	public Collection<BaseParticipant> getUnrealizedParticipants(RealizingEntity rentity) {
+		List<BaseParticipant> realized = getRealizedParticipants(rentity);
+
+		BaseEntity baseEntity = getRealizeEntity(rentity);
+		if (!baseProcessor.isAssociation(baseEntity)) {
+			// Base isn't an association so there are no participants
+			return new ArrayList<BaseParticipant>();
+		} else {
+			Map<String, BaseParticipant> allBaseParticipants = baseProcessor.allParticipants(baseProcessor.conv2Association(baseEntity));
+
+			Collection<BaseParticipant> remainingValues = allBaseParticipants.values();
+			remainingValues.removeAll(realized);
+			return remainingValues;
+			
+		}
 	}
 
 }
