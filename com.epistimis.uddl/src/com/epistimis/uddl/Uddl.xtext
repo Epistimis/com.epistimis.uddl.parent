@@ -112,7 +112,7 @@ ConceptualBasisEntity:
 /** A Domain represents a space defined by a set of BasisEntities relating to well understood concepts by practitioners within a particular domain.  */
 ConceptualDomain:
 	'domain' name=ID (description=STRING)? 
-		('[' basis+=[ConceptualBasisEntity|QN]+ ']')?
+		('[' basisEntity+=[ConceptualBasisEntity|QN]+ ']')?
 	';'
 ;
 
@@ -243,7 +243,7 @@ LogicalUnit:
 /** A Conversion is a relationship between two ConvertibleElements that describes how to transform measured quantities between two Units. */
 LogicalConversion:
 	'conv' name=ID  (description=STRING)? '{'
-		source=[LogicalAssociation|QN] '-()>'  destination=[LogicalAssociation|QN]
+		source=[LogicalUnit|QN] '-()>'  destination=[LogicalUnit|QN]
 		'};' |
 	LogicalAffineConversion
 ;
@@ -251,7 +251,7 @@ LogicalConversion:
 /** An AffineConversion is a relationship between two ConvertibleElements in the form mx+b. */
 LogicalAffineConversion:
 	'aconv' name=ID  (description=STRING)? '{'
-		source=[LogicalAssociation|QN] '-(' 'm:' conversionFactor=FLOAT 'b:' offset=FLOAT ')->'  destination=[LogicalAssociation|QN]
+		source=[LogicalUnit|QN] '-(' 'm:' conversionFactor=FLOAT 'b:' offset=FLOAT ')->'  target=[LogicalUnit|QN]
 	'};'
 ;
 
@@ -501,7 +501,7 @@ LogicalMeasurementAttribute:
 /** A MeasurementConversion is a relationship between two Measurements that describes how to transform measured quantities between those Measurements. The conversion is captured as a set of equations in the “equation” attribute. The specific format of “equation” is undefined. The loss introduced by the conversion equations is captured in the “conversionLossDescription” attribute. The specific format of “conversionLossDescription” is undefined. */
 LogicalMeasurementConversion:
 	'mc' name=ID  (description=STRING)? '{'
-		source=[LogicalMeasurementSystem|QN] '-(' equation+=STRING (',' equation+=STRING)? ')>' destination=[LogicalMeasurementSystem|QN]
+		source=[LogicalMeasurement|QN] '-(' equation+=STRING (',' equation+=STRING)? ')>' target=[LogicalMeasurement|QN]
 		'loss:' conversionLossDescription=STRING
 	'};'
 ;
@@ -815,7 +815,7 @@ PlatformQuery:
 
 /** A platform CompositeQuery is a collection of two or more platform Views. The “isUnion” attribute specifies whether the composed Views are intended to be mutually exclusive or not. */
 PlatformCompositeQuery:
-	'pcquery' name=ID  (description=STRING)? ('->' realizes=[LogicalQuery|QN])? '{'
+	'pcquery' name=ID  (description=STRING)? ('->' realizes=[LogicalCompositeQuery|QN])? '{'
 		isUnion?='isUnion'
 		composition+=PlatformQueryComposition
 		'};'
