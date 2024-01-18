@@ -378,6 +378,7 @@ class UddlFormatter extends AbstractFormatter2 {
 		formatAttribute(obj.regionFor.keyword('orient:'),
 			obj.regionFor.feature(LOGICAL_MEASUREMENT_SYSTEM__ORIENTATION), document);
 		for (elem : obj.referencePoint) {
+			elem.prepend[setNewLines(1, 1, 2)]
 			elem.format
 		}
 		for (elem : obj.constraint) {
@@ -391,7 +392,6 @@ class UddlFormatter extends AbstractFormatter2 {
 			document);
 		for (elem : obj.referencePointPart) {
 			elem.format
-			elem.append[setNewLines(1, 1, 2)]
 		}
 	}
 
