@@ -30,6 +30,7 @@ import com.epistimis.uddl.uddl.ConceptualComposition;
 import com.epistimis.uddl.uddl.ConceptualParticipant;
 import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalEntity;
+import com.epistimis.uddl.uddl.LogicalParticipant;
 import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.google.inject.Inject;
@@ -42,58 +43,22 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 
 	@Inject UddlQNP 					qnp;
 	@Inject	IScopeProvider 				sp;
+	
 	@Inject ConceptualEntityProcessor 	ceProc;
 	@Inject LogicalEntityProcessor 		leProc;
 	@Inject PlatformEntityProcessor 	peProc;
+	
 	@Inject CLRealizationProcessor		clrproc;
 	@Inject LPRealizationProcessor		lprproc;
 	
-	private static String componentFormatString = " %s[%d:%d] \"%s\" -> %s;\n";
-	private static String dummyType 			= "__ReplaceMe__";
-	private static String defaultComment 		= "// Replace " + dummyType + " with the LogicalComposableElement type for each composition\n";
-	private static String proposalPrefix 		= "(Default) ";
-	private static String proposalSuffix 		= "";
-	private static String realizeAll 			= "<<Default Realize All>>";
-	private static String realizeRemaining 		= "<<Default Realize Remaining>>";
-
+	@Inject CLRealizationProposalProcessor clrpproc;
+	@Inject LPRealizationProposalProcessor lprpproc;
+	
 	 
 	protected <T extends EObject,U extends EObject> QualifiedName relativeQualifiedName(T obj, U ctx) {
 		return qnp.relativeQualifiedName(obj, ctx);
 	}
 
-//	/**
-//	 * Get all the Compositions from this Entity - TODO: Make this part of
-//	 * CLPExtractors
-//	 * 
-//	 * @param centity
-//	 * @return
-//	 */
-//	protected List<ConceptualComposition> getCCsFromSpecialization(ConceptualEntity centity) {
-//		ConceptualEntity curCE = centity;
-//		EList<ConceptualComposition> ccs = curCE.getComposition();
-//		while (curCE.getSpecializes() != null) {
-//			curCE = curCE.getSpecializes();
-//			ccs.addAll(curCE.getComposition());
-//		}
-//		return ccs;
-//	}
-
-//	protected List<ConceptualParticipant> getCPsFromSpecialization(ConceptualEntity centity) {
-//		ConceptualEntity curCE = centity;
-//		List<ConceptualParticipant> cps = new ArrayList<ConceptualParticipant>();
-//		if (curCE instanceof ConceptualAssociation) {
-//			ConceptualAssociation ca = (ConceptualAssociation) curCE;
-//			cps.addAll(ca.getParticipant());
-//		}
-//		while (curCE.getSpecializes() != null) {
-//			curCE = curCE.getSpecializes();
-//			if (curCE instanceof ConceptualAssociation) {
-//				ConceptualAssociation ca = (ConceptualAssociation) curCE;
-//				cps.addAll(ca.getParticipant());
-//			}
-//		}
-//		return cps;
-//	}
 
 	/** Logical -> Conceptual */
 	
@@ -206,245 +171,92 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 //		}
 //	}
 
+	/**
+	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
+	 * be used by clrpproc to force the call to the super class method
+	 * @param obj
+	 * @param ruleCall
+	 * @param context
+	 * @param acceptor
+	 */
+	public void superComplete_LogicalComposition(EObject obj, RuleCall ruleCall, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		super.complete_LogicalComposition(obj, ruleCall, context, acceptor);		
+	}
 	@Override
 	public void complete_LogicalComposition(EObject obj, RuleCall ruleCall, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		// Get all the standard stuff first
-		super.complete_LogicalComposition(obj, ruleCall, context, acceptor);
-		LogicalEntity lentity = (LogicalEntity) obj;
-
-		// Now add customization here
-		// When doing this, propose that all ConceptualCompositions be realized - but
-		// only those that
-		List<ConceptualComposition> realized = clrproc.getRealizedCompositions(lentity);
-		Collection<ConceptualComposition> unrealized = clrproc.getUnrealizedCompositions(lentity);
-		List<ConceptualParticipant> realizedParticipants = clrproc.getRealizedParticipants(lentity);
-		Collection<ConceptualParticipant> unrealizedParticipants = clrproc.getUnrealizedParticipants(lentity);
-		
-		String result = defaultComment;
-		for (ConceptualComposition cc : unrealized) {
-				// If this one isn't already realized, then add it to the proposal
-				String oneRealizedCC = String.format(dummyType + componentFormatString, cc.getRolename(),
-						cc.getLowerBound(), cc.getUpperBound(), cc.getDescription(),
-						qnp.getFullyQualifiedName(cc).toString());
-				acceptor.accept(createCompletionProposal(oneRealizedCC,
-						proposalPrefix + cc.getRolename() + proposalSuffix, null, context));
-				result += oneRealizedCC;		
-		}
-		 if (!unrealizedParticipants.isEmpty()) {
-			 result += "\n participants: [";
-			 
-			 for (ConceptualParticipant cp: unrealizedParticipants) {
-					// If this one isn't already realized, then add it to the proposal
-					String oneRealizedCP = String.format(dummyType + componentFormatString, cp.getRolename(),
-							cp.getLowerBound(), cp.getUpperBound(), cp.getDescription(),
-							qnp.getFullyQualifiedName(cp).toString());
-					acceptor.accept(createCompletionProposal(oneRealizedCP,
-							proposalPrefix + cp.getRolename() + proposalSuffix, null, context));
-					result += oneRealizedCP;						 
-			 }
-			 result += "]";
-		 }
-		/**
-		 * Only do the "all" if nothing has been done yet
-		 */
-		if (realized.isEmpty() && realizedParticipants.isEmpty()) {
-			acceptor.accept(createCompletionProposal(result, realizeAll, null, context));
-		}
-		else if (!unrealized.isEmpty() || !unrealizedParticipants.isEmpty()) {
-			acceptor.accept(createCompletionProposal(result, realizeRemaining, null, context));
-		}
-
-//		// Now add customization here
-//		// When doing this, propose that all ConceptualCompositions be realized - but
-//		// only those that
-//		List<ConceptualComposition> realizedCCs = clrproc.getRealizedCompositions(lentity);
-//		ConceptualEntity centity = lentity.getRealizes();
-//		if (centity != null) {
-//			String result = defaultComment;
-//			EList<ConceptualComposition> ccs = centity.getComposition();
-//			for (ConceptualComposition cc : ccs) {
-//				if (!realizedCCs.contains(cc)) {
-//					// If this one isn't already realized, then add it to the proposal
-//					String oneRealizedCC = String.format(dummyType + componentFormatString, cc.getRolename(),
-//							cc.getLowerBound(), cc.getUpperBound(), cc.getDescription(),
-//							qnp.getFullyQualifiedName(cc).toString());
-//					acceptor.accept(createCompletionProposal(oneRealizedCC,
-//							proposalPrefix + cc.getRolename() + proposalSuffix, null, context));
-//					result += oneRealizedCC;
-//				}
-//			}
-//			/**
-//			 * Only do the "all" if nothing has been done yet
-//			 */
-//			if (realizedCCs.isEmpty()) {
-//				acceptor.accept(createCompletionProposal(result, realizeAll, null, context));
-//			}
-//		}
+		clrpproc.complete_Composition(this,clrproc, (LogicalEntity)obj, ruleCall, context, acceptor);		
 	}
 
+	/**
+	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
+	 * be used by clrpproc to force the call to the super class method
+	 * @param obj
+	 * @param ruleCall
+	 * @param context
+	 * @param acceptor
+	 */
+	public void superCompleteLogicalComposition_Rolename(EObject obj, Assignment assignment, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		super.completeLogicalComposition_Rolename(obj, assignment, context, acceptor);		
+	}
 	@Override
 	public void completeLogicalComposition_Rolename(EObject obj, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		super.completeLogicalComposition_Rolename(obj, assignment, context, acceptor);
-
-		// Pick out the roles from the list of unrealized ConceptualCompositions
-		LogicalEntity lentity = (LogicalEntity) obj.eContainer();
-		for (ConceptualComposition cc : clrproc.getUnrealizedCompositions(lentity)) {
-				// If this one isn't already realized, then add it to the proposal
-				String oneRealizedCC = String.format(componentFormatString, cc.getRolename(), cc.getLowerBound(),
-						cc.getUpperBound(), cc.getDescription(), qnp.getFullyQualifiedName(cc).toString());
-				acceptor.accept(createCompletionProposal(oneRealizedCC,
-						proposalPrefix + cc.getRolename() + proposalSuffix, null, context));
-		}
-		
-		
-		
-//		List<ConceptualComposition> realizedCCs = clrproc.getRealizedCompositions(lentity);
-//		ConceptualEntity centity = lentity.getRealizes();
-//		if (centity != null) {
-//			EList<ConceptualComposition> ccs = centity.getComposition();
-//			for (ConceptualComposition cc : ccs) {
-//				if (!realizedCCs.contains(cc)) {
-//					// If this one isn't already realized, then add it to the proposal
-//					String oneRealizedCC = String.format(componentFormatString, cc.getRolename(), cc.getLowerBound(),
-//							cc.getUpperBound(), cc.getDescription(), qnp.getFullyQualifiedName(cc).toString());
-//					acceptor.accept(createCompletionProposal(oneRealizedCC,
-//							proposalPrefix + cc.getRolename() + proposalSuffix, null, context));
-//				}
-//			}
-//		}
+		clrpproc.completeComposition_Rolename(this, clrproc, (LogicalEntity)obj, assignment, context, acceptor);
 	}
 
 	@Override
 	public void completeLogicalComposition_Realizes(EObject obj, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		LogicalEntity lentity = (LogicalEntity) obj.eContainer();
-
-		for (ConceptualComposition c : clrproc.getUnrealizedCompositions(lentity)) {
-				acceptor.accept(createCompletionProposal(qnp.getFullyQualifiedName(c).toString(),
-						proposalPrefix + c.getRolename() + proposalSuffix, null, context));
-		}
-		
-//		List<ConceptualComposition> realizedCCs = clrproc.getRealizedCompositions(lentity);
-//		ConceptualEntity centity = lentity.getRealizes();
-//		for (ConceptualComposition c : centity.getComposition()) {
-//			if (!realizedCCs.contains(c)) {
-//				acceptor.accept(createCompletionProposal(qnp.getFullyQualifiedName(c).toString(),
-//						proposalPrefix + c.getRolename() + proposalSuffix, null, context));
-//			}
-//		}
+		clrpproc.completeComposition_Realizes(this, clrproc, (LogicalEntity)obj, assignment, context, acceptor);
 	}
 
 	/** Platform -> Logical */
+	/**
+	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
+	 * be used by clrpproc to force the call to the super class method
+	 * @param obj
+	 * @param ruleCall
+	 * @param context
+	 * @param acceptor
+	 */
+	public void superComplete_PlatformComposition(EObject obj, RuleCall ruleCall, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		super.complete_PlatformComposition(obj, ruleCall, context, acceptor);		
+	}
 	@Override
 	public void complete_PlatformComposition(EObject obj, RuleCall ruleCall, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		// Get all the standard stuff first
-		super.complete_PlatformComposition(obj, ruleCall, context, acceptor);
-		// Now add customization here
-		// When doing this, propose that all ConceptualCompositions be realized - but
-		// only those that
-		PlatformEntity pentity = (PlatformEntity) obj;
-		List<LogicalComposition> realized = lprproc.getRealizedCompositions(pentity);
-		Collection<LogicalComposition> unrealized = lprproc.getUnrealizedCompositions(pentity);
+		lprpproc.complete_Composition(this,lprproc, (PlatformEntity)obj, ruleCall, context, acceptor);
 
-		String result = defaultComment;
-		for (LogicalComposition cc : unrealized) {
-				// If this one isn't already realized, then add it to the proposal
-				String oneRealizedCC = String.format(dummyType + componentFormatString, cc.getRolename(),
-						cc.getLowerBound(), cc.getUpperBound(), cc.getDescription(),
-						qnp.getFullyQualifiedName(cc).toString());
-				acceptor.accept(createCompletionProposal(oneRealizedCC,
-						proposalPrefix + cc.getRolename() + proposalSuffix, null, context));
-				result += oneRealizedCC;		
-		}
-		/**
-		 * Only do the "all" if nothing has been done yet
-		 */
-		if (realized.isEmpty()) {
-			acceptor.accept(createCompletionProposal(result, realizeAll, null, context));
-		}
-		else if (!unrealized.isEmpty()) {
-			acceptor.accept(createCompletionProposal(result, realizeRemaining, null, context));
-		}
-		
-//		List<LogicalComposition> realizedCCs = lprproc.getRealizedCompositions(pentity);
-//		LogicalEntity lentity = pentity.getRealizes();
-//		if (lentity != null) {
-//			String result = defaultComment;
-//			EList<LogicalComposition> ccs = lentity.getComposition();
-//			for (LogicalComposition cc : ccs) {
-//				if (!realizedCCs.contains(cc)) {
-//					// If this one isn't already realized, then add it to the proposal
-//					String oneRealizedCC = String.format(dummyType + componentFormatString, cc.getRolename(),
-//							cc.getLowerBound(), cc.getUpperBound(), cc.getDescription(),
-//							qnp.getFullyQualifiedName(cc).toString());
-//					acceptor.accept(createCompletionProposal(oneRealizedCC,
-//							proposalPrefix + cc.getRolename() + proposalSuffix, null, context));
-//					result += oneRealizedCC;
-//				}
-//			}
-//			/**
-//			 * Only do the "all" if nothing has been done yet
-//			 */
-//			if (realizedCCs.isEmpty()) {
-//				acceptor.accept(createCompletionProposal(result, realizeAll, null, context));
-//			}
-//		}
 	}
 
+	/**
+	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
+	 * be used by clrpproc to force the call to the super class method
+	 * @param obj
+	 * @param ruleCall
+	 * @param context
+	 * @param acceptor
+	 */
+	public void superCompletePlatformComposition_Rolename(EObject obj, Assignment assignment, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		super.completePlatformComposition_Rolename(obj, assignment, context, acceptor);		
+	}
 	@Override
 	public void completePlatformComposition_Rolename(EObject obj, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		super.completeLogicalComposition_Rolename(obj, assignment, context, acceptor);
-
-		// Pick out the roles from the list of unrealized ConceptualCompositions
-		PlatformEntity pentity = (PlatformEntity) obj.eContainer();
-
-		for (LogicalComposition cc : lprproc.getUnrealizedCompositions(pentity)) {
-			// If this one isn't already realized, then add it to the proposal
-			String oneRealizedCC = String.format(componentFormatString, cc.getRolename(), cc.getLowerBound(),
-					cc.getUpperBound(), cc.getDescription(), qnp.getFullyQualifiedName(cc).toString());
-			acceptor.accept(createCompletionProposal(oneRealizedCC,
-					proposalPrefix + cc.getRolename() + proposalSuffix, null, context));
+		lprpproc.completeComposition_Rolename(this, lprproc, (PlatformEntity)obj, assignment, context, acceptor);
 	}
 		
-		
-		
-//		List<LogicalComposition> realizedCCs = lprproc.getRealizedCompositions(pentity);
-//		LogicalEntity lentity = pentity.getRealizes();
-//		if (lentity != null) {
-//			EList<LogicalComposition> ccs = lentity.getComposition();
-//			for (LogicalComposition cc : ccs) {
-//				if (!realizedCCs.contains(cc)) {
-//					// If this one isn't already realized, then add it to the proposal
-//					String oneRealizedCC = String.format(componentFormatString, cc.getRolename(), cc.getLowerBound(),
-//							cc.getUpperBound(), cc.getDescription(), qnp.getFullyQualifiedName(cc).toString());
-//					acceptor.accept(createCompletionProposal(oneRealizedCC,
-//							proposalPrefix + cc.getRolename() + proposalSuffix, null, context));
-//				}
-//			}
-//		}
-	}
+
 
 	@Override
 	public void completePlatformComposition_Realizes(EObject obj, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		PlatformEntity pentity = (PlatformEntity) obj.eContainer();
-		for (LogicalComposition c : lprproc.getUnrealizedCompositions(pentity)) {
-			acceptor.accept(createCompletionProposal(qnp.getFullyQualifiedName(c).toString(),
-					proposalPrefix + c.getRolename() + proposalSuffix, null, context));
-		}
+		lprpproc.completeComposition_Realizes(this, lprproc, (PlatformEntity)obj, assignment, context, acceptor);
 
-		
-//		List<LogicalComposition> realizedCCs = lprproc.getRealizedCompositions(pentity);
-//		LogicalEntity lentity = pentity.getRealizes();
-//		for (LogicalComposition c : lentity.getComposition()) {
-//			if (!realizedCCs.contains(c)) {
-//				acceptor.accept(createCompletionProposal(qnp.getFullyQualifiedName(c).toString(),
-//						proposalPrefix + c.getRolename() + proposalSuffix, null, context));
-//			}
-//		}
 	}
 }
