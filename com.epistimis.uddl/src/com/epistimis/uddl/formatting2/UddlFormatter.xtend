@@ -141,18 +141,23 @@ class UddlFormatter extends AbstractFormatter2 {
 		interior(open, close)[indent]
 	}
 
-	def void formatListContainer(EObject obj, List<EObject> contents, extension IFormattableDocument document) {
+	def void formatListContainer(EObject obj, List<EObject> contents, extension IFormattableDocument document,boolean asLine) {
 		val open = obj.regionFor.keyword("[")
 		val close = obj.regionFor.keyword("]")
 		open.surround[oneSpace];
 		close.surround[oneSpace];
-		contents.formatList(document);
+		contents.formatList(document,asLine);
 		interior(open, close)[indent]		
 	}
 
-	def void formatList(List<EObject> objs, extension IFormattableDocument document) {
+	def void formatList(List<EObject> objs, extension IFormattableDocument document, boolean asLine) {
 		for (EObject obj : objs) {
-			obj.surround[oneSpace]
+			if (asLine) {
+				obj.prepend[setNewLines(1, 1, 2)]
+				obj.append[setNewLines(1, 1, 2)]
+			} else {
+				obj.surround[oneSpace]				
+			}
 		}
 	}
 
@@ -252,10 +257,12 @@ class UddlFormatter extends AbstractFormatter2 {
 	def dispatch void format(ConceptualAssociation obj, extension IFormattableDocument document) {
 		obj.formatEntity(document)
 
-		for (c : obj.participant) {
-			c.format
-			c.append[setNewLines(1, 1, 2)]
-		}
+		obj.formatListContainer( List.copyOf(obj.participant.toList), document, true);
+
+//		for (c : obj.participant) {
+//			c.format
+//			c.append[setNewLines(1, 1, 2)]
+//		}
 	}
 
 	def dispatch void formatCharacteristic(ConceptualCharacteristic obj, extension IFormattableDocument document) {
@@ -332,10 +339,11 @@ class UddlFormatter extends AbstractFormatter2 {
 	def dispatch void format(LogicalAssociation obj, extension IFormattableDocument document) {
 		obj.formatEntity(document)
 
-		for (c : obj.participant) {
-			c.format
-			c.append[setNewLines(1, 1, 2)]
-		}
+		obj.formatListContainer( List.copyOf(obj.participant.toList), document, true);
+//		for (c : obj.participant) {
+//			c.format
+//			c.append[setNewLines(1, 1, 2)]
+//		}
 	}
 
 	def dispatch void format(LogicalCoordinateSystem lcs, extension IFormattableDocument document) {
@@ -357,7 +365,7 @@ class UddlFormatter extends AbstractFormatter2 {
 		obj.formatObj( document);
 		formatAttributeElement(obj.regionFor.feature(LOGICAL_ENUMERATED__STANDARD_REFERENCE), document);
 		// To get around the type issues, we convert the EList<LogicalEnumerated> -> List<LogicalEnumerated> -> List<EObject>
-		obj.formatListContainer( List.copyOf(obj.label.toList), document);
+		obj.formatListContainer( List.copyOf(obj.label.toList), document, false);
 //		for (EObject elem : obj.label) {
 //			elem.surround[oneSpace]
 //		}
