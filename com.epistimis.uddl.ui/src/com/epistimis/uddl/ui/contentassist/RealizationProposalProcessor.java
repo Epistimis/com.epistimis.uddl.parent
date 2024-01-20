@@ -3,6 +3,7 @@
  */
 package com.epistimis.uddl.ui.contentassist;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,8 +16,6 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
 
 import com.epistimis.uddl.EntityProcessor;
 import com.epistimis.uddl.RealizationProcessor;
-import com.epistimis.uddl.uddl.ConceptualComposition;
-import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.UddlElement;
 import com.google.inject.Inject;
 
@@ -44,16 +43,94 @@ abstract class RealizationProposalProcessor<
 	protected static String realizeRemaining 	= "<<Default Realize Remaining>>";
 	
 	@Inject IQualifiedNameProvider qnp;
-	
-	//protected AbstractUddlProposalProvider proposalProvider;
-	//protected RezProcessor rproc;
-	
+		
 	abstract protected void completeSuperRealizingComposition(UddlProposalProvider pp, EObject obj, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) ;
 	abstract protected void completeSuperRealizingComposition_Rolename(UddlProposalProvider pp, EObject obj, Assignment assignment,ContentAssistContext context, ICompletionProposalAcceptor acceptor) ;
 
 	abstract protected String proposalDisplayString(BaseCharacteristic bc);
 	abstract protected String compositionInsertionString(BaseComposition bc);
 	abstract protected String participantInsertionString(BaseParticipant bc);
+
+	/**
+	 * Get the type parameters for this generic class See also
+	 * https://stackoverflow.com/questions/4213972/java-generics-get-class-of-generic-methods-return-type
+	 * 
+	 * @param ndx the index into the list of type parameters
+	 * @return
+	 */
+	public Class<?> returnedTypeParameter(int ndx) {
+		ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();
+		return (Class<?>) parameterizedType.getActualTypeArguments()[ndx];
+	}
+
+	/**
+	 * Methods to return each of the parameter types - these warnings must remain
+	 * because the alternative is a compile error when these values get used.
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	public Class getBaseEntityType() {
+		return returnedTypeParameter(0);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getRealizingEntityType() {
+		return returnedTypeParameter(1);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getBaseCharacteristicType() {
+		return returnedTypeParameter(2);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getRealizingCharacteristicType() {
+		return returnedTypeParameter(3);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getBaseCompositionType() {
+		return returnedTypeParameter(4);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getRealizingCompositionType() {
+		return returnedTypeParameter(5);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getBaseParticipantType() {
+		return returnedTypeParameter(6);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getRealizingParticipantType() {
+		return returnedTypeParameter(7);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public Class getBaseAssociationType() {
+		return returnedTypeParameter(8);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getRealizingAssociationType() {
+		return returnedTypeParameter(9);
+	}
+	@SuppressWarnings("rawtypes")
+	public Class getRezProcessorType() {
+		return returnedTypeParameter(10);
+	}
+	@SuppressWarnings("rawtypes")
+	public Class getBaseProcessorType() {
+		return returnedTypeParameter(11);
+	}
+	@SuppressWarnings("rawtypes")
+	public Class getRealizingProcessorType() {
+		return returnedTypeParameter(12);
+	}
+	
 	
 	public void complete_Composition(UddlProposalProvider pp,RezProcessor rproc,
 			RealizingEntity rentity, RuleCall ruleCall, ContentAssistContext context,
@@ -105,7 +182,7 @@ abstract class RealizationProposalProcessor<
 			ICompletionProposalAcceptor acceptor) {
 		completeSuperRealizingComposition_Rolename(pp, rentity, assignment, context, acceptor);
 
-		// Pick out the roles from the list of unrealized ConceptualCompositions
+		// Pick out the roles from the list of unrealized Compositions
 		for (BaseComposition cc : rproc.getUnrealizedCompositions(rentity)) {
 				// If this one isn't already realized, then add it to the proposal
 			String oneRealizedCC = compositionInsertionString(cc) ;
