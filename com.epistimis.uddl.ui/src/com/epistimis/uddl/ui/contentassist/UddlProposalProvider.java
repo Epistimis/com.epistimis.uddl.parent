@@ -6,12 +6,18 @@
  */
 package com.epistimis.uddl.ui.contentassist;
 
-import java.util.Collection;
+import java.lang.invoke.MethodHandles;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.Assignment;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -25,14 +31,15 @@ import com.epistimis.uddl.LPRealizationProcessor;
 import com.epistimis.uddl.LogicalEntityProcessor;
 import com.epistimis.uddl.PlatformEntityProcessor;
 import com.epistimis.uddl.UddlQNP;
-import com.epistimis.uddl.uddl.ConceptualAssociation;
-import com.epistimis.uddl.uddl.ConceptualComposition;
-import com.epistimis.uddl.uddl.ConceptualParticipant;
-import com.epistimis.uddl.uddl.LogicalComposition;
+import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.LogicalEntity;
-import com.epistimis.uddl.uddl.LogicalParticipant;
-import com.epistimis.uddl.uddl.PlatformComposition;
+import com.epistimis.uddl.uddl.LogicalMeasurement;
+import com.epistimis.uddl.uddl.LogicalMeasurementAttribute;
+import com.epistimis.uddl.uddl.LogicalMeasurementAxis;
+import com.epistimis.uddl.uddl.PlatformDataType;
 import com.epistimis.uddl.uddl.PlatformEntity;
+import com.epistimis.uddl.uddl.PlatformStruct;
+import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.inject.Inject;
 
 /**
@@ -41,7 +48,10 @@ import com.google.inject.Inject;
  */
 public class UddlProposalProvider extends AbstractUddlProposalProvider {
 
+	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+
 	@Inject UddlQNP 					qnp;
+	@Inject IndexUtilities 				ndxUtil;
 	@Inject	IScopeProvider 				sp;
 	
 	@Inject ConceptualEntityProcessor 	ceProc;
@@ -62,114 +72,6 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 
 	/** Logical -> Conceptual */
 	
-	// TODO: Before enabling this code, we must change how these references are parsed. They should
-	// be parsed to match the RIG
-//	@Override
-//	public void completeConceptualCharacteristicPathNode_ProjectedCharacteristic(EObject obj, Assignment assignment,
-//			ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-//		EObject container = obj.eContainer();
-//		// Start with the prior path node or, if this is the first one, the participant
-//		// type as the anchor.
-//		// list all the characteristic rolenames for the type
-//		if (container instanceof ConceptualParticipant) {
-//			// This is the first path node
-//			ConceptualParticipant cp = (ConceptualParticipant) container;
-//			ConceptualEntity type = cp.getType();
-//			for (ConceptualComposition cc : getCCsFromSpecialization(type)) {
-//				acceptor.accept(createCompletionProposal(qnp.relativeQualifiedName(cc, container).toString(),
-//						cc.getRolename(), null, context));
-//			}
-//		}
-//		if (container instanceof ConceptualParticipantPathNode) {
-//			// This is not the first thing in the path - get context from the prior node
-//			ConceptualParticipantPathNode cpn = (ConceptualParticipantPathNode) container;
-//			ConceptualEntity type = cpn.getProjectedParticipant().getType();
-//			for (ConceptualComposition cc : getCCsFromSpecialization(type)) {
-//				acceptor.accept(createCompletionProposal(qnp.relativeQualifiedName(cc, container).toString(),
-//						cc.getRolename(), null, context));
-//			}
-//		}
-//		if (container instanceof ConceptualCharacteristicPathNode) {
-//			// This is not the first thing in the path - get context from the prior node
-//			ConceptualCharacteristicPathNode cpn = (ConceptualCharacteristicPathNode) container;
-//			ConceptualCharacteristic cchar = cpn.getProjectedCharacteristic();
-//
-//			if (cchar instanceof ConceptualComposition) {
-//				ConceptualComposableElement cce = ((ConceptualComposition) cchar).getType();
-//				if (cce instanceof ConceptualEntity) {
-//					ConceptualEntity ce = (ConceptualEntity) cce;
-//					for (ConceptualComposition cc : getCCsFromSpecialization(ce)) {
-//						acceptor.accept(createCompletionProposal(qnp.relativeQualifiedName(cc, container).toString(),
-//								cc.getRolename(), null, context));
-//					}
-//				}
-//				// NOTE: We ignore ConceptualObservables because there is no further path
-//				// We include ConceptualAssociations because we may want to forward navigate
-//				// through a participant (just like we do through a composition)
-//				if (cce instanceof ConceptualAssociation) {
-//					ConceptualAssociation ca = (ConceptualAssociation) cce;
-//					for (ConceptualParticipant cc : ceProc.allParticipants(ca).values()) {
-//						acceptor.accept(createCompletionProposal(qnp.relativeQualifiedName(cc, container).toString(),
-//								cc.getRolename(), null, context));
-//					}
-//				}
-//			}
-//		}
-//	}
-
-	protected void processParticipant(ConceptualParticipant cp, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		ConceptualAssociation ca = (ConceptualAssociation)cp.eContainer();
-		for (ConceptualParticipant cc: ceProc.allParticipants(ca).values()) {
-			if (cc.getType().equals(cp.getType())) {
-				acceptor.accept(createCompletionProposal(qnp.relativeQualifiedName(cc,cp).toString(),cc.getRolename(),null,context));					
-			}
-		}		
-		
-	}
-//	/**
-//	 * The set of choices for a projectedParticipant are all of the
-//	 * assoc/participant combos where the participant type is the same as the
-//	 * current entity. This is because we want to move from this entity back to
-//	 * the assoc - so it has to be an assoc that could forward navigate to this
-//	 * entity. We can only reverse navigate via participants, so we ignore compositions
-//	 * that have this type. TODO: Is that right?
-//	 */
-//	@Override
-//	public void completeConceptualParticipantPathNode_ProjectedParticipant(EObject obj, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-//		EObject container = obj.eContainer();
-//		// Start with the prior path node or, if this is the first one, the participant type as the anchor.
-//		// list all the characteristic rolenames for the type
-//		if (container instanceof ConceptualParticipant) {
-//			// This is the first path node - so go to the containing association and find all participants
-//			// that match the type of this participant
-//			ConceptualParticipant cp = (ConceptualParticipant)container;
-//			processParticipant(cp,assignment,context, acceptor);
-//		}
-//		if (container instanceof ConceptualParticipantPathNode) {
-//			// This is not the first thing in the path - get context from the prior node
-//			ConceptualParticipantPathNode cpn = (ConceptualParticipantPathNode)container;
-//			ConceptualEntity type = cpn.getProjectedParticipant().getType();
-//			for (ConceptualParticipant cp: ceProc.allParticipants(type).values()) {
-//				processParticipant(cp,assignment,context,acceptor);
-//			}
-//		}
-//		if (container instanceof ConceptualCharacteristicPathNode) {
-//			// This is not the first thing in the path - get context from the prior node
-//			ConceptualCharacteristicPathNode cpn = (ConceptualCharacteristicPathNode)container;
-//			ConceptualCharacteristic cchar  = cpn.getProjectedCharacteristic();
-//			
-//			if (cchar instanceof ConceptualComposition) {
-//				ConceptualComposableElement cce  = ((ConceptualComposition)cchar).getType();
-//				if (cce instanceof ConceptualAssociation) {
-//					ConceptualAssociation ce = (ConceptualAssociation)cce;
-//					for (ConceptualParticipant cp: ceProc.allParticipants(ce).values()) {
-//						processParticipant(cp,assignment,context,acceptor);
-//					}				
-//				}
-//				// NOTE: We ignore ConceptualObservables because there is no further path
-//			}
-//		}
-//	}
 
 	/**
 	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
@@ -252,11 +154,147 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	}
 		
 
-
 	@Override
 	public void completePlatformComposition_Realizes(EObject obj, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
 		lprpproc.completeComposition_Realizes(this, lprproc, (PlatformEntity)obj, assignment, context, acceptor);
 
 	}
+
+	
+	final private static String INDENT = "\t";
+	private String indent(int cnt) {
+		StringBuilder ndentBldr = new StringBuilder();
+		for (int i = 0; i < cnt; i++) {
+			ndentBldr.append(INDENT);
+		}
+		return  ndentBldr.toString();
+	}
+	final static String STRUCT_REALIZATION_ERR 		= "PlatformStruct {0} must realize a LogicalMeasurement with 2+ axes / attributes. {1} only has {2}";
+	final static String DEFAULT_PRECISION 			= "0.01";
+	final static String STRUCT_AXIS_FMT 			= "{0} {1} ( {2} ) ;" ;
+	final static String STRUCT_ATTRIBUTE_FMT 		= "{0} {1} ( {2} ) -> {3} ;" ;
+	final static String MEMBER_DISPLAY_FMT 			= "{0}" ;
+	final static String ABS_MEAS_REALIZATION_ERR 	= "AbstractMeasurement {0} is not realized by any PlatformDataType";
+	final static String ABS_MEAS_REALIZATION_MANY 	= "AbstractMeasurement {0} is realized by multiple PlatformDataTypes - picking one";
+	final static String REALIZE_ALL 				= "<<Default Realize All>>";
+	
+	/**
+	 * Find a realiz
+	 * @param pkgs
+	 * @param type2Realize
+	 * @param ndent
+	 * @return
+	 */
+	protected PlatformDataType getRealizingDataType( List<EPackage> pkgs, EObject type2Realize) {
+		Map<String,Object> variables = new HashMap<String,Object>();
+		variables.put("self", type2Realize);
+		ResourceSet resourceSet = type2Realize.eResource().getResourceSet();
+		Set<EObject> found = ndxUtil.processAQL(resourceSet, pkgs,variables,"self.eInverse('realizes')");
+		if ((found == null) || (found.size() == 0 )) {		
+			String msg = MessageFormat.format(ABS_MEAS_REALIZATION_ERR, qnp.getFullyQualifiedName(type2Realize));
+			logger.error(msg);
+			System.out.println(msg);
+			return null;
+		} 
+		if (found.size() > 1) {
+			String msg = MessageFormat.format(ABS_MEAS_REALIZATION_MANY, qnp.getFullyQualifiedName(type2Realize));
+			logger.info(msg);
+			System.out.println(msg);		
+		}
+		// Return the first one found
+		return (PlatformDataType)found.iterator().next();
+	}
+	
+	@Override
+	public void completePlatformStruct_Member(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completePlatformStruct_Member(model, assignment, context, acceptor);		
+
+		PlatformStruct ps = (PlatformStruct)model;
+		// Look at the realized measurement and loop through all its axes and MeasurementAttributes
+		// We must have a struct member for each. The rolename should be a lowercase version of the type name for the member (for axes)
+		// or the rolename (for MeasurementAattributes). 
+		
+		// This can realize a LogicalMeasurement or a LogicalMeasurementAxis.
+		// See idlTypeConsistentlyRealizesMeasurementAxis in constraints/platform.ocl
+		// 
+		List<EPackage> pkgs = new ArrayList<>();
+		pkgs.add(UddlPackage.eINSTANCE);
+		
+		EObject obj = ps.getRealizes();
+		if (obj instanceof LogicalMeasurement) {
+			LogicalMeasurement meas = (LogicalMeasurement) ps.getRealizes();
+			// The measurement must have at least 2 members + attributes
+			int count = meas.getAttribute().size() + meas.getMeasurementAxis().size();
+			if (count < 2) {
+				String msg = MessageFormat.format(STRUCT_REALIZATION_ERR,ps.getName(),meas.getName(), count);
+				logger.error(msg);
+				System.out.println(msg);
+			}
+			String ndent = indent(qnp.getFullyQualifiedName(model).getSegmentCount());
+			StringBuilder insertionText = new StringBuilder();
+			
+
+			// For each axis, find all the PlatformDataTypes that realize the MeasurementAxis - each of those is a possibility
+			// In order to propose the entire structure, we could find every possible combination. That could get messy. For now,
+			// just pick a combination since users can edit this later.
+			for (LogicalMeasurementAxis axis: meas.getMeasurementAxis()) {
+				PlatformDataType realizingPDT = getRealizingDataType(pkgs,axis);
+				if (realizingPDT != null) {
+					StringBuilder oneProp = new StringBuilder();
+					oneProp.append("\n" + ndent);
+					// Set the type name
+					QualifiedName n = qnp.relativeQualifiedName(realizingPDT, model);
+					String displayString = MessageFormat.format(MEMBER_DISPLAY_FMT,n.getLastSegment());
+					oneProp.append(MessageFormat.format(STRUCT_AXIS_FMT,n.toString(), n.getLastSegment().toLowerCase(), DEFAULT_PRECISION));
+					String insertionString = oneProp.toString();
+					acceptor.accept(createCompletionProposal(insertionString,displayString, null, context));
+					insertionText.append(insertionString);					
+				}
+			}
+			for (LogicalMeasurementAttribute attr: meas.getAttribute()) {
+				// Get the type of the MeasurementAttribute - this should be realized by the StructMember's type
+				EObject realizedAttrType = attr.getType();
+				PlatformDataType realizingPDT = getRealizingDataType(pkgs,realizedAttrType);
+				if (realizingPDT != null) {					
+					StringBuilder oneProp = new StringBuilder();
+					oneProp.append("\n" + ndent);
+					// Set the type name
+					QualifiedName typeName = qnp.relativeQualifiedName(realizingPDT, model);
+					QualifiedName n = qnp.relativeQualifiedName(attr, model);
+					String displayString = MessageFormat.format(MEMBER_DISPLAY_FMT,n.toString());
+					oneProp.append(MessageFormat.format(STRUCT_ATTRIBUTE_FMT,typeName.toString(), n.getLastSegment().toLowerCase(), DEFAULT_PRECISION, n.toString()));
+					String insertionString = oneProp.toString();
+					acceptor.accept(createCompletionProposal(insertionString,displayString, null, context));
+					insertionText.append(insertionString);			
+				}
+			}
+			/**
+			 * Always provide the Realize All choice
+			 */
+			acceptor.accept(createCompletionProposal(insertionText.toString(), REALIZE_ALL, null, context));
+			
+		} else if (obj instanceof LogicalMeasurementAxis) {
+			LogicalMeasurementAxis axis = (LogicalMeasurementAxis)obj;
+//		       self.oclIsTypeOf(PlatformStruct) and
+//		        self.realizedMeasurementAxis().getValueTypeUnits()
+//		          = self.oclAsType(PlatformStruct).member
+//		                                     ->collect(type.realizes)
+//		                                     ->asSet() and
+//		        self.realizedMeasurementAxis().getValueTypeUnits()->size()
+//		          = self.oclAsType(PlatformStruct).member
+//		                                     ->collect(type.realizes)
+//		                                     ->size()               
+			
+		}
+		
+	}
+	
+	@Override
+	public void complete_PlatformStructMember(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// Each member 
+		// Look at what this object realizes and create a proposal for each - This isn't part
+		
+	}
+	
 }
