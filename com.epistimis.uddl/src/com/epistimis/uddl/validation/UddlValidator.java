@@ -8,7 +8,6 @@ package com.epistimis.uddl.validation;
 
 import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -61,7 +60,7 @@ public class UddlValidator extends AbstractUddlValidator {
 	protected static ResourceSet resourceSet;
 	protected static ValidationRegistryAdapter vra;
 
-	private static Map<String, ValidationRegistryAdapter> resourceAdaptors = new HashMap<>();
+	//private static Map<String, ValidationRegistryAdapter> resourceAdaptors = new HashMap<>();
 
 	@Inject
 	protected IQualifiedNameProvider qnp;
