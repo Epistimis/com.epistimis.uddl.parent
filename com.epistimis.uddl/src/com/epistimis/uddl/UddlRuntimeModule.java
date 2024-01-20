@@ -85,12 +85,21 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 	}
 
 	
-	// ------------- Entity processing
-
+	// ------------- Entity / Query / Realization Processors 
+	
 	public Class<? extends com.epistimis.uddl.CLPExtractors> bindCLPExtractors() {
 		return CLPExtractors.class;
 	}
 	
+	public Class<? extends ConceptualEntityProcessor> bindConceptualEntityProcessor() {
+		return ConceptualEntityProcessor.class;
+	}
+	public Class<? extends LogicalEntityProcessor> bindLogicalEntityProcessor() {
+		return LogicalEntityProcessor.class;
+	}
+	public Class<? extends PlatformEntityProcessor> bindPlatformEntityProcessor() {
+		return PlatformEntityProcessor.class;
+	}
 	public Class<? extends ConceptualQueryProcessor> bindConceptualQueryProcessor() {
 		return ConceptualQueryProcessor.class;
 	}

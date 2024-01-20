@@ -24,7 +24,7 @@ import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.scoping.Scopes;
 import org.eclipse.xtext.scoping.impl.FilteringScope;
-import org.eclipse.xtext.util.SimpleAttributeResolver;
+//import org.eclipse.xtext.util.SimpleAttributeResolver;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
@@ -32,8 +32,6 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 import com.epistimis.uddl.exceptions.CharacteristicNotFoundException;
 import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
-import com.epistimis.uddl.uddl.UddlPackage;
-import com.google.common.base.Objects;
 import com.google.inject.Inject;
 
 /**
@@ -210,17 +208,6 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 		}
 	}
 
-//		/**
-//		 * Get all the characteristics
-//		 * 
-//		 * @param obj
-//		 * @return the list of characteristics.
-//		 */
-//		protected Collection<Characteristic> getCharacteristics(Entity obj) {
-//			Map<String, Characteristic> characteristics = new HashMap<>();
-//			clp.getCharacteristicsAndRecurse(obj, characteristics);
-//			return characteristics.values();
-//		}
 
 //		/**
 //		 * Return the named characteristic - which could be a composition or a
@@ -321,6 +308,7 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 //		
 //		return result;
 //	}
+
 	
 	/**
 	 * Get all the characteristics
@@ -335,7 +323,7 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 	}
 
 	/**
-	 * Get all the characteristics
+	 * Get all the participants
 	 * 
 	 * @param obj
 	 * @return the list of participants.
