@@ -1,45 +1,52 @@
 package com.epistimis.uddl.scoping
 
+import com.epistimis.uddl.exceptions.NameCollisionException
+import com.epistimis.uddl.exceptions.NamedObjectNotFoundException
 import com.epistimis.uddl.uddl.UddlPackage
 import com.google.inject.Inject
 import java.text.MessageFormat
+import java.util.ArrayList
+import java.util.Collection
+import java.util.Collections
+import java.util.HashSet
+import java.util.LinkedList
 import java.util.List
+import java.util.Map
+import java.util.Set
+import org.eclipse.acceleo.query.runtime.EvaluationResult
+import org.eclipse.acceleo.query.runtime.IQueryBuilderEngine.AstResult
+import org.eclipse.acceleo.query.runtime.IQueryEnvironment
+import org.eclipse.acceleo.query.runtime.Query
+import org.eclipse.acceleo.query.runtime.impl.QueryBuilderEngine
+import org.eclipse.acceleo.query.runtime.impl.QueryEvaluationEngine
+import org.eclipse.emf.common.notify.Adapter
+import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.ecore.EStructuralFeature.Setting
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.emf.ecore.util.ECrossReferenceAdapter
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.resource.IContainer
 import org.eclipse.xtext.resource.IEObjectDescription
 import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
-import java.util.ArrayList
-import com.epistimis.uddl.exceptions.NamedObjectNotFoundException
-import com.epistimis.uddl.exceptions.NameCollisionException
-import java.util.Collections
-import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.util.ECrossReferenceAdapter
-import org.eclipse.emf.common.notify.Adapter
-import java.util.LinkedList
-import java.util.Collection
-import org.eclipse.emf.ecore.EStructuralFeature.Setting
-import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.util.EcoreUtil
-//import org.eclipse.emf.ecore.util.EcoreUtil.UsageCrossReferencer
-import org.eclipse.emf.ecore.EStructuralFeature
-import java.util.Set
-import java.util.HashSet
-import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.ecore.util.EcoreUtil.CrossReferencer
+//import org.obeonetwork.m2doc.util.ECrossReferenceAdapterCrossReferenceProvider
+import org.eclipse.emf.ecore.util.ECrossReferenceAdapter;
 
-//import org.eclipse.acceleo.query.runtime.IQueryEnvironment
-//import org.eclipse.acceleo.query.runtime.Query
-//import org.eclipse.acceleo.query.runtime.impl.QueryBuilderEngine
-//import org.eclipse.acceleo.query.runtime.IQueryBuilderEngine.AstResult
-//import org.eclipse.acceleo.query.runtime.impl.QueryEvaluationEngine
-//import java.util.Map
-//import com.google.common.collect.Maps
-//import org.eclipse.emf.ecore.EcorePackage
-//import org.eclipse.acceleo.query.runtime.EvaluationResult
-//import org.eclipse.ocl.pivot.values.OrderedSet
+//import org.eclipse.acceleo.query.validation.type.IType
+//import java.util.LinkedHashMap
+//import java.util.LinkedHashSet
+//import org.eclipse.acceleo.query.validation.type.EClassifierType
+//import org.eclipse.acceleo.query.parser.AstValidator
+//import org.eclipse.acceleo.query.runtime.IValidationResult
+//import org.eclipse.acceleo.query.runtime.impl.ValidationServices
 /**
  * This is modified from the book (See https://github.com/LorenzoBettini/packtpub-xtext-book-2nd-examples)
  * Smalljava = SmallJavaIndex.xtend
@@ -86,6 +93,7 @@ class IndexUtilities {
 	 * Get the description of the Resource containing this object
 	 */
 	def getResourceDescription(EObject o) {
+		if (o === null) { return null; }
 		val index = rdp.getResourceDescriptions(o.eResource)
 		index.getResourceDescription(o.eResource.URI)
 	}
@@ -97,13 +105,12 @@ class IndexUtilities {
 		o.getResourceDescription.getExportedObjects
 	}
 
-
 	/**
 	 * Get all the exported EObjectDescriptions from the Resource containing this object,
 	 * filtered by the specified EClass
 	 */
 	def getExportedEObjectDescriptionsByType(EObject o, EClass type) {
-		o.getResourceDescription.getExportedObjectsByType(type)
+		o.getResourceDescription?.getExportedObjectsByType(type)
 	}
 
 	/**
@@ -116,6 +123,7 @@ class IndexUtilities {
 		difference.removeAll(allExportedEObjectDescriptions.toSet)
 		return difference.toMap[qualifiedName]
 	}
+
 	/*	
 	 * The original version of this method is below. Specific implementations found below use
 	 * the general implementation above.
@@ -131,7 +139,6 @@ class IndexUtilities {
 	 * 		return difference.toMap[qualifiedName]
 	 * 	}
 	 */
-
 	def getVisibleExternalEObjectsByType(EObject context, EClass type) {
 		context.getVisibleExternalEObjectDescriptionsByType(type).values.map([
 			context.eResource.objectFromDescription(it)
@@ -457,8 +464,81 @@ class IndexUtilities {
 ////		// hierarchy
 ////		return allEObjects;
 //	}
+	/**
+	 * Register subpackages - recursive since we don't know how deep this goes
+	 * @param pkg
+	 * @param rs
+	 */
+	def void registerSubpackages(IQueryEnvironment env, EPackage pkg) {
+		for (EPackage spkg : pkg.getESubpackages()) {
+			env.registerEPackage(spkg);
+			registerSubpackages(env, spkg);
+		}
+	}
 
+	/**
+	 * Register all the EPackages we care about.
+	 */
+	def registerPackages(Collection<EPackage> pkgs, IQueryEnvironment queryEnvironment) {
 
+		for (EPackage pkg : pkgs) {
+			queryEnvironment.registerEPackage(pkg);
+			registerSubpackages(queryEnvironment, pkg);
+		}
+	}
+
+	/**
+	 * Adapted from plugins/org.obeonetwork.m2doc.genconf/src/org/obeonetwork/m2doc/genconf/GenconfUtils.java
+	 * Gets the initialized {@link IQueryEnvironment} for the given {@link Generation}.
+	 * 
+	 * @param resourceSetForModel
+	 *            the {@link ResourceSet} for model elements
+	 * @return the initialized {@link IQueryEnvironment} 
+	 */
+	def static IQueryEnvironment getQueryEnvironment(ResourceSet resourceSetForModel) {
+		val ECrossReferenceAdapter crossReferenceAdapter = new ECrossReferenceAdapter();
+		resourceSetForModel.eAdapters().add(crossReferenceAdapter);
+		crossReferenceAdapter.setTarget(resourceSetForModel);
+		val ECrossReferenceAdapterCrossReferenceProvider crossReferenceProvider = new ECrossReferenceAdapterCrossReferenceProvider(
+			ECrossReferenceAdapter.getCrossReferenceAdapter(resourceSetForModel));
+		val ResourceSetRootEObjectProvider rootProvider = new ResourceSetRootEObjectProvider(resourceSetForModel);
+
+		return org.eclipse.acceleo.query.runtime.Query.newEnvironmentWithDefaultServices(crossReferenceProvider,
+			rootProvider);
+	}
+
+	/**
+	 * Use Acceleo to get all the objects that have the specified relationship with the context object.
+	 * See https://eclipse.dev/acceleo/documentation/ for doc on how to write queries.
+	 * 
+	 * @param pkgs This provides access to the list of packages to register. Note 
+	 * @param variables A set of variables that are used to map to parts of the query. In most cases, 
+	 * there will be a single element in the map with they key 'self'.
+	 * @param queryText The Acceleo query text to navigate 
+	 * 
+	 */
+	def Set<EObject> processAQL(ResourceSet resourceSet, Collection<EPackage> pkgs, Map<String, Object> variables,
+		String queryText) {
+
+		val IQueryEnvironment queryEnvironment = getQueryEnvironment(resourceSet);
+		registerPackages(pkgs, queryEnvironment);
+
+		val QueryBuilderEngine builder = new QueryBuilderEngine(queryEnvironment);
+		val AstResult astResult = builder.build(queryText);
+		val QueryEvaluationEngine engine = new QueryEvaluationEngine(queryEnvironment);
+		var EvaluationResult evaluationResult = engine.eval(astResult, variables);
+		return evaluationResult.result as Set<EObject>;
+	}
+
+//	def validateQuery(IQueryEnvironment queryEnvironment) {
+//		var Map<String, Set<IType>> variableTypes = new LinkedHashMap<String, Set<IType>>();
+//		var Set<IType> selfTypes = new LinkedHashSet<IType>();
+//		selfTypes.add(new EClassifierType(queryEnvironment, EcorePackage.eINSTANCE.getEPackage()));
+//		variableTypes.put("self", selfTypes);
+//		var ValidationServices valSvcs = new ValidationServices(queryEnvironment);
+//		var AstValidator validator = new AstValidator(valSvcs);
+//		val IValidationResult validationResult = validator.validate(astResult);
+//	}
 	/**
 	 * Find all the resources that reference the referenceTarget
 	 * from: https://www.eclipse.org/forums/index.php/t/165076/
@@ -507,13 +587,10 @@ class IndexUtilities {
 		val ResourceSet rs = res.getResourceSet();
 		return EcoreUtil.UsageCrossReferencer.find(referenceTarget, rs);
 	}
-	
-	
+
 //	/**
 //	 * ================ These methods are specific to this package
 //	 */
-
-
 	/**
 	 * Get all the DataModel Descriptions visible from this object
 	 */
@@ -521,7 +598,6 @@ class IndexUtilities {
 		o.getVisibleEObjectDescriptions(UddlPackage.eINSTANCE.dataModel)
 	}
 
-	
 	def getExportedDataModelEObjectDescriptions(EObject o) {
 		o.getResourceDescription.getExportedObjectsByType(UddlPackage.eINSTANCE.dataModel)
 	}
@@ -529,5 +605,5 @@ class IndexUtilities {
 	def getVisibleExternalDataModelDescriptions(EObject o) {
 		o.getVisibleExternalEObjectDescriptionsByType(UddlPackage.eINSTANCE.dataModel)
 	}
-	
+
 }
