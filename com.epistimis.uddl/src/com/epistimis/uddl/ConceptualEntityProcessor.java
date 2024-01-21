@@ -81,6 +81,17 @@ public class ConceptualEntityProcessor extends
 	}
 
 	@Override
+	public ConceptualComposition conv2Composition(ConceptualCharacteristic characteristic) {
+		// TODO Auto-generated method stub
+		return (ConceptualComposition) characteristic;
+	}
+	@Override
+	public ConceptualParticipant conv2Participant(ConceptualCharacteristic characteristic) {
+		// TODO Auto-generated method stub
+		return (ConceptualParticipant)characteristic;
+	}
+
+	@Override
 	public boolean isContainer(UddlElement obj) {
 		// TODO Auto-generated method stub
 		return (obj instanceof ConceptualDataModel);

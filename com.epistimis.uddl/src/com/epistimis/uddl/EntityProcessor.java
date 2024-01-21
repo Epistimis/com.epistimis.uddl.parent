@@ -97,6 +97,9 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 
 	abstract public EList<Participant> getParticipant(Association obj);
 
+	abstract public Composition conv2Composition(Characteristic characteristic);
+	abstract public Participant conv2Participant(Characteristic characteristic);
+
 	abstract public boolean isContainer(UddlElement obj);
 	abstract public Container conv2Container(UddlElement obj);
 	abstract public EList<? extends UddlElement> getElement(Container obj);

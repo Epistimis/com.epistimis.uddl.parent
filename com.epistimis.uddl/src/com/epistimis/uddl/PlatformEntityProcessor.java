@@ -77,6 +77,18 @@ public class PlatformEntityProcessor extends
 	}
 
 	@Override
+	public PlatformComposition conv2Composition(PlatformCharacteristic characteristic) {
+		// TODO Auto-generated method stub
+		return (PlatformComposition)characteristic;
+	}
+
+	@Override
+	public PlatformParticipant conv2Participant(PlatformCharacteristic characteristic) {
+		// TODO Auto-generated method stub
+		return (PlatformParticipant)characteristic;
+	}
+
+	@Override
 	public boolean isContainer(UddlElement obj) {
 		// TODO Auto-generated method stub
 		return (obj instanceof PlatformDataModel);

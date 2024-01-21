@@ -78,6 +78,18 @@ public class LogicalEntityProcessor extends
 	}
 
 	@Override
+	public LogicalComposition conv2Composition(LogicalCharacteristic characteristic) {
+		// TODO Auto-generated method stub
+		return (LogicalComposition)characteristic;
+	}
+
+	@Override
+	public LogicalParticipant conv2Participant(LogicalCharacteristic characteristic) {
+		// TODO Auto-generated method stub
+		return (LogicalParticipant)characteristic;
+	}
+
+	@Override
 	public boolean isContainer(UddlElement obj) {
 		// TODO Auto-generated method stub
 		return (obj instanceof LogicalDataModel);
