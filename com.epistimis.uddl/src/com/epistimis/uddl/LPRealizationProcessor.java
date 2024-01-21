@@ -23,7 +23,7 @@ public class LPRealizationProcessor extends
 								LogicalAssociation, PlatformAssociation, LogicalEntityProcessor, PlatformEntityProcessor> {
 
 	@Override
-	public LogicalEntity getRealizeEntity(PlatformEntity rent) {
+	public LogicalEntity getRealizedEntity(PlatformEntity rent) {
 		// TODO Auto-generated method stub
 		return rent.getRealizes();
 	}

@@ -62,7 +62,7 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
 			"Entity {0} does not have a characteristic with rolename {1}");
 
-	abstract public BaseEntity getRealizeEntity(RealizingEntity rent);
+	abstract public BaseEntity getRealizedEntity(RealizingEntity rent);
 
 	abstract public BaseComposition getRealizedComposition(RealizingComposition rcomp);
 
@@ -160,7 +160,7 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 	public Collection<BaseComposition> getUnrealizedCompositions(RealizingEntity rentity) {
 		List<BaseComposition> realized = getRealizedCompositions(rentity);
 
-		BaseEntity baseEntity = getRealizeEntity(rentity);
+		BaseEntity baseEntity = getRealizedEntity(rentity);
 		Map<String, BaseComposition> allBaseCompositions = baseProcessor.allCompositions(baseEntity);
 
 		Collection<BaseComposition> remainingValues = allBaseCompositions.values();
@@ -171,7 +171,7 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 	public List<BaseParticipant> getRealizedParticipants(RealizingEntity rentity) {
 		if (!realizingProcessor.isAssociation(rentity)) {
 			// If it isn't an association then it has no participants
-			BaseEntity be = getRealizeEntity(rentity);
+			BaseEntity be = getRealizedEntity(rentity);
 			if (baseProcessor.isAssociation(be)) {
 				// If the base is an association but the realization isn't, then that's an error
 				String msg = MessageFormat.format("Association {0} must be realized by an Association but {0} is an Entity", 
@@ -200,7 +200,7 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 	public Collection<BaseParticipant> getUnrealizedParticipants(RealizingEntity rentity) {
 		List<BaseParticipant> realized = getRealizedParticipants(rentity);
 
-		BaseEntity baseEntity = getRealizeEntity(rentity);
+		BaseEntity baseEntity = getRealizedEntity(rentity);
 		if (!baseProcessor.isAssociation(baseEntity)) {
 			// Base isn't an association so there are no participants
 			return new ArrayList<BaseParticipant>();

@@ -23,7 +23,7 @@ public class CLRealizationProcessor extends
 								ConceptualAssociation, LogicalAssociation, ConceptualEntityProcessor, LogicalEntityProcessor> {
 
 	@Override
-	public ConceptualEntity getRealizeEntity(LogicalEntity rent) {
+	public ConceptualEntity getRealizedEntity(LogicalEntity rent) {
 		// TODO Auto-generated method stub
 		return rent.getRealizes();
 	}
