@@ -8,11 +8,14 @@ import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 
@@ -23,13 +26,14 @@ import com.google.inject.Inject;
 /**
  * 
  */
-public abstract class RealizationProcessor<BaseEntity extends EObject, RealizingEntity extends UddlElement, 
+public abstract class RealizationProcessor<BaseComposableElement extends UddlElement, RealizingComposableElement extends UddlElement,
+											BaseEntity extends BaseComposableElement, RealizingEntity extends RealizingComposableElement, 
 											BaseCharacteristic extends EObject, RealizingCharacteristic extends EObject, 
 											BaseComposition extends BaseCharacteristic, RealizingComposition extends RealizingCharacteristic, 
 											BaseParticipant extends BaseCharacteristic, RealizingParticipant extends RealizingCharacteristic, 
-											BaseAssociation extends BaseEntity, RealizingAssociation extends RealizingEntity,
-											BaseProcessor extends EntityProcessor<?, BaseCharacteristic, BaseEntity, BaseAssociation, BaseComposition, BaseParticipant, ?, ?>, 
-											RealizingProcessor extends EntityProcessor<?, RealizingCharacteristic, RealizingEntity, RealizingAssociation, RealizingComposition, RealizingParticipant, ?, ?>> {
+											BaseAssociation extends BaseEntity, RealizingAssociation extends RealizingEntity,											
+											BaseProcessor extends EntityProcessor<BaseComposableElement, BaseCharacteristic, BaseEntity, BaseAssociation, BaseComposition, BaseParticipant, ?, ?>, 
+											RealizingProcessor extends EntityProcessor<RealizingComposableElement, RealizingCharacteristic, RealizingEntity, RealizingAssociation, RealizingComposition, RealizingParticipant, ?, ?>> {
 // @Inject
 //private Provider<ResourceSet> resourceSetProvider;
 //
@@ -54,6 +58,7 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 
 	@Inject
 	BaseProcessor baseProcessor;
+	
 	@Inject
 	RealizingProcessor realizingProcessor;
 
@@ -87,66 +92,84 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public Class getBaseEntityType() {
+	public Class getBaseComposableElementType() {
 		return returnedTypeParameter(0);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getRealizingEntityType() {
+	public Class getRealizingComposableElementType() {
 		return returnedTypeParameter(1);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getBaseCharacteristicType() {
+	public Class getBaseEntityType() {
 		return returnedTypeParameter(2);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getRealizingCharacteristicType() {
+	public Class getRealizingEntityType() {
 		return returnedTypeParameter(3);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getBaseCompositionType() {
+	public Class getBaseCharacteristicType() {
 		return returnedTypeParameter(4);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getRealizingCompositionType() {
+	public Class getRealizingCharacteristicType() {
 		return returnedTypeParameter(5);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getBaseParticipantType() {
+	public Class getBaseCompositionType() {
 		return returnedTypeParameter(6);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getRealizingParticipantType() {
+	public Class getRealizingCompositionType() {
 		return returnedTypeParameter(7);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getBaseAssociationType() {
+	public Class getBaseParticipantType() {
 		return returnedTypeParameter(8);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getRealizingAssociationType() {
+	public Class getRealizingParticipantType() {
 		return returnedTypeParameter(9);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getBaseAssociationType() {
+		return returnedTypeParameter(10);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getRealizingAssociationType() {
+		return returnedTypeParameter(11);
 	}
 
 
 	@SuppressWarnings("rawtypes")
 	public Class getBaseProcessorType() {
-		return returnedTypeParameter(10);
+		return returnedTypeParameter(12);
 	}
 
 	@SuppressWarnings("rawtypes")
 	public Class getRealizingProcessorType() {
-		return returnedTypeParameter(11);
+		return returnedTypeParameter(13);
 	}
 
+	public RealizingProcessor 	getRealizingEntityProcessor() 	{ return realizingProcessor;}
+	public BaseProcessor 		getBaseProcessor() 				{ return baseProcessor;}
+	
+	/**
+	 * Return the set of BaseEntity compositions that are already  realized in the RealizingEntity
+	 * @param rentity The RealizingEntity
+	 * @return
+	 */
 	public List<BaseComposition> getRealizedCompositions(RealizingEntity rentity) {
 		Map<String, RealizingComposition> allCompositions = realizingProcessor.allCompositions(rentity);
 		// Select the keys from allCompositions - filter out all other CCs
@@ -157,6 +180,11 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 		return result;
 	}
 
+	/**
+	 * Return the set of BaseEntity compositions that are not yet realized in the RealizingEntity
+	 * @param rentity The RealizingEntity
+	 * @return
+	 */
 	public Collection<BaseComposition> getUnrealizedCompositions(RealizingEntity rentity) {
 		List<BaseComposition> realized = getRealizedCompositions(rentity);
 
@@ -168,6 +196,12 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 		return remainingValues;
 	}
 
+	/**
+	 * Returns the BaseAssociation participants already realized by the RealizingAssociation
+	 * (The list if empty if this is just an Entity and not an Association)
+	 * @param rentity The RealizingAssociation/ Entity
+	 * @return
+	 */
 	public List<BaseParticipant> getRealizedParticipants(RealizingEntity rentity) {
 		if (!realizingProcessor.isAssociation(rentity)) {
 			// If it isn't an association then it has no participants
@@ -197,6 +231,12 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 		}
 	}
 
+	/**
+	 * Return the set of BaseAssociation participants that are not yet realized in the RealizingAssociation
+	 * (The list if empty if this is just an Entity and not an Association)
+	 * @param rentity The RealizingAssociation/ Entity
+	 * @return
+	 */
 	public Collection<BaseParticipant> getUnrealizedParticipants(RealizingEntity rentity) {
 		List<BaseParticipant> realized = getRealizedParticipants(rentity);
 
@@ -213,5 +253,54 @@ public abstract class RealizationProcessor<BaseEntity extends EObject, Realizing
 			
 		}
 	}
+
+	/**
+	 * Find all types that can be used to realize the specified type
+	 * NOTE: Because Observables can be realized by Measurments (LogicalComposableElements) or
+	 * MeasurementAxis (not a LogicalComposableElement), we can't cast the search results to LogicalComposableElement
+	 * here. End result must check and do the cast.
+	 * @param pkgs All the root ePackages that must be registered for the search
+	 * @param type2Realize The type we want to realize
+	 * @return
+	 */
+	//@SuppressWarnings("unchecked") // use of 'realizes' guarantees cast to RealizingComposableElement will succeed
+	public Collection<EObject> getRealizingTypes( /*List<EPackage> pkgs,*/ EObject type2Realize) {
+		Map<String,Object> variables = new HashMap<String,Object>();
+		variables.put("self", type2Realize);
+		ResourceSet resourceSet = type2Realize.eResource().getResourceSet();
+		Collection<EObject> found = ndxUtil.processAQL(resourceSet, /*pkgs,*/variables,"self.eInverse('realizes')");
+		return found;
+//		Set<UddlElement> result = new HashSet<UddlElement>();
+//		for (EObject e : found) {
+//			result.add((UddlElement) e);
+//		}
+//		return result;
+	}
+	
+	/**
+	 * Find a single realizing type, logging if none or mone than one is found
+	 * @param pkgs All the root ePackages that must be registered for the search
+	 * @param type2Realize The type we want to realize
+	 * @param emptyMsgFmt Message format string for empty collection
+	 * @param manyMsgFmt Message format string for collection with many elements
+	 * @return
+	 */
+	public EObject getRealizingType( /*List<EPackage> pkgs,*/ EObject type2Realize, String emptyMsgFmt, String manyMsgFmt) {
+		Collection<EObject> found = getRealizingTypes(/*pkgs,*/ type2Realize);
+		if ((found == null) || (found.size() == 0 )) {		
+			String msg = MessageFormat.format(emptyMsgFmt, qnp.getFullyQualifiedName(type2Realize));
+			logger.error(msg);
+			System.out.println(msg);
+			return null;
+		} 
+		if (found.size() > 1) {
+			String msg = MessageFormat.format(manyMsgFmt, qnp.getFullyQualifiedName(type2Realize));
+			logger.info(msg);
+			System.out.println(msg);		
+		}
+		// Return the first one found
+		return found.iterator().next();
+	}
+	
 
 }

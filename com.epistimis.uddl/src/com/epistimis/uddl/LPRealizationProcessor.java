@@ -5,11 +5,13 @@ package com.epistimis.uddl;
 
 import com.epistimis.uddl.uddl.LogicalAssociation;
 import com.epistimis.uddl.uddl.LogicalCharacteristic;
+import com.epistimis.uddl.uddl.LogicalComposableElement;
 import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalParticipant;
 import com.epistimis.uddl.uddl.PlatformAssociation;
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
+import com.epistimis.uddl.uddl.PlatformComposableElement;
 import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
@@ -18,7 +20,8 @@ import com.epistimis.uddl.uddl.PlatformParticipant;
  * 
  */
 public class LPRealizationProcessor extends
-		RealizationProcessor<LogicalEntity, PlatformEntity, LogicalCharacteristic, PlatformCharacteristic, 
+		RealizationProcessor<LogicalComposableElement, PlatformComposableElement,
+								LogicalEntity, PlatformEntity, LogicalCharacteristic, PlatformCharacteristic, 
 								LogicalComposition, PlatformComposition, LogicalParticipant, PlatformParticipant, 
 								LogicalAssociation, PlatformAssociation, LogicalEntityProcessor, PlatformEntityProcessor> {
 
