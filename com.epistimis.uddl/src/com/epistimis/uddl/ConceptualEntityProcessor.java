@@ -92,6 +92,17 @@ public class ConceptualEntityProcessor extends
 	}
 
 	@Override
+	public ConceptualComposableElement getCompositionType(ConceptualComposition comp) {
+		// TODO Auto-generated method stub
+		return comp.getType();
+	}
+	@Override
+	public ConceptualEntity getParticipantType(ConceptualParticipant part) {
+		// TODO Auto-generated method stub
+		return part.getType();
+	}
+
+	@Override
 	public boolean isContainer(UddlElement obj) {
 		// TODO Auto-generated method stub
 		return (obj instanceof ConceptualDataModel);
@@ -108,6 +119,5 @@ public class ConceptualEntityProcessor extends
 		// TODO Auto-generated method stub
 		return obj.getElement();
 	}
-
 
 }

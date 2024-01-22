@@ -89,6 +89,18 @@ public class PlatformEntityProcessor extends
 	}
 
 	@Override
+	public PlatformComposableElement getCompositionType(PlatformComposition comp) {
+		// TODO Auto-generated method stub
+		return comp.getType();
+	}
+
+	@Override
+	public PlatformEntity getParticipantType(PlatformParticipant part) {
+		// TODO Auto-generated method stub
+		return part.getType();
+	}
+
+	@Override
 	public boolean isContainer(UddlElement obj) {
 		// TODO Auto-generated method stub
 		return (obj instanceof PlatformDataModel);
@@ -105,5 +117,6 @@ public class PlatformEntityProcessor extends
 		// TODO Auto-generated method stub
 		return obj.getElement();
 	}
+
 
 }

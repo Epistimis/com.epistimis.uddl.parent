@@ -11,7 +11,6 @@ import com.epistimis.uddl.uddl.LogicalCharacteristic;
 import com.epistimis.uddl.uddl.LogicalComposableElement;
 import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalDataModel;
-import com.epistimis.uddl.uddl.LogicalElement;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalMeasurement;
 import com.epistimis.uddl.uddl.LogicalParticipant;
@@ -87,6 +86,18 @@ public class LogicalEntityProcessor extends
 	public LogicalParticipant conv2Participant(LogicalCharacteristic characteristic) {
 		// TODO Auto-generated method stub
 		return (LogicalParticipant)characteristic;
+	}
+
+	@Override
+	public LogicalComposableElement getCompositionType(LogicalComposition comp) {
+		// TODO Auto-generated method stub
+		return comp.getType();
+	}
+
+	@Override
+	public LogicalEntity getParticipantType(LogicalParticipant part) {
+		// TODO Auto-generated method stub
+		return part.getType();
 	}
 
 	@Override
