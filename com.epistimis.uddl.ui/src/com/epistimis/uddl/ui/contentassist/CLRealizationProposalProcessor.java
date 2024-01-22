@@ -31,10 +31,10 @@ import com.epistimis.uddl.uddl.LogicalParticipant;
  * 
  */
 public class CLRealizationProposalProcessor extends
-		RealizationProposalProcessor<ConceptualComposableElement, LogicalComposableElement, ConceptualEntity, LogicalEntity, ConceptualCharacteristic, LogicalCharacteristic, ConceptualComposition, LogicalComposition, ConceptualParticipant, LogicalParticipant, ConceptualAssociation, LogicalAssociation, CLRealizationProcessor, ConceptualEntityProcessor, LogicalEntityProcessor> {
+		EntityRealizationProposalProcessor<ConceptualComposableElement, LogicalComposableElement, ConceptualEntity, LogicalEntity, ConceptualCharacteristic, LogicalCharacteristic, ConceptualComposition, LogicalComposition, ConceptualParticipant, LogicalParticipant, ConceptualAssociation, LogicalAssociation, CLRealizationProcessor, ConceptualEntityProcessor, LogicalEntityProcessor> {
 
-	final public static String OBSERVABLE_REALIZATION_ERR = "Observable {0} is not realized by any AbstractMeasurment";
-	final public static String OBSERVABLE_REALIZATION_MANY = "Observable {0} is realized by multiple AbstractMeasurments - picking one";
+	final public static String OBSERVABLE_REALIZATION_ERR = "Observable {0} is not realized by any AbstractMeasurment or LogicalEntity";
+	final public static String OBSERVABLE_REALIZATION_MANY = "Observable {0} is realized by multiple AbstractMeasurments / LogicalEntities - picking one";
 	final public static String ENTITY_REALIZATION_ERR = "ConceptualEntity {0} is not realized by any LogicalEntity";
 	final public static String ENTITY_REALIZATION_MANY = "ConceptualEntity {0} is realized by multiple LogicalEntity - picking one";
 

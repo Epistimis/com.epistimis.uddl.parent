@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 /**
  * 
  */
-abstract class RealizationProposalProcessor<BaseComposableElement extends UddlElement, RealizingComposableElement extends UddlElement, 
+abstract class EntityRealizationProposalProcessor<BaseComposableElement extends UddlElement, RealizingComposableElement extends UddlElement, 
 											BaseEntity extends BaseComposableElement, RealizingEntity extends RealizingComposableElement, 
 											BaseCharacteristic extends EObject, RealizingCharacteristic extends EObject, 
 											BaseComposition extends BaseCharacteristic, RealizingComposition extends RealizingCharacteristic, 
@@ -268,7 +268,6 @@ abstract class RealizationProposalProcessor<BaseComposableElement extends UddlEl
 		if (realizingTypes.isEmpty()) {
 			String msg = MessageFormat.format("No realizing types found for any composition elements of {0}",qnp.getFullyQualifiedName(rentity));
 			logger.info(msg);
-			System.out.println(msg);
 		}
 		for (EObject rce: realizingTypes) {
 			String insertionString = pu.minimalReferenceString( rce, rentity);

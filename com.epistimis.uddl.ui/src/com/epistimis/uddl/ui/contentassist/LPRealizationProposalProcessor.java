@@ -30,7 +30,7 @@ import com.epistimis.uddl.uddl.PlatformParticipant;
  * 
  */
 public class LPRealizationProposalProcessor extends
-		RealizationProposalProcessor<LogicalComposableElement, PlatformComposableElement, LogicalEntity, PlatformEntity, LogicalCharacteristic, PlatformCharacteristic, 
+		EntityRealizationProposalProcessor<LogicalComposableElement, PlatformComposableElement, LogicalEntity, PlatformEntity, LogicalCharacteristic, PlatformCharacteristic, 
 		LogicalComposition, PlatformComposition, LogicalParticipant, PlatformParticipant, 
 		LogicalAssociation, PlatformAssociation, LPRealizationProcessor, LogicalEntityProcessor, PlatformEntityProcessor> {
 
