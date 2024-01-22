@@ -2,6 +2,7 @@ package com.epistimis.uddl;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider;
+import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.QualifiedName;
 //import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider;
 
@@ -21,8 +22,13 @@ import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformQueryComposition;
 import com.epistimis.uddl.uddl.PlatformStruct;
 import com.epistimis.uddl.uddl.PlatformStructMember;
+import com.google.inject.Inject;
 
 public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // XbaseQualifiedNameProvider
+	
+	// Because the base class one is private
+	@Inject
+	protected IQualifiedNameConverter converter = new IQualifiedNameConverter.DefaultImpl();
 	
 	/**
 	 * Determine the QualifiedName of obj relative to ctx
@@ -49,7 +55,40 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 			return oName;
 		}
 	}
-	
+
+	/**
+	 * Return the QN of the object, potentially shortened by the specified prefix
+	 * @param obj the object whose QN is to be returned. If the prefix matches the entire
+	 * name, then return only the last segment. If the prefix ends with a wildcard,
+	 * then match all prior segments.
+	 * @param qnPrefix a prefix that may match part of the name of this object
+	 * @return A Qualified name
+	 */
+	public QualifiedName minimalQualifiedName(EObject obj, String qnPrefix) {
+		QualifiedName oName = getFullyQualifiedName(obj);
+		String prefix2use = qnPrefix;
+		if (qnPrefix.lastIndexOf('*') == qnPrefix.length()-1) {
+			prefix2use = qnPrefix.substring(0,qnPrefix.length()-2);
+		}
+		QualifiedName testQN = converter.toQualifiedName(prefix2use);
+		
+		int ndx = 0;
+		for (String seg: testQN.getSegments()) {
+			// If there is a match failure at any point, return the entire oName
+			if (!oName.getSegment(ndx).equals(seg)) {
+				return oName;
+			}
+			ndx+=1;
+		}
+		// If we get here, we matched all the testQN segments.
+		int testSegCnt = testQN.getSegmentCount();
+		if (oName.getSegmentCount() == testSegCnt) {
+			testSegCnt--; // reduce count by 1 so we return the last segment
+		}
+		return oName.skipFirst(testSegCnt);
+		
+	}
+
 	/**
 	 * Do these two QNs have a sequence of matching segments?
 	 * @param aqn The first QualifiedName
