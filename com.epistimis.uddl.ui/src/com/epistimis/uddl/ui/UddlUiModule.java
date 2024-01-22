@@ -13,6 +13,7 @@ import org.eclipse.xtext.ui.editor.hover.IEObjectHoverProvider;
 
 import com.epistimis.uddl.ui.contentassist.CLRealizationProposalProcessor;
 import com.epistimis.uddl.ui.contentassist.LPRealizationProposalProcessor;
+import com.epistimis.uddl.ui.contentassist.PropUtils;
 import com.epistimis.uddl.ui.hover.UddlDispatchingEObjectTextHover;
 import com.epistimis.uddl.ui.hover.UddlEObjectDocumentationProvider;
 import com.epistimis.uddl.ui.hover.UddlEObjectHoverProvider;
@@ -45,4 +46,9 @@ public class UddlUiModule extends AbstractUddlUiModule {
 	public Class<? extends LPRealizationProposalProcessor> bindLPRealizationProposalProcessor() {
 		return LPRealizationProposalProcessor.class;
 	}
+
+	public Class<? extends PropUtils> bindPropUtils() {
+		return PropUtils.class;
+	}
+
 }

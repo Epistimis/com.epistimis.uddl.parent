@@ -8,17 +8,11 @@ package com.epistimis.uddl.ui.contentassist;
 
 import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.Assignment;
+import org.eclipse.xtext.CrossReference;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.scoping.IScopeProvider;
@@ -32,14 +26,15 @@ import com.epistimis.uddl.LogicalEntityProcessor;
 import com.epistimis.uddl.PlatformEntityProcessor;
 import com.epistimis.uddl.UddlQNP;
 import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalMeasurement;
 import com.epistimis.uddl.uddl.LogicalMeasurementAttribute;
 import com.epistimis.uddl.uddl.LogicalMeasurementAxis;
-import com.epistimis.uddl.uddl.PlatformDataType;
+import com.epistimis.uddl.uddl.PlatformComposableElement;
+import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformStruct;
-import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.inject.Inject;
 
 /**
@@ -50,6 +45,17 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 
 	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
+
+	final static String ABS_MEAS_REALIZATION_ERR 	= "AbstractMeasurement {0} is not realized by any PlatformDataType";
+	final static String ABS_MEAS_REALIZATION_MANY 	= "AbstractMeasurement {0} is realized by multiple PlatformDataTypes - picking one";
+	final static String DEFAULT_PRECISION 			= "0.01";
+	final static String INDENT 						= "\t";
+	final static String MEMBER_DISPLAY_FMT 			= "{0}" ;
+	final static String REALIZE_ALL 				= "<<Default Realize All>>";
+	final static String STRUCT_REALIZATION_ERR 		= "PlatformStruct {0} must realize a LogicalMeasurement with 2+ axes / attributes. {1} only has {2}";
+	final static String STRUCT_AXIS_FMT 			= "{0} {1} ( {2} ) ;" ;
+	final static String STRUCT_ATTRIBUTE_FMT 		= "{0} {1} ( {2} ) -> {3} ;" ;
+	
 	@Inject UddlQNP 					qnp;
 	@Inject IndexUtilities 				ndxUtil;
 	@Inject	IScopeProvider 				sp;
@@ -91,6 +97,12 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 		clrpproc.complete_Composition(this,clrproc, (LogicalEntity)obj, ruleCall, context, acceptor);		
 	}
 
+//	@Override
+//	public void completeLogicalComposition_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+////		lookupCrossReference(((CrossReference)assignment.getTerminal()), context, acceptor);
+//		clrpproc.completeComposition_Type(this, (LogicalEntity)model,  assignment, context, acceptor);
+//		
+//	}
 	/**
 	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
 	 * be used by clrpproc to force the call to the super class method
@@ -116,6 +128,7 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	}
 
 	/** Platform -> Logical */
+
 	/**
 	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
 	 * be used by clrpproc to force the call to the super class method
@@ -135,6 +148,12 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 
 	}
 
+//	@Override
+//	public void completePlatformComposition_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+////		lookupCrossReference(((CrossReference)assignment.getTerminal()), context, acceptor);
+//		lprpproc.completeComposition_Type(this, (PlatformEntity)model,  assignment, context, acceptor);
+//		
+//	}
 	/**
 	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
 	 * be used by clrpproc to force the call to the super class method
@@ -162,49 +181,6 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	}
 
 	
-	final private static String INDENT = "\t";
-	private String indent(int cnt) {
-		StringBuilder ndentBldr = new StringBuilder();
-		for (int i = 0; i < cnt; i++) {
-			ndentBldr.append(INDENT);
-		}
-		return  ndentBldr.toString();
-	}
-	final static String STRUCT_REALIZATION_ERR 		= "PlatformStruct {0} must realize a LogicalMeasurement with 2+ axes / attributes. {1} only has {2}";
-	final static String DEFAULT_PRECISION 			= "0.01";
-	final static String STRUCT_AXIS_FMT 			= "{0} {1} ( {2} ) ;" ;
-	final static String STRUCT_ATTRIBUTE_FMT 		= "{0} {1} ( {2} ) -> {3} ;" ;
-	final static String MEMBER_DISPLAY_FMT 			= "{0}" ;
-	final static String ABS_MEAS_REALIZATION_ERR 	= "AbstractMeasurement {0} is not realized by any PlatformDataType";
-	final static String ABS_MEAS_REALIZATION_MANY 	= "AbstractMeasurement {0} is realized by multiple PlatformDataTypes - picking one";
-	final static String REALIZE_ALL 				= "<<Default Realize All>>";
-	
-	/**
-	 * Find a realiz
-	 * @param pkgs
-	 * @param type2Realize
-	 * @param ndent
-	 * @return
-	 */
-	protected PlatformDataType getRealizingDataType( List<EPackage> pkgs, EObject type2Realize) {
-		Map<String,Object> variables = new HashMap<String,Object>();
-		variables.put("self", type2Realize);
-		ResourceSet resourceSet = type2Realize.eResource().getResourceSet();
-		Set<EObject> found = ndxUtil.processAQL(resourceSet, pkgs,variables,"self.eInverse('realizes')");
-		if ((found == null) || (found.size() == 0 )) {		
-			String msg = MessageFormat.format(ABS_MEAS_REALIZATION_ERR, qnp.getFullyQualifiedName(type2Realize));
-			logger.error(msg);
-			System.out.println(msg);
-			return null;
-		} 
-		if (found.size() > 1) {
-			String msg = MessageFormat.format(ABS_MEAS_REALIZATION_MANY, qnp.getFullyQualifiedName(type2Realize));
-			logger.info(msg);
-			System.out.println(msg);		
-		}
-		// Return the first one found
-		return (PlatformDataType)found.iterator().next();
-	}
 	
 	@Override
 	public void completePlatformStruct_Member(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
@@ -218,8 +194,8 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 		// This can realize a LogicalMeasurement or a LogicalMeasurementAxis.
 		// See idlTypeConsistentlyRealizesMeasurementAxis in constraints/platform.ocl
 		// 
-		List<EPackage> pkgs = new ArrayList<>();
-		pkgs.add(UddlPackage.eINSTANCE);
+//		List<EPackage> pkgs = new ArrayList<>();
+//		pkgs.add(UddlPackage.eINSTANCE);
 		
 		EObject obj = ps.getRealizes();
 		if (obj instanceof LogicalMeasurement) {
@@ -231,7 +207,7 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 				logger.error(msg);
 				System.out.println(msg);
 			}
-			String ndent = indent(qnp.getFullyQualifiedName(model).getSegmentCount());
+			String ndent = PropUtils.indent(qnp.getFullyQualifiedName(model).getSegmentCount());
 			StringBuilder insertionText = new StringBuilder();
 			
 
@@ -239,12 +215,12 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 			// In order to propose the entire structure, we could find every possible combination. That could get messy. For now,
 			// just pick a combination since users can edit this later.
 			for (LogicalMeasurementAxis axis: meas.getMeasurementAxis()) {
-				PlatformDataType realizingPDT = getRealizingDataType(pkgs,axis);
-				if (realizingPDT != null) {
+				PlatformComposableElement realizingPCE = (PlatformComposableElement) lprproc.getRealizingType(/*pkgs,*/axis, ABS_MEAS_REALIZATION_ERR,ABS_MEAS_REALIZATION_MANY );
+				if (realizingPCE != null) {
 					StringBuilder oneProp = new StringBuilder();
 					oneProp.append("\n" + ndent);
 					// Set the type name
-					QualifiedName n = qnp.relativeQualifiedName(realizingPDT, model);
+					QualifiedName n = qnp.relativeQualifiedName(realizingPCE, model);
 					String displayString = MessageFormat.format(MEMBER_DISPLAY_FMT,n.getLastSegment());
 					oneProp.append(MessageFormat.format(STRUCT_AXIS_FMT,n.toString(), n.getLastSegment().toLowerCase(), DEFAULT_PRECISION));
 					String insertionString = oneProp.toString();
@@ -255,12 +231,12 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 			for (LogicalMeasurementAttribute attr: meas.getAttribute()) {
 				// Get the type of the MeasurementAttribute - this should be realized by the StructMember's type
 				EObject realizedAttrType = attr.getType();
-				PlatformDataType realizingPDT = getRealizingDataType(pkgs,realizedAttrType);
-				if (realizingPDT != null) {					
+				PlatformComposableElement realizingPCE = (PlatformComposableElement) lprproc.getRealizingType(/*pkgs,*/realizedAttrType, ABS_MEAS_REALIZATION_ERR,ABS_MEAS_REALIZATION_MANY );
+				if (realizingPCE != null) {					
 					StringBuilder oneProp = new StringBuilder();
 					oneProp.append("\n" + ndent);
 					// Set the type name
-					QualifiedName typeName = qnp.relativeQualifiedName(realizingPDT, model);
+					QualifiedName typeName = qnp.relativeQualifiedName(realizingPCE, model);
 					QualifiedName n = qnp.relativeQualifiedName(attr, model);
 					String displayString = MessageFormat.format(MEMBER_DISPLAY_FMT,n.toString());
 					oneProp.append(MessageFormat.format(STRUCT_ATTRIBUTE_FMT,typeName.toString(), n.getLastSegment().toLowerCase(), DEFAULT_PRECISION, n.toString()));
@@ -290,11 +266,11 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 		
 	}
 	
-	@Override
-	public void complete_PlatformStructMember(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		// Each member 
-		// Look at what this object realizes and create a proposal for each - This isn't part
-		
-	}
+//	@Override
+//	public void complete_PlatformStructMember(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		// Each member 
+//		// Look at what this object realizes and create a proposal for each - This isn't part
+//		
+//	}
 	
 }

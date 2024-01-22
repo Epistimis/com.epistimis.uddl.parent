@@ -14,12 +14,15 @@ import com.epistimis.uddl.LogicalEntityProcessor;
 import com.epistimis.uddl.PlatformEntityProcessor;
 import com.epistimis.uddl.uddl.LogicalAssociation;
 import com.epistimis.uddl.uddl.LogicalCharacteristic;
+import com.epistimis.uddl.uddl.LogicalComposableElement;
 import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalParticipant;
 import com.epistimis.uddl.uddl.PlatformAssociation;
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
+import com.epistimis.uddl.uddl.PlatformComposableElement;
 import com.epistimis.uddl.uddl.PlatformComposition;
+import com.epistimis.uddl.uddl.PlatformDataType;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
 
@@ -27,9 +30,15 @@ import com.epistimis.uddl.uddl.PlatformParticipant;
  * 
  */
 public class LPRealizationProposalProcessor extends
-		RealizationProposalProcessor<LogicalEntity, PlatformEntity, LogicalCharacteristic, PlatformCharacteristic, 
+		RealizationProposalProcessor<LogicalComposableElement, PlatformComposableElement, LogicalEntity, PlatformEntity, LogicalCharacteristic, PlatformCharacteristic, 
 		LogicalComposition, PlatformComposition, LogicalParticipant, PlatformParticipant, 
 		LogicalAssociation, PlatformAssociation, LPRealizationProcessor, LogicalEntityProcessor, PlatformEntityProcessor> {
+
+	final public static String ABS_MEAS_REALIZATION_ERR 	= "AbstractMeasurement {0} is not realized by any PlatformDataType";
+	final public static String ABS_MEAS_REALIZATION_MANY 	= "AbstractMeasurement {0} is realized by multiple PlatformDataTypes - picking one";
+	final public static String ENTITY_REALIZATION_ERR 		= "LogicalEntity {0} is not realized by any PlatformEntity";
+	final public static String ENTITY_REALIZATION_MANY 		= "LogicalEntity {0} is realized by multiple PlatformEntity - picking one";
+
 
 	@Override
 	protected void completeSuperRealizingComposition(UddlProposalProvider pp, EObject obj, RuleCall ruleCall, ContentAssistContext context,
@@ -51,17 +60,33 @@ public class LPRealizationProposalProcessor extends
 	}
 
 	@Override
-	protected String compositionInsertionString(LogicalComposition bc) {
-		return String.format(dummyType + compositionFormatString, bc.getRolename(),
+	protected String compositionInsertionString(LogicalComposition bc, String indent) {
+		String typeName = dummyType;
+		PlatformComposableElement ce = (PlatformComposableElement) rezProc.getRealizingType(bc.getType(),ABS_MEAS_REALIZATION_ERR,ABS_MEAS_REALIZATION_MANY);
+		if (ce != null) {
+			typeName = qnp.relativeQualifiedName(ce,  bc).toString();
+		}
+		return String.format(indent + typeName + compositionFormatString, bc.getRolename(),
 				bc.getLowerBound(), bc.getUpperBound(), bc.getDescription(),
 				qnp.getFullyQualifiedName(bc).toString());
 	}
 
 	@Override
-	protected String participantInsertionString(LogicalParticipant bc) {
-		return String.format(dummyType + participantFormatString, bc.getRolename(),
+	protected String participantInsertionString(LogicalParticipant bc, String  indent) {
+		String typeName = dummyType;
+		PlatformEntity ce = (PlatformEntity) rezProc.getRealizingType(bc.getType(),ENTITY_REALIZATION_ERR,ENTITY_REALIZATION_MANY);
+		if (ce != null) {
+			typeName = qnp.relativeQualifiedName(ce,  bc).toString();
+		}
+		return String.format(indent + typeName + participantFormatString, bc.getRolename(),
 				bc.getLowerBound(), bc.getUpperBound(), bc.getDescription(),
 				qnp.getFullyQualifiedName(bc).toString(), bc.getSourceLowerBound(), bc.getSourceUpperBound());
+	}
+
+	@Override
+	protected String getRealizingTypeName(EObject realizingType) {
+		// TODO Auto-generated method stub
+		return ((PlatformDataType)realizingType).getName();
 	}
 
 
