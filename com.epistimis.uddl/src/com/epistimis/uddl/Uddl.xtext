@@ -468,11 +468,11 @@ LogicalMeasurementSystemConversion:
 // See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#scoping
 // Use a FilteringScope
 /** An AbstractMeasurement is a Measurement, MeasurementAxis, or a ValueTypeUnit. */
-//LogicalAbstractMeasurement:
-//	LogicalMeasurement |  // Use LogicalComposableElement
-//	LogicalMeasurementAxis | // Use LogicalElement
-//	LogicalValueTypeUnit  //Use LogicalElement
-//;
+LogicalAbstractMeasurement:
+	LogicalMeasurement |  // Use LogicalComposableElement
+	LogicalMeasurementAxis | // Use LogicalElement
+	LogicalValueTypeUnit  //Use LogicalElement
+;
 
 /** A Measurement realizes an Observable as a set of quantities that can be recorded for each axis of a MeasurementSystem. A Measurement contains the specific implementation details optionally including an override of the default ValueType and Unit for each axis as well as the constraints over that space for which the MeasurementSystem is valid. */
 LogicalMeasurement:
