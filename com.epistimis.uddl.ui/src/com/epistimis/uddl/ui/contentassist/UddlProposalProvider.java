@@ -205,7 +205,6 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 			if (count < 2) {
 				String msg = MessageFormat.format(STRUCT_REALIZATION_ERR,ps.getName(),meas.getName(), count);
 				logger.error(msg);
-				System.out.println(msg);
 			}
 			String ndent = PropUtils.indent(qnp.getFullyQualifiedName(model).getSegmentCount());
 			StringBuilder insertionText = new StringBuilder();

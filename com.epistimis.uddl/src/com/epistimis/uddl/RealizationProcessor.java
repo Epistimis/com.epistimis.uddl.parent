@@ -34,18 +34,22 @@ public abstract class RealizationProcessor<BaseComposableElement extends UddlEle
 											BaseAssociation extends BaseEntity, RealizingAssociation extends RealizingEntity,											
 											BaseProcessor extends EntityProcessor<BaseComposableElement, BaseCharacteristic, BaseEntity, BaseAssociation, BaseComposition, BaseParticipant, ?, ?>, 
 											RealizingProcessor extends EntityProcessor<RealizingComposableElement, RealizingCharacteristic, RealizingEntity, RealizingAssociation, RealizingComposition, RealizingParticipant, ?, ?>> {
-// @Inject
-//private Provider<ResourceSet> resourceSetProvider;
-//
-//
-//@Inject
-//IResourceServiceProvider.Registry reg;
-//
-//IResourceServiceProvider queryRSP;
-//IResourceFactory queryResFactory;
 
-//@Inject
-//ParseHelper<QuerySpecification> parseHelper;
+	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+
+	private static final String ASSOCIATION_REALIZATION_ERR_FMT = "Association {0} must be realized by an Association but {0} is an Entity";
+	// @Inject
+	//private Provider<ResourceSet> resourceSetProvider;
+	//
+	//
+	//@Inject
+	//IResourceServiceProvider.Registry reg;
+	//
+	//IResourceServiceProvider queryRSP;
+	//IResourceFactory queryResFactory;
+
+	//@Inject
+	//ParseHelper<QuerySpecification> parseHelper;
 
 	@Inject
 	IndexUtilities ndxUtil;
@@ -62,7 +66,6 @@ public abstract class RealizationProcessor<BaseComposableElement extends UddlEle
 	@Inject
 	RealizingProcessor realizingProcessor;
 
-	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
 	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
 			"Entity {0} does not have a characteristic with rolename {1}");
@@ -208,7 +211,7 @@ public abstract class RealizationProcessor<BaseComposableElement extends UddlEle
 			BaseEntity be = getRealizedEntity(rentity);
 			if (baseProcessor.isAssociation(be)) {
 				// If the base is an association but the realization isn't, then that's an error
-				String msg = MessageFormat.format("Association {0} must be realized by an Association but {0} is an Entity", 
+				String msg = MessageFormat.format(ASSOCIATION_REALIZATION_ERR_FMT, 
 						qnp.getFullyQualifiedName(be).toString(), qnp.getFullyQualifiedName(rentity).toString());
 				logger.error(msg);
 				//throw new RealizationException(msg); // TODO: Throw or return empty list? See also (logical/platform)Extensions.ocl invariants - this is checked there
@@ -270,15 +273,12 @@ public abstract class RealizationProcessor<BaseComposableElement extends UddlEle
 		ResourceSet resourceSet = type2Realize.eResource().getResourceSet();
 		Collection<EObject> found = ndxUtil.processAQL(resourceSet, /*pkgs,*/variables,"self.eInverse('realizes')");
 		return found;
-//		Set<UddlElement> result = new HashSet<UddlElement>();
-//		for (EObject e : found) {
-//			result.add((UddlElement) e);
-//		}
-//		return result;
+
 	}
 	
 	/**
-	 * Find a single realizing type, logging if none or mone than one is found
+	 * Find a single realizing type, logging if none or mone than one is found.
+	 * 
 	 * @param pkgs All the root ePackages that must be registered for the search
 	 * @param type2Realize The type we want to realize
 	 * @param emptyMsgFmt Message format string for empty collection
@@ -290,13 +290,11 @@ public abstract class RealizationProcessor<BaseComposableElement extends UddlEle
 		if ((found == null) || (found.size() == 0 )) {		
 			String msg = MessageFormat.format(emptyMsgFmt, qnp.getFullyQualifiedName(type2Realize));
 			logger.error(msg);
-			System.out.println(msg);
 			return null;
 		} 
 		if (found.size() > 1) {
 			String msg = MessageFormat.format(manyMsgFmt, qnp.getFullyQualifiedName(type2Realize));
-			logger.info(msg);
-			System.out.println(msg);		
+			logger.info(msg);		
 		}
 		// Return the first one found
 		return found.iterator().next();

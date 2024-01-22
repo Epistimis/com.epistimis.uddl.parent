@@ -72,24 +72,21 @@ class UddlGenerator extends AbstractGenerator {
 			gen2.doGenerate(resource, fsa, context);
 		}
 		catch (Exception excp) {
-			logger.error("Protobuf exception: " + excp.localizedMessage,excp);
-			//System.out.println(excp.stackTrace);
+			logger.error("Protobuf exception: " + excp.localizedMessage,excp); //(excp.stackTrace);
 		}
 		try {
 			val gen1 = new IDLDataStructureGenerator(RealizedComposableElement.allComposableElements);
 			gen1.doGenerate(resource, fsa, context);			
 		}
 		catch (Exception excp) {
-			logger.error("IDL exception: " + excp.localizedMessage,excp);
-			//System.out.println(excp.stackTrace);
+			logger.error("IDL exception: " + excp.localizedMessage,excp); //(excp.stackTrace);
 		}
 		try {
 			val gen3 = new RDBMSDataStructureGenerator(RealizedComposableElement.allComposableElements);
 			gen3.doGenerate(resource, fsa, context);
 		}
 		catch (Exception excp) {
-			logger.error("RDBMS exception: " + excp.localizedMessage,excp);
-			//System.out.println(excp.stackTrace);
+			logger.error("RDBMS exception: " + excp.localizedMessage,excp); //(excp.stackTrace);
 		}
 
 

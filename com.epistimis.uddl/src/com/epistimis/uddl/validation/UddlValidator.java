@@ -188,7 +188,7 @@ public class UddlValidator extends AbstractUddlValidator {
 					uriMap.put(resourceURI, pluginURI);
 					uriMap.put(pluginURI, locationURI);
 				} else {
-					System.err.println("initializeResourceSet failed to resolve '" + bundleName + "'");
+					logger.error("initializeResourceSet failed to resolve '" + bundleName + "'");
 				}
 			}
 		}
