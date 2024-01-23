@@ -55,6 +55,7 @@ class IndexUtilities {
 	@Inject ResourceDescriptionsProvider rdp
 	@Inject IContainer.Manager cm
 	@Inject IQualifiedNameProvider qnp
+	@Inject IPackageProvider pkgProvider;
 
 	/**
 	 * Get all the EObjectDescriptions of the specified type visible from the context object
@@ -120,7 +121,7 @@ class IndexUtilities {
 		val allVisibleEObjectDescriptions = o.getVisibleEObjectDescriptions(type)
 		val allExportedEObjectDescriptions = o.getExportedEObjectDescriptionsByType(type)
 		val difference = allVisibleEObjectDescriptions.toSet
-		difference.removeAll(allExportedEObjectDescriptions.toSet)
+		difference.removeAll(allExportedEObjectDescriptions?.toSet)
 		return difference.toMap[qualifiedName]
 	}
 
@@ -397,6 +398,8 @@ class IndexUtilities {
 	 * 
 	 * @return A set of the EObjects of the specified type in the specified hierarchy
 	 *         that are visible from the context
+	 * 
+	 * Implement this using "self.eInverse('<featurename>')" or "self.eInverse(type)".
 	 */
 //	def Set<EObject> visibleInverseClosure(EObject context, EObject root, EClass type, EStructuralFeature feat) {
 //		val IQueryEnvironment queryEnvironment = Query.newEnvironmentWithDefaultServices(null);
@@ -511,15 +514,18 @@ class IndexUtilities {
 	 * Use Acceleo to get all the objects that have the specified relationship with the context object.
 	 * See https://eclipse.dev/acceleo/documentation/ for doc on how to write queries.
 	 * 
-	 * @param pkgs This provides access to the list of packages to register. Note 
+	 * @param pkgs This provides access to the list of packages to register.  
 	 * @param variables A set of variables that are used to map to parts of the query. In most cases, 
 	 * there will be a single element in the map with they key 'self'.
 	 * @param queryText The Acceleo query text to navigate 
 	 * 
 	 */
-	def Set<EObject> processAQL(ResourceSet resourceSet, Collection<EPackage> pkgs, Map<String, Object> variables,
+	def Collection<EObject> processAQL(ResourceSet resourceSet,  Map<String, Object> variables,
 		String queryText) {
 
+		val List<EPackage> pkgs = new ArrayList<EPackage>();   //pkgProvider.getEPackages();
+		pkgs.add(UddlPackage.eINSTANCE);
+		
 		val IQueryEnvironment queryEnvironment = getQueryEnvironment(resourceSet);
 		registerPackages(pkgs, queryEnvironment);
 
@@ -527,7 +533,7 @@ class IndexUtilities {
 		val AstResult astResult = builder.build(queryText);
 		val QueryEvaluationEngine engine = new QueryEvaluationEngine(queryEnvironment);
 		var EvaluationResult evaluationResult = engine.eval(astResult, variables);
-		return evaluationResult.result as Set<EObject>;
+		return evaluationResult.result as Collection<EObject>;
 	}
 
 //	def validateQuery(IQueryEnvironment queryEnvironment) {
@@ -543,6 +549,8 @@ class IndexUtilities {
 	 * Find all the resources that reference the referenceTarget
 	 * from: https://www.eclipse.org/forums/index.php/t/165076/
 	 * NOTE: This is from an old post - UsageCrossReferencer is likely newer
+	 * Deprecated? - use processAQL instead - it already does this.
+	 * This would be faster because it doesn't parse an expression - does that matter?
 	 */
 	def List<Resource> getReferencingResources(EObject referenceTarget) {
 		val Resource res = referenceTarget.eResource();
@@ -579,6 +587,8 @@ class IndexUtilities {
 	/**
 	 * Find all the cross references to the specified target, no matter
 	 * where they are in the resource set
+	 * 
+	 * Deprecated? processAQL does this with the query "self.eInverse()"
 	 * 
 	 * See EcoreUtil.delete() for an example of why it might be done this way
 	 */
