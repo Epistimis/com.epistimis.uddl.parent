@@ -72,6 +72,7 @@ public class PropUtils {
 	 * Generic list of candidates for a reference. Some cases can limit this based
 	 * on some criteria.
 	 * 
+	 * TODO: Should I just use IndexUtilities.getVisibleEObjectDescriptions() ?
 	 * @param model     The instance where the reference is
 	 * @param reference The reference needing candidates
 	 * @return
@@ -80,11 +81,17 @@ public class PropUtils {
 		return scopeProvider.getScope(model, reference).getAllElements();
 	}
 
+	/**
+	 * TODO: Should I just use IndexUtilities.getVisibleEObjects() ?
+	 * @param model
+	 * @param reference
+	 * @return
+	 */
 	List<EObject> getCandidates(EObject model, EReference reference) {
 		Iterable<IEObjectDescription> descriptions = getCandidateDescriptions(model, reference);
 		List<EObject> result = new ArrayList<EObject>();
 		for (IEObjectDescription description : descriptions) {
-			result.add(description.getEObjectOrProxy());
+			result.add(IndexUtilities.objectFromDescription(model.eResource(),description));
 		}
 		return result;
 	}
@@ -152,13 +159,15 @@ public class PropUtils {
 	 * Modify the proposal as needed - cloned from
 	 * https://www.eclipse.org/forums/index.php/t/583114/
 	 * 
+	 * TODO:  It doesn't 'grey' out the FQNs of unselected alternatives. 
+	 * 
 	 * @param theProposal
 	 * @param context
 	 * @param ref
 	 * @return
 	 */
 	public ICompletionProposal modifyConfigurableCompletionProposal(ICompletionProposal theProposal,
-			ContentAssistContext context, EReference ref) {
+			ContentAssistContext context, EReference ref, String additionalInfo) {
 		IScope typeScope = null;
 		if (context.getCurrentModel() != null) {
 			typeScope = scopeProvider.getScope(context.getCurrentModel(), ref);
@@ -167,7 +176,7 @@ public class PropUtils {
 			ConfigurableCompletionProposal configurableCompletionProposal = (ConfigurableCompletionProposal) theProposal;
 			// Use 'new Provider<EObject>() {}' if EObject should be found in the first
 			// place
-			// configurableCompletionProposal.setAdditionalProposalInfo(jvmType);
+			configurableCompletionProposal.setAdditionalProposalInfo(additionalInfo);
 			configurableCompletionProposal.setHover(hover);
 			configurableCompletionProposal.setTextApplier(createTextApplier(context, typeScope,
 					getQualifiedNameConverter(), getQualifiedNameValueConverter()));
