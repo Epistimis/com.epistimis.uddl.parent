@@ -36,7 +36,37 @@ ${cursor}
 	
 	${cursor}
 	
-}</template><template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalAffineConversion" deleted="false" description="An AffineConversion is a relationship between two ConvertibleElements in the form mx+b" enabled="true" id="1" name="ACONV">aconv ${name} "${description}" {
+}</template>
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.DataModel" deleted="false" description="Create a complete set of measures for an Enum" enabled="true" name="ENUM_MEASURES">ldm   ${name}
+{
+	enum ${name} "Basic ${name} values " [ ${cursor} ];
+
+	vtu ${name} Units.UnitlessDimensionless.Unitless ${name}UnitLess "Standard ${name} " ;
+	meas   ${name}_Meas  "A measurement for a ${name} value that uses enums" -&gt; ${realizes}
+	{
+		axis: [${name}_MeasAxis] sys: MeasurementSystems.EnumerationMeasurementSystem.AbstractDiscreteSetMeasurementSystem.AbstractDiscreteSetMeasurementSystem
+	};
+	maxis    ${name}_MeasAxis  "An instance of the ${name} MeasurementSystemAxis with a uniqueness constraint." -&gt; ${realizes}
+	{
+		msaxis:  ${name}_MeasSysAxis 
+		vtu: [ ${name}UnitLess ]
+		![ "IsUnique"]
+	};
+	msa   ${name}_MeasSysAxis  "Measurement system axis for ${name} measured in enum values"
+	{
+		axis: CoordinateSystems.Discrete.Discrete_CoordSysAxis 
+		vtu: [ ${name}UnitLess ]
+	};
+
+	msys ${name}_MeasSystem "A measurement system for ${name} info"
+	{
+		msa: [ ${name}_MeasSysAxis ]
+		coord: CoordinateSystems.Discrete.Discrete_CoordSys
+	};
+
+}
+</template>
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalAffineConversion" deleted="false" description="An AffineConversion is a relationship between two ConvertibleElements in the form mx+b" enabled="true" id="1" name="ACONV">aconv ${name} "${description}" {
 	${source:CrossReference(LogicalAssociation.source)} -(m: ${conversionFactor} b:  ${offset})-&gt; ${destination:CrossReference(LogicalAssociation.destination)}	
 };
 ${cursor}
@@ -64,9 +94,41 @@ ${cursor}
    [ ${axis:CrossReference(LogicalCoordinateSystem.axis)} ${cursor} ]
 };</template><template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalCoordinateSystemAxis" deleted="false" description="A CoordinateSystemAxis represents a dimension within a CoordinateSystem." enabled="true" id="12" name="CSA">csa	 ${name} "${description}" ;
 ${cursor}
-</template><template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalDataModel" deleted="false" description="A LogicalDataModel is a container for LDM Elements" enabled="true" id="26" name="LDM">ldm ${name}  "${description}" {
+</template>
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalDataModel" deleted="false" description="A LogicalDataModel is a container for LDM Elements" enabled="true" id="26" name="LDM">ldm ${name}  "${description}" {
 	${cursor}
-}</template><template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalEntity" deleted="false" description="A logical Entity “realizes” a conceptual Entity in terms of Measurements and other logical Entities. Since a logical Entity is built from logical Measurements, it is independent of any specific platform data representation. A logical Entity's composition hierarchy is consistent with the composition hierarchy of the conceptual Entity that it realizes. The logical Entity’s composed Entities realize one to one the conceptual Entity’s composed Entities; the logical Entity’s composed Measurements realize many to one the conceptual Entity’s composed Observables. A logical Entity “realizes” a conceptual Entity in terms of Measurements and other logical Entities. Since a logical Entity is built from logical Measurements, it is independent of any specific platform data representation. A logical Entity's composition hierarchy is consistent with the composition hierarchy of the conceptual Entity that it realizes. The logical Entity’s composed Entities realize one to one the conceptual Entity’s composed Entities; the logical Entity’s composed Measurements realize many to one the conceptual Entity’s composed Observables. " enabled="true" id="28" name="LENTITY">lentity ${name} "${description}" : ${specializes:CrossReference(LogicalEntity.specializes)} -&gt; ${realizes:CrossReference(LogicalEntity.realizes)} {
+}</template>
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalDataModel" deleted="false" description="Create a complete set of measures for an Enum" enabled="true" name="ENUM_MEASURES">ldm   ${name}
+{
+	enum ${name} "Basic ${name} values " [ ${cursor} ];
+
+	vtu ${name} Units.UnitlessDimensionless.Unitless ${name}UnitLess "Standard ${name} " ;
+	meas   ${name}_Meas  "A measurement for a ${name} value that uses enums" -&gt; ${realizes}
+	{
+		axis: [${name}_MeasAxis] sys: MeasurementSystems.EnumerationMeasurementSystem.AbstractDiscreteSetMeasurementSystem.AbstractDiscreteSetMeasurementSystem
+	};
+	maxis    ${name}_MeasAxis  "An instance of the ${name} MeasurementSystemAxis with a uniqueness constraint." -&gt; ${realizes}
+	{
+		msaxis:  ${name}_MeasSysAxis 
+		vtu: [ ${name}UnitLess ]
+		![ "IsUnique"]
+	};
+	msa   ${name}_MeasSysAxis  "Measurement system axis for ${name} measured in enum values"
+	{
+		axis: CoordinateSystems.Discrete.Discrete_CoordSysAxis 
+		vtu: [ ${name}UnitLess ]
+	};
+
+	msys ${name}_MeasSystem "A measurement system for ${name} info"
+	{
+		msa: [ ${name}_MeasSysAxis ]
+		coord: CoordinateSystems.Discrete.Discrete_CoordSys
+	};
+
+}
+</template>
+
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalEntity" deleted="false" description="A logical Entity “realizes” a conceptual Entity in terms of Measurements and other logical Entities. Since a logical Entity is built from logical Measurements, it is independent of any specific platform data representation. A logical Entity's composition hierarchy is consistent with the composition hierarchy of the conceptual Entity that it realizes. The logical Entity’s composed Entities realize one to one the conceptual Entity’s composed Entities; the logical Entity’s composed Measurements realize many to one the conceptual Entity’s composed Observables. A logical Entity “realizes” a conceptual Entity in terms of Measurements and other logical Entities. Since a logical Entity is built from logical Measurements, it is independent of any specific platform data representation. A logical Entity's composition hierarchy is consistent with the composition hierarchy of the conceptual Entity that it realizes. The logical Entity’s composed Entities realize one to one the conceptual Entity’s composed Entities; the logical Entity’s composed Measurements realize many to one the conceptual Entity’s composed Observables. " enabled="true" id="28" name="LENTITY">lentity ${name} "${description}" : ${specializes:CrossReference(LogicalEntity.specializes)} -&gt; ${realizes:CrossReference(LogicalEntity.realizes)} {
 		${cursor}
 };</template><template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalEnumerated" deleted="false" description="An Enumerated is a value type representing a set of named values, each with specific meaning." enabled="true" id="17" name="ENUM">enum	${name} "${description}"  stdRef: "${standardReference}"
 	[ ${cursor} ];	
