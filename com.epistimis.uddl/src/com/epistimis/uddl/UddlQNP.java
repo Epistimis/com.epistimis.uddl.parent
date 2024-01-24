@@ -1,6 +1,7 @@
 package com.epistimis.uddl;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.conversion.impl.QualifiedNameValueConverter;
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -29,6 +30,10 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 	// Because the base class one is private
 	@Inject
 	protected IQualifiedNameConverter converter = new IQualifiedNameConverter.DefaultImpl();
+	
+	@Inject protected QualifiedNameValueConverter qualifiedNameValueConverter = new QualifiedNameValueConverter();
+	
+	public QualifiedNameValueConverter getQualifiedNameValueConverter() { return qualifiedNameValueConverter; }
 	
 	/**
 	 * Determine the QualifiedName of obj relative to ctx
