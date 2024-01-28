@@ -27,6 +27,7 @@ import com.epistimis.uddl.uddl.LogicalDataModel
 import com.epistimis.uddl.uddl.LogicalElement
 import com.epistimis.uddl.uddl.LogicalEntity
 import com.epistimis.uddl.uddl.LogicalEnumerated
+import com.epistimis.uddl.uddl.LogicalEnumeratedSet
 import com.epistimis.uddl.uddl.LogicalMeasurementSystem
 import com.epistimis.uddl.uddl.LogicalParticipant
 import com.epistimis.uddl.uddl.LogicalQuery
@@ -45,8 +46,10 @@ import com.epistimis.uddl.uddl.PlatformEntity
 import com.epistimis.uddl.uddl.PlatformParticipant
 import com.epistimis.uddl.uddl.PlatformQuery
 import com.epistimis.uddl.uddl.PlatformQueryComposition
+import com.epistimis.uddl.uddl.UddlElement
 import com.google.inject.Inject
 import java.util.List
+import java.util.function.Predicate
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.formatting.impl.FormattingConfig
@@ -55,7 +58,7 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.formatting2.regionaccess.ISemanticRegion
 
 import static com.epistimis.uddl.uddl.UddlPackage.Literals.*
-import org.eclipse.xtext.formatting2.FormatterRequest
+import com.epistimis.uddl.uddl.LogicalEnumerationLabel
 
 class UddlFormatter extends AbstractFormatter2 {
 
@@ -141,23 +144,50 @@ class UddlFormatter extends AbstractFormatter2 {
 		interior(open, close)[indent]
 	}
 
-	def void formatListContainer(EObject obj, List<EObject> contents, extension IFormattableDocument document,boolean asLine) {
+	val Predicate<EObject> enumContentCheck =  [obj | 
+		{
+			// Containers always get full line treatment
+			if (obj instanceof LogicalEnumeratedSet) { return true; } 
+			if (obj instanceof LogicalEnumerated) { return true; } 
+			// labels only get full line treatment if they have a description
+			if (obj instanceof LogicalEnumerationLabel) {
+				val desc = (obj as LogicalEnumerationLabel).description;
+				if (desc?.length > 0) { return true; }
+			}
+			// All others return false
+			return false;
+		}
+	];
+	val Predicate<EObject> alwaysTrue =  [true];
+
+	/**
+	 * TODO: asLine should be a predicate
+	 * TODO: list bounds themselves are not indented, just the contents. To indent the list bounds, must identify the semantic regions that 
+	 * are on the outside of them (so the bounds become part of the 'interior' region. Alternatively,indent them individually - though that doesn't
+	 * seem to have the desired effect
+	 */
+	def void formatListContainer(EObject obj, List<EObject> contents, extension IFormattableDocument document,Predicate<EObject> asLine) {
 		val open = obj.regionFor.keyword("[")
 		val close = obj.regionFor.keyword("]")
-		open.surround[oneSpace];
+		// Always start the list on a new line
+		open.prepend[setNewLines(1, 1, 2)].append[oneSpace];
 		close.surround[oneSpace];
 		contents.formatList(document,asLine);
-		interior(open, close)[indent]		
+		interior(open, close)[indent]
+//		open.prepend[indent]
+//		close.prepend[indent]		
 	}
 
-	def void formatList(List<EObject> objs, extension IFormattableDocument document, boolean asLine) {
+	def void formatList(List<EObject> objs, extension IFormattableDocument document,Predicate<EObject> asLine) {
 		for (EObject obj : objs) {
-			if (asLine) {
+			if (asLine.test(obj)) {
 				obj.prepend[setNewLines(1, 1, 2)]
 				obj.append[setNewLines(1, 1, 2)]
 			} else {
 				obj.surround[oneSpace]				
 			}
+			// Format the object itself (which may be also be a list)
+			obj.format
 		}
 	}
 
@@ -257,7 +287,7 @@ class UddlFormatter extends AbstractFormatter2 {
 	def dispatch void format(ConceptualAssociation obj, extension IFormattableDocument document) {
 		obj.formatEntity(document)
 
-		obj.formatListContainer( List.copyOf(obj.participant.toList), document, true);
+		obj.formatListContainer( List.copyOf(obj.participant.toList), document, alwaysTrue);
 
 //		for (c : obj.participant) {
 //			c.format
@@ -300,6 +330,9 @@ class UddlFormatter extends AbstractFormatter2 {
 	}
 
 	/** Logical  */
+	/**
+	 * By default, any Logical that doesn't have its own formtter will call this method
+	 */
 	def dispatch void format(LogicalElement obj, extension IFormattableDocument document) {
 		obj.prepend[setNewLines(1, 1, 2)]
 		formatObj(obj, document);
@@ -339,7 +372,7 @@ class UddlFormatter extends AbstractFormatter2 {
 	def dispatch void format(LogicalAssociation obj, extension IFormattableDocument document) {
 		obj.formatEntity(document)
 
-		obj.formatListContainer( List.copyOf(obj.participant.toList), document, true);
+		obj.formatListContainer( List.copyOf(obj.participant.toList), document, alwaysTrue);
 //		for (c : obj.participant) {
 //			c.format
 //			c.append[setNewLines(1, 1, 2)]
@@ -362,14 +395,33 @@ class UddlFormatter extends AbstractFormatter2 {
 	}
 
 	def dispatch void format(LogicalEnumerated obj, extension IFormattableDocument document) {
-		obj.formatObj( document);
+//		obj.formatObj( document);
+		formatAttributeElement(obj.regionFor.feature(UDDL_ELEMENT__NAME ),document);
+		formatAttributeElement(obj.regionFor.feature(UDDL_ELEMENT__DESCRIPTION ),document);
 		formatAttributeElement(obj.regionFor.feature(LOGICAL_ENUMERATED__STANDARD_REFERENCE), document);
 		// To get around the type issues, we convert the EList<LogicalEnumerated> -> List<LogicalEnumerated> -> List<EObject>
-		obj.formatListContainer( List.copyOf(obj.label.toList), document, false);
+		obj.formatListContainer( List.copyOf(obj.label.toList), document, enumContentCheck);
 //		for (EObject elem : obj.label) {
 //			elem.surround[oneSpace]
 //		}
 		
+	}
+	def dispatch void format(LogicalEnumeratedSet obj, extension IFormattableDocument document) {
+//		obj.formatObj( document);
+		formatAttributeElement(obj.regionFor.feature(UDDL_ELEMENT__NAME ),document);
+		formatAttributeElement(obj.regionFor.feature(UDDL_ELEMENT__DESCRIPTION ),document);
+		// To get around the type issues, we convert the EList<LogicalEnumerated> -> List<LogicalEnumerated> -> List<EObject>
+		obj.formatListContainer( List.copyOf(obj.label.toList), document, enumContentCheck);
+		
+	}
+	
+	/**
+	 * Labels just need spacing - and to make sure we don't call the formatter for LogicalElement, which 
+	 * would insert lines
+	 */
+	def dispatch void format(LogicalEnumerationLabel obj, extension IFormattableDocument document) {		
+		formatAttributeElement(obj.regionFor.feature(UDDL_ELEMENT__NAME ),document);
+		formatAttributeElement(obj.regionFor.feature(UDDL_ELEMENT__DESCRIPTION ),document);
 	}
 
 	def dispatch void format(LogicalMeasurementSystem obj, extension IFormattableDocument document) {
