@@ -4,6 +4,7 @@
 package com.epistimis.uddl.ui.contentassist;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.xtext.Assignment;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
@@ -12,6 +13,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
 import com.epistimis.uddl.LPRealizationProcessor;
 import com.epistimis.uddl.LogicalEntityProcessor;
 import com.epistimis.uddl.PlatformEntityProcessor;
+import com.epistimis.uddl.uddl.LogicalAbstractMeasurement;
 import com.epistimis.uddl.uddl.LogicalAssociation;
 import com.epistimis.uddl.uddl.LogicalCharacteristic;
 import com.epistimis.uddl.uddl.LogicalComposableElement;
@@ -25,6 +27,7 @@ import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformDataType;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
+import com.epistimis.uddl.uddl.UddlPackage;
 
 /**
  * 
@@ -62,7 +65,13 @@ public class LPRealizationProposalProcessor extends
 	@Override
 	protected String compositionInsertionString(LogicalComposition bc, String indent) {
 		String typeName = dummyType;
-		PlatformComposableElement ce = (PlatformComposableElement) rezProc.getRealizingType(bc.getType(),ABS_MEAS_REALIZATION_ERR,ABS_MEAS_REALIZATION_MANY);
+		PlatformComposableElement ce = null;
+		if (bc.getType() instanceof LogicalEntity) {
+			ce = (PlatformComposableElement) rezProc.getRealizingType(bc.getType(),ENTITY_REALIZATION_ERR,ENTITY_REALIZATION_MANY);
+		} else if (bc.getType() instanceof LogicalAbstractMeasurement) {
+			ce = (PlatformComposableElement) rezProc.getRealizingType(bc.getType(),ABS_MEAS_REALIZATION_ERR,ABS_MEAS_REALIZATION_MANY);
+			
+		}
 		if (ce != null) {
 			typeName = qnp.relativeQualifiedName(ce,  bc).toString();
 		}
@@ -90,5 +99,13 @@ public class LPRealizationProposalProcessor extends
 	}
 
 
+	@Override
+	protected EReference getCompositionTypeReference() {
+		return UddlPackage.Literals.PLATFORM_COMPOSITION__TYPE;
+	}
 
+	@Override
+	protected EReference getCompositionRealizesReference() {
+		return UddlPackage.Literals.PLATFORM_COMPOSITION__REALIZES;
+	}
 }

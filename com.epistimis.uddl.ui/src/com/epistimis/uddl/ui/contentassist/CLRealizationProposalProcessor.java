@@ -4,6 +4,7 @@
 package com.epistimis.uddl.ui.contentassist;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.xtext.Assignment;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
@@ -26,6 +27,7 @@ import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalMeasurement;
 import com.epistimis.uddl.uddl.LogicalMeasurementAxis;
 import com.epistimis.uddl.uddl.LogicalParticipant;
+import com.epistimis.uddl.uddl.UddlPackage;
 
 /**
  * 
@@ -105,4 +107,13 @@ public class CLRealizationProposalProcessor extends
 		return "Implement 'getRealizingTypeName' for " + realizingType.eClass().getName();
 	}
 
+	@Override
+	protected EReference getCompositionTypeReference() {
+		return UddlPackage.Literals.LOGICAL_COMPOSITION__TYPE;
+	}
+
+	@Override
+	protected EReference getCompositionRealizesReference() {
+		return UddlPackage.Literals.LOGICAL_COMPOSITION__REALIZES;
+	}
 }

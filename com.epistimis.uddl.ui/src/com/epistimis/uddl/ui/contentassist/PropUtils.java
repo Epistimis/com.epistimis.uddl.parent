@@ -150,9 +150,9 @@ public class PropUtils {
 	 * @param valueConverter
 	 * @return
 	 */
-	public ConfigurableCompletionProposal.IReplacementTextApplier createTextApplier(ContentAssistContext context,
+	public ConfigurableCompletionProposal.IReplacementTextApplier createTextApplier(Resource resource,
 			IScope typeScope, IQualifiedNameConverter qualifiedNameConverter, IValueConverter<String> valueConverter) {
-		return new FQNShortener(context.getResource(), typeScope, qualifiedNameConverter, valueConverter);
+		return new FQNShortener(resource, typeScope, qualifiedNameConverter, valueConverter);
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class PropUtils {
 			// place
 			configurableCompletionProposal.setAdditionalProposalInfo(additionalInfo);
 			configurableCompletionProposal.setHover(hover);
-			configurableCompletionProposal.setTextApplier(createTextApplier(context, typeScope,
+			configurableCompletionProposal.setTextApplier(createTextApplier(context.getResource(), typeScope,
 					getQualifiedNameConverter(), getQualifiedNameValueConverter()));
 		}
 		return theProposal;

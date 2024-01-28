@@ -13,6 +13,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.xtext.Assignment;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
@@ -23,6 +25,7 @@ import com.epistimis.uddl.RealizationProcessor;
 import com.epistimis.uddl.UddlQNP;
 import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
+import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.inject.Inject;
 
 /**
@@ -42,13 +45,12 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 
 	protected static String compositionFormatString = " %s[%d:%d] \"%s\" -> %s;\n";
 	protected static String participantFormatString = " %s[%d:%d] \"%s\" -> %s { source: [ %s : %d ] };\n";
-	protected static String dummyType = "__ReplaceMe__";
-	protected static String defaultComment = "// Replace " + dummyType
-			+ " with the ComposableElement type for each composition\n";
-	protected static String proposalPrefix = "(Default) ";
-	protected static String proposalSuffix = "";
-	protected static String realizeAll = "<<Default Realize All>>";
-	protected static String realizeRemaining = "<<Default Realize Remaining>>";
+	protected static String dummyType 				= "__ReplaceMe__";
+	protected static String defaultComment 			= "// Replace " + dummyType + " with the ComposableElement type for each composition\n";
+	protected static String proposalPrefix 			= "(Default) ";
+	protected static String proposalSuffix 			= "";
+	protected static String realizeAll 				= "<<Default Realize All>>";
+	protected static String realizeRemaining 		= "<<Default Realize Remaining>>";
 
 	@Inject	UddlQNP qnp;
 	@Inject PropUtils pu;
@@ -59,16 +61,40 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 	@Inject BaseProcessor bProc;
 	@Inject RealizingProcessor rProc; 
 
+	/**
+	 * A callback to call the appropriate 'superComplete(L/P)Composition' method which can only be done from the ProposalProvider derived class.
+	 */
 	abstract protected void completeSuperRealizingComposition(UddlProposalProvider pp, EObject obj, RuleCall ruleCall,
 			ContentAssistContext context, ICompletionProposalAcceptor acceptor);
 
+	/**
+	 * A callback to call the appropriate 'superComplete(L/P)Composition_Rolename' method which can only be done from the ProposalProvider derived class.
+	 */
 	abstract protected void completeSuperRealizingComposition_Rolename(UddlProposalProvider pp, EObject obj,
 			Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor);
 
+	/**
+	 * Create the display string for the proposal (what shows up in the Popup dialog). This works for
+	 * both compositions and participants.
+	 * @param bc The BaseCharacteristic for which to generate the display string
+	 * @return The display string for the proposal
+	 */
 	abstract protected String proposalDisplayString(BaseCharacteristic bc);
 
+	/**
+	 * Create the insertion string for the entire composition (all attributes)
+	 * @param bc The BaseComposition for which to generate the insertion string
+	 * @param indent How many tabs to indent
+	 * @return The insertion string for the entire composition
+	 */
 	abstract protected String compositionInsertionString(BaseComposition bc, String indent);
 
+	/**
+	 * Create the insertion string for the entire participant (all attributes)
+	 * @param bp The BaseParticipant for which to generate the insertion string
+	 * @param indent How many tabs to indent
+	 * @return The insertion string for the entire participant
+	 */
 	abstract protected String participantInsertionString(BaseParticipant bc, String indent);
 
 	/**
@@ -78,6 +104,16 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 	 * @return
 	 */
 	abstract protected String getRealizingTypeName(EObject realizingType);
+	
+	/**
+	 * Get the 'type' reference to be used when creating a scope for FQN shortening on a reference.
+	 */
+	abstract protected EReference getCompositionTypeReference();
+
+	/**
+	 * Get the 'realizes' reference to be used when creating a scope for FQN shortening on a reference.
+	 */
+	abstract protected EReference getCompositionRealizesReference();
 	
 	/**
 	 * Get the type parameters for this generic class See also
@@ -185,7 +221,7 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 	public void complete_Composition(UddlProposalProvider pp, RezProcessor rproc, RealizingEntity rentity,
 			RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		// Get all the standard stuff first
-		completeSuperRealizingComposition(pp, rentity, ruleCall, context, acceptor);
+//		completeSuperRealizingComposition(pp, rentity, ruleCall, context, acceptor);
 
 		String indent = contentIndent(rentity);
 		// Now add customization here
@@ -209,10 +245,11 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 
 			for (BaseParticipant cp : unrealizedParticipants) {
 				// If this one isn't already realized, then add it to the proposal
-				String oneRealizedCP = participantInsertionString(cp,indent);
-				String proposalString = proposalDisplayString(cp);
-				acceptor.accept(pp.createCompletionProposal(oneRealizedCP, proposalString, null, context));
-				result += oneRealizedCP;
+				String insertionString = participantInsertionString(cp,indent);
+				String displayString = proposalDisplayString(cp);
+				ICompletionProposal prop = pp.createCompletionProposal(insertionString,displayString, null, context);
+				acceptor.accept(prop);
+				result += insertionString;
 			}
 			result += "]";
 		}
@@ -272,13 +309,15 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 		for (EObject rce: realizingTypes) {
 			String insertionString = pu.minimalReferenceString( rce, rentity);
 			String displayString = getRealizingTypeName(rce);
-			acceptor.accept(pp.createCompletionProposal(insertionString, displayString, null, context));			
+			ICompletionProposal prop = pp.createCompletionProposal(insertionString,displayString, null, context);
+			prop = pu.modifyConfigurableCompletionProposal(prop, context, getCompositionTypeReference(), ((UddlElement)rce).getDescription());
+			acceptor.accept(prop);
 		}
 	}
 
 	public void completeComposition_Rolename(UddlProposalProvider pp, RezProcessor rproc, RealizingEntity rentity,
 			Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		completeSuperRealizingComposition_Rolename(pp, rentity, assignment, context, acceptor);
+//		completeSuperRealizingComposition_Rolename(pp, rentity, assignment, context, acceptor);
 
 		// Pick out the roles from the list of unrealized Compositions
 		for (BaseComposition cc : rproc.getUnrealizedCompositions(rentity)) {
@@ -294,8 +333,9 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 
 		for (BaseComposition cc : rproc.getUnrealizedCompositions(rentity)) {
 			String displayString = proposalDisplayString(cc);
-			acceptor.accept(pp.createCompletionProposal(qnp.getFullyQualifiedName(cc).toString(), displayString, null,
-					context));
+			ICompletionProposal prop = pp.createCompletionProposal(qnp.getFullyQualifiedName(cc).toString(),displayString, null, context);
+			prop = pu.modifyConfigurableCompletionProposal(prop, context, getCompositionRealizesReference(),((UddlElement)cc).getDescription());
+			acceptor.accept(prop);
 		}
 
 	}
