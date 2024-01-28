@@ -15,6 +15,7 @@ import com.epistimis.uddl.exceptions.WrongTypeException;
 
 import com.epistimis.uddl.uddl.ConceptualBasisEntity;
 import com.epistimis.uddl.uddl.ConceptualEntity;
+import com.epistimis.uddl.uddl.LogicalAbstractMeasurement;
 import com.epistimis.uddl.uddl.LogicalElement;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalMeasurement;
@@ -142,7 +143,7 @@ public class ModelFilters {
 	 */
 	public List<LogicalValueTypeUnit> getValueTypeUnit(PlatformDataType pdt) {
 		List<LogicalValueTypeUnit> result = new ArrayList<>();
-		LogicalElement absMeasure = pdt.getRealizes();
+		LogicalAbstractMeasurement absMeasure = pdt.getRealizes();
 		if (absMeasure instanceof LogicalMeasurement) {
 			EList<LogicalMeasurementAxis> axes = ((LogicalMeasurement)absMeasure).getMeasurementAxis();
 			for (LogicalMeasurementAxis axis: axes) {
