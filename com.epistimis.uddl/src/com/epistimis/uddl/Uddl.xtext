@@ -63,7 +63,7 @@ UddlElement:  // This is datamodel.Element but it's too much hassle to fix after
 	LogicalElement |
 	PlatformElement |
 	LogicalReferencePoint |
-	LogicalEnumerationLabel | 
+	LogicalEnumeratedBase | //LogicalEnumerationLabel | 
 	LogicalConstraint
 ;
 
@@ -261,7 +261,7 @@ LogicalValueType:
 	LogicalNumeric |
 	LogicalCharacter |
 	LogicalString |
-	LogicalEnumeratedBase // EXTENSION
+	LogicalEnumerated // EXTENSION
 ;
 
 /** A String is a value type that represents a variable length sequence of characters. */
@@ -304,12 +304,15 @@ LogicalEnumerated:
 /**EXTENSION: The foundation for every taxonomic type hierarchy. Override and extend as needed */
 Taxonomy:
 	LogicalEnumeratedBase
+	| LogicalEnumerated
 ;
-/**EXTENSION: Creates the foundation for a hierarchy of enumerated values  */
+/**EXTENSION: Creates the foundation for a hierarchy of enumerated values. LogicalEnumerated is kept separate because we need to make a
+ * distinction between LogicalEnumerated and LogicalEnumerationLabel - otherwise, we end up with too many choices when selected LogicalElement values.
+ */
 LogicalEnumeratedBase:
-	LogicalEnumeratedSet |
-	LogicalEnumerationLabel |
-	LogicalEnumerated
+	LogicalEnumeratedSet 
+	| LogicalEnumerationLabel 
+	//| LogicalEnumerated
 ;
 
 /**EXTENSION: allowing label to be a LogicalEnumeratedSet enables taxonomy definitions via enumerations  */
@@ -626,10 +629,10 @@ PlatformPrimitive:
 ;
 
 /** A Boolean is a data type that represents the values TRUE and FALSE. */
-PlatformBoolean:			'bool'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformBoolean:			'bool'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** An Octet is an 8-bit quantity that is guaranteed not to undergo any conversion during transfer between systems. */
-PlatformOctet:				'octet'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformOctet:				'octet'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 // Skip single inheritance - XText doesn't float attributes up when there is single inheritance.
 ///** A CharType is a Char. */
@@ -639,8 +642,8 @@ PlatformOctet:				'octet'  						name=ID  (description=STRING)? '->' realizes=[/
 //;
 
 /** A Char is a data type that represents characters from any single byte character set. */
-PlatformChar:				'char'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
-//PlatformWChar:				'wchar'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformChar:				'char'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
+//PlatformWChar:				'wchar'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A StringType is a BoundedString, an unbounded String, or a CharArray. */
 PlatformStringType:
@@ -650,16 +653,16 @@ PlatformStringType:
 ;
 
 /** A String is a data type that represents a variable length sequence of Char (all 8-bit quantities except NULL). The length is a non-negative integer, and is available at run-time. */
-PlatformString:				'string'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformString:				'string'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A BoundedString is a data type that represents a variable length sequence of Char (all 8-bit quantities except NULL). The length is a non-negative integer, and is available at run-time. The “maxLength” attribute defines the maximum length of the BoundedString, an integer value greater than 0. */
-PlatformBoundedString:		'string[' maxLength=INT ']'  	name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformBoundedString:		'string[' maxLength=INT ']'  	name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A CharArray is a data type that represents a fixed length sequence of Char (all 8-bit quantities except NULL). The length is a positive integer, and is available at run-time. The “length” attribute defines the length of the CharArray, an integer value greater than 0. */
-PlatformCharArray:			'char['   length=INT ']'  		name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformCharArray:			'char['   length=INT ']'  		name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** An Enumeration is a data type that represents an ordered list of identifiers. */
-PlatformEnumeration:		'enum'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformEnumeration:		'enum'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A Number is an abstract meta-class from which all meta-classes representing numeric values derive. */
 PlatformNumber:
@@ -676,13 +679,13 @@ PlatformInteger:
 ;
 
 /** A Short is an integer data type that represents integer values in the range –2^15 to (2^15 – 1). */
-PlatformShort:				'short'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformShort:				'short'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A Long is an integer data type that represents integer values in the range –2^31 to (2^31 – 1). */
-PlatformLong:				'long'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformLong:				'long'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A LongLong is an integer data type that represents integer values in the range –2^63 to (2^63 – 1). */
-PlatformLongLong:			'llong'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformLongLong:			'llong'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A Real is an abstract meta-class from which all meta-classes representing real numbers derive. */
 PlatformReal:
@@ -693,17 +696,17 @@ PlatformReal:
 ;
 
 /** A Double is a real data type that represents an IEEE double precision floating-point number.  */
-PlatformDouble:				'double'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformDouble:				'double'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A LongDouble is a real data type that represents an IEEE extended double precision floating- point number (having a signed fraction of at least 64 bits and an exponent of at least 15 bits) */
-PlatformLongDouble:			'ldouble'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformLongDouble:			'ldouble'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A Float is a real data type that represents an IEEE single precision floating-point number. */
-PlatformFloat:				'float'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformFloat:				'float'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A Fixed is a real data type that represents a fixed-point decimal number of up to 31 significant digits. The “digits” attribute defines the total number of digits, a non-negative integer value less than or equal to 31. The “scale” attribute defines the position of the decimal point in the number, and cannot be greater than “digits”. */
 PlatformFixed:				'fixed[' digits=INT '.' scale=INT ']'
-															name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';'
+															name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';'
 ;
 
 /** An UnsignedInteger is an abstract meta-class from which all meta-classes representing unsigned whole numbers derive. */
@@ -714,23 +717,23 @@ PlatformUnsignedInteger:
 ;
 
 /** A UShort is an integer data type that represents integer values in the range 0 to (2^16 – 1).  */
-PlatformUShort:				'ushort'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformUShort:				'ushort'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A ULong is an integer data type that represents integer values in the range 0 to (2^32 – 1). */
-PlatformULong:				'ulong'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformULong:				'ulong'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A ULongLong is an integer data type that represents integer values in the range 0 to (2^64 – 1). */
-PlatformULongLong:			'ullong'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformULongLong:			'ullong'  						name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A Sequence is used to represent a sequence of Octets. This can be used to realize a StandardMeasurementSystem. */
-PlatformSequence:			'seq' ('[' maxSize=INT ']')?  	name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformSequence:			'seq' ('[' maxSize=INT ']')?  	name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** An Array is used to represent an array of Octets. This can be used to realize a StandardMeasurementSystem. */
-PlatformArray:				'arr' ('[' size=INT ']')?  		name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] ';' ;
+PlatformArray:				'arr' ('[' size=INT ']')?  		name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] ';' ;
 
 /** A platform Struct is a structured realization of a logical AbstractMeasurement. It is composed of PlatformDataTypes (i.e., Primitives and other Structs composed of Primitives). A platform Struct’s composition hierarchy is consistent with the composition hierarchy of the logical AbstractMeasurement that it realizes. */
 PlatformStruct:
-	'struct' name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement|QN] '{'
+	'struct' name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] '{'
 		member+=PlatformStructMember
 		member+=PlatformStructMember
 		(member+=PlatformStructMember)?
