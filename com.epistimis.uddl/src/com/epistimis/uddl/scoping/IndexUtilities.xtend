@@ -36,13 +36,10 @@ import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.resource.IContainer
 import org.eclipse.xtext.resource.IEObjectDescription
 import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
-import org.eclipse.emf.ecore.util.EcoreUtil.CrossReferencer
-//import org.obeonetwork.m2doc.util.ECrossReferenceAdapterCrossReferenceProvider
-import org.eclipse.emf.ecore.util.ECrossReferenceAdapter;
+import static java.util.Objects.requireNonNull;
+import java.util.HashMap
 
 //import org.eclipse.acceleo.query.validation.type.IType
-//import java.util.LinkedHashMap
-//import java.util.LinkedHashSet
 //import org.eclipse.acceleo.query.validation.type.EClassifierType
 //import org.eclipse.acceleo.query.parser.AstValidator
 //import org.eclipse.acceleo.query.runtime.IValidationResult
@@ -59,17 +56,21 @@ class IndexUtilities {
 
 	/**
 	 * Get all the EObjectDescriptions of the specified type visible from the context object
+	 * @param context The root object where we start the search. Should never be null.
 	 */
-	def getVisibleEObjectDescriptions(EObject o, EClass type) {
-		o.getVisibleContainers.map [ container |
+	def getVisibleEObjectDescriptions(EObject context, EClass type) {
+		requireNonNull(context,"You must specify the context from which the search for visible objects will start");
+		context.getVisibleContainers.map [ container |
 			container.getExportedObjectsByType(type)
 		].flatten
 	}
 
 	/**
 	 * Get all the objects of the specified type visible from the context object
+	 * @param context The root object where we start the search. Should never be null.
 	 */
 	def getVisibleObjects(EObject context, EClass type) {
+		requireNonNull(context,"You must specify the context from which the search for visible objects will start");
 		context.getVisibleEObjectDescriptions(type).map([
 			context.eResource.objectFromDescription(it)
 		]);
@@ -77,10 +78,13 @@ class IndexUtilities {
 
 	/**
 	 * Find all containers visible from this object 
+	 * @param context The root object where we start the search. Should never be null.
+	 * 
 	 */
-	def getVisibleContainers(EObject o) {
-		val index = rdp.getResourceDescriptions(o.eResource)
-		val rd = index.getResourceDescription(o.eResource.URI)
+	def getVisibleContainers(EObject context) {
+		requireNonNull(context,"You must specify the context where the search will start");
+		val index = rdp.getResourceDescriptions(context.eResource)
+		val rd = index.getResourceDescription(context.eResource.URI)
 		// TODO: rd should never be null - but occasionally it is
 		// For reasons I don't yet understand. This avoids an NPE.
 		if (rd !== null) {
@@ -92,36 +96,57 @@ class IndexUtilities {
 
 	/**
 	 * Get the description of the Resource containing this object
+	 * 
+	 * @param context An EObject. Should never be null.
 	 */
-	def getResourceDescription(EObject o) {
-		if (o === null) { return null; }
-		val index = rdp.getResourceDescriptions(o.eResource)
-		index.getResourceDescription(o.eResource.URI)
+	def getResourceDescription(EObject context) {
+		requireNonNull(context,"You must specify the context whose Resource Description you want");
+		//if (context === null) { return null; }
+		val index = rdp.getResourceDescriptions(context.eResource)
+		index.getResourceDescription(context.eResource.URI)
 	}
 
 	/**
 	 * Get all the exported EObjectDescriptions from the Resource containing this object
+	 * @param context The root object where we start the search. Should never be null.
 	 */
-	def getExportedEObjectDescriptions(EObject o) {
-		o.getResourceDescription.getExportedObjects
+	def getExportedEObjectDescriptions(EObject context) {
+		requireNonNull(context,"You must specify the context whose exported descriptions you want");
+		context.getResourceDescription.getExportedObjects
 	}
 
 	/**
 	 * Get all the exported EObjectDescriptions from the Resource containing this object,
 	 * filtered by the specified EClass
+	 * 
+	 * @param context The root object where we start the search. Should never be null.
 	 */
-	def getExportedEObjectDescriptionsByType(EObject o, EClass type) {
-		o.getResourceDescription?.getExportedObjectsByType(type)
+	def getExportedEObjectDescriptionsByType(EObject context, EClass type) {
+		requireNonNull(context,"You must specify the context whose exported descriptions you want");
+		requireNonNull(type,"You must specify the type you want to search for");
+		var Iterable<IEObjectDescription> descs = context.getResourceDescription?.getExportedObjectsByType(type);
+		if (descs === null) {
+			// return an empty list to avoid a null pointer
+			return new ArrayList<IEObjectDescription>();
+		}
+		else {
+			return descs;
+		}
 	}
 
 	/**
 	 * Get *only* the external EObjectDescriptions visible from 'o' of 'type'
+	 * @param context The root object where we start the search. Should never be null.
 	 */
-	def getVisibleExternalEObjectDescriptionsByType(EObject o, EClass type) {
-		val allVisibleEObjectDescriptions = o.getVisibleEObjectDescriptions(type)
-		val allExportedEObjectDescriptions = o.getExportedEObjectDescriptionsByType(type)
+	def getVisibleExternalEObjectDescriptionsByType(EObject context, EClass type) {
+		requireNonNull(context,"You must specify the context from which visible objects will be identified");
+		requireNonNull(type,"You must specify the type you want to search for");
+		val allVisibleEObjectDescriptions = context.getVisibleEObjectDescriptions(type)
+		val allExportedEObjectDescriptions = context.getExportedEObjectDescriptionsByType(type)
 		val difference = allVisibleEObjectDescriptions.toSet
-		difference.removeAll(allExportedEObjectDescriptions?.toSet)
+		if (allExportedEObjectDescriptions !== null) {
+			difference.removeAll(allExportedEObjectDescriptions?.toSet)
+		}
 		return difference.toMap[qualifiedName]
 	}
 
@@ -141,6 +166,8 @@ class IndexUtilities {
 	 * 	}
 	 */
 	def getVisibleExternalEObjectsByType(EObject context, EClass type) {
+		requireNonNull(context,"You must specify the context from which visible objects will be identified");
+		requireNonNull(type,"You must specify the type you want to search for");
 		context.getVisibleExternalEObjectDescriptionsByType(type).values.map([
 			context.eResource.objectFromDescription(it)
 		]);
@@ -188,6 +215,9 @@ class IndexUtilities {
 	 * with that name
 	 */
 	def searchAllVisibleEObjectDescriptions(EObject context, EClass type, String name, boolean ignoreCase) {
+		requireNonNull(context,"You must specify the context from which visible objects will be identified");
+		requireNonNull(type,"You must specify the type you want to search for");
+		requireNonNull(name,"You must specify the name you want to search for");
 
 		Collections.synchronizedList(context.getVisibleEObjectDescriptions(type).filter [
 			val QualifiedName qn = it.getQualifiedName();
@@ -229,6 +259,9 @@ class IndexUtilities {
 	 * with that name
 	 */
 	def searchAllVisibleObjects(EObject context, EClass type, String name) {
+		requireNonNull(context,"You must specify the context from which visible objects will be identified");
+		requireNonNull(type,"You must specify the type you want to search for");
+		requireNonNull(name,"You must specify the name you want to search for");
 		context.searchAllVisibleEObjectDescriptions(type, name).map([
 			context.eResource.objectFromDescription(it)
 		]);
@@ -252,6 +285,9 @@ class IndexUtilities {
 	 * than one is found.
 	 */
 	def getUniqueObjectForName(EObject context, EClass type, String name) {
+		requireNonNull(context,"You must specify the context from which the search will start");
+		requireNonNull(type,"You must specify the type you want to search for");
+		requireNonNull(name,"You must specify the name you want to search for");
 		val List<EObject> objList = searchAllVisibleObjects(context, type, name);
 		switch objList.size() {
 			case 0: {
@@ -298,6 +334,28 @@ class IndexUtilities {
 	}
 
 	/**
+	 * Get the closure of following the feature recursively. This works even if we change types - as long as 
+	 * the feature exists, we'll get something. This has a risk of recursive infinite looping.
+	 * TODO: This could be optimized by parsing the query once and then just recursing using the same
+	 * parsed query.
+	 * @param context Used to identify the ResourceSet that scopes the search
+	 * @param root The object whose feature will be inspected
+	 * @param featureName The feature of that inspected object whose values we want.
+	 * @return a flattened list of closure values
+	 */
+	def Collection<EObject>  closure(EObject context, EObject root, String featureName) {
+		var Map<String,Object> variables = new HashMap<String,Object>();
+		variables.put("self",root);
+		val ResourceSet res = context.eResource().getResourceSet();
+		var Collection<EObject> results = processAQL(res,variables,"self.eGet('"+featureName+"')");
+		for (EObject obj: results) {
+			results.addAll(closure(context,obj,featureName));
+		}
+		return results;
+		
+	}
+
+	/**
 	 * Identify the EObjects in the closure starting at root and following the specified 
 	 * feature. This assumes the feature points from parent to child.
 	 * 
@@ -318,6 +376,10 @@ class IndexUtilities {
 	 *         that are visible from the context
 	 */
 	def Set<EObject> closure(EObject context, EObject root, EClass type, EStructuralFeature feat) {
+		requireNonNull(context,"You must specify the context in which the search will operate");
+		requireNonNull(root,"You must specify the root of the hierarchy");
+		requireNonNull(type,"You must specify the type you want to search for");
+		requireNonNull(feat,"You must specify the feature to follow");
 		// If this is a collection feature, handle that differently
 		if (feat.isMany) {
 			return closureColn(context, root, type, feat);
@@ -350,7 +412,7 @@ class IndexUtilities {
 	 * feature through an unknown number of levels. This means we need to loop on all the objects and keep
 	 * adding to the found list until the list doesn't change after a complete pass.
 	 * 
-	 * This version is for features that are cardinality > 1, use visibleClosure
+	 * This version is for features that are cardinality > 1,
 	 * 
 	 * 
 	 * @return A set of the EObjects of the specified type in the specified hierarchy
@@ -375,6 +437,7 @@ class IndexUtilities {
 		return found;
 
 	}
+
 
 	/**
 	 * Identify the EObjects in the closure starting at root and following the specified 
@@ -506,12 +569,12 @@ class IndexUtilities {
 			ECrossReferenceAdapter.getCrossReferenceAdapter(resourceSetForModel));
 		val ResourceSetRootEObjectProvider rootProvider = new ResourceSetRootEObjectProvider(resourceSetForModel);
 
-		return org.eclipse.acceleo.query.runtime.Query.newEnvironmentWithDefaultServices(crossReferenceProvider,
+		return Query.newEnvironmentWithDefaultServices(crossReferenceProvider,
 			rootProvider);
 	}
 
 	/**
-	 * Use Acceleo to get all the objects that have the specified relationship with the context object.
+	 * Use Acceleo Query Language to get all the objects that have the specified relationship with the context object.
 	 * See https://eclipse.dev/acceleo/documentation/ for doc on how to write queries.
 	 * 
 	 * @param pkgs This provides access to the list of packages to register.  
