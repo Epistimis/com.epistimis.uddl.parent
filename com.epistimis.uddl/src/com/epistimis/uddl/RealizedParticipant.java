@@ -1,5 +1,7 @@
 package com.epistimis.uddl;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
 
@@ -14,20 +16,20 @@ public class RealizedParticipant extends RealizedCharacteristic {
 
 	private int sourceUpperBound;
 
-	public RealizedParticipant(String rolename) {
+	public RealizedParticipant(@NonNull String rolename) {
 		super(rolename);
 		// TODO Auto-generated constructor stub
 		sourceLowerBound = 1;
 		sourceUpperBound = 1;
 	}
-	public RealizedParticipant(PlatformParticipant pp, RealizedComposableElement rce) {
+	public RealizedParticipant(@NonNull PlatformParticipant pp, RealizedComposableElement rce) {
 		super(pp,rce);
 		this.type = pp.getType();
 		sourceLowerBound = pp.getSourceLowerBound();
 		sourceUpperBound = pp.getSourceUpperBound();
 	}
 
-	public void update(PlatformParticipant pc, RealizedComposableElement rce) {
+	public void update(@NonNull PlatformParticipant pc, RealizedComposableElement rce) {
 		super.update(pc, rce);
 
 		// TODO: https://app.clickup.com/t/86bx15uh4

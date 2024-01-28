@@ -1,5 +1,7 @@
 package com.epistimis.uddl;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import com.epistimis.uddl.uddl.PlatformComposableElement;
 import com.epistimis.uddl.uddl.PlatformComposition;
 
@@ -16,14 +18,14 @@ public class RealizedComposition extends RealizedCharacteristic {
 	private float precision;
 
 
-	public RealizedComposition(String rolename) {
+	public RealizedComposition(@NonNull String rolename) {
 		super(rolename);
 		// TODO Auto-generated constructor stub
 		this.precision = 1;
 
 	}
 
-	public RealizedComposition(PlatformComposition pc, RealizedComposableElement rce) {
+	public RealizedComposition(@NonNull PlatformComposition pc, RealizedComposableElement rce) {
 		super(pc, rce);
 		// TODO Auto-generated constructor stub
 		this.type = pc.getType();
@@ -31,7 +33,7 @@ public class RealizedComposition extends RealizedCharacteristic {
 
 	}
 
-	public void update(PlatformComposition pc, RealizedComposableElement rce) {
+	public void update(@NonNull PlatformComposition pc, RealizedComposableElement rce) {
 		super.update(pc, rce);
 
 		// TODO: https://app.clickup.com/t/86bx15uh4

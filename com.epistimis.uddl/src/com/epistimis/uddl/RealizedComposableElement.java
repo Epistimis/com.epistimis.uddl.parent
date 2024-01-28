@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jdt.annotation.NonNull;
 
 import com.epistimis.uddl.uddl.PlatformComposableElement;
 
@@ -23,7 +24,7 @@ public class RealizedComposableElement {
 	public static Map<PlatformComposableElement,RealizedComposableElement> allComposableElements = new HashMap<PlatformComposableElement, RealizedComposableElement>();
 	public static Map<RealizedComposableElement,PlatformComposableElement> allRealizedElements = new HashMap<RealizedComposableElement,PlatformComposableElement>();
 
-	public RealizedComposableElement(PlatformComposableElement pce) {
+	public RealizedComposableElement(@NonNull PlatformComposableElement pce) {
 		allComposableElements.put(pce, this);
 		allRealizedElements.put(this,pce);
 	}

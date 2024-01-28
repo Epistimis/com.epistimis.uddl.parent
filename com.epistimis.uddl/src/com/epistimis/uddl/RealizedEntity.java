@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
+import com.google.common.base.Optional;
 
 public class RealizedEntity extends RealizedComposableElement {
 
@@ -66,7 +67,7 @@ public class RealizedEntity extends RealizedComposableElement {
 			compositionSoFar = new HashMap<String, RealizedComposition>();
 		}
 		// Set the description here because it might not always have a value
-		if (pe.getDescription().trim().length() > 0) {
+		if (Optional.fromNullable(pe.getDescription()).or("").trim().length() > 0) {
 			this.description = pe.getDescription();
 		}
 		return processLocalCompositions(pe,compositionSoFar);

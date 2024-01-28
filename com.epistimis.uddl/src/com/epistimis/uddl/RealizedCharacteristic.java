@@ -1,5 +1,7 @@
 package com.epistimis.uddl;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
 
 public class RealizedCharacteristic {
@@ -39,13 +41,13 @@ public class RealizedCharacteristic {
 	 */
 	private RealizedComposableElement realizedType;
 
-	public RealizedCharacteristic(String rolename) {
+	public RealizedCharacteristic(@NonNull String rolename) {
 		this.rolename = rolename;
 		this.lowerBound = 1;
 		this.upperBound = 1;
 	}
 
-	public RealizedCharacteristic(PlatformCharacteristic pc, RealizedComposableElement rce) {
+	public RealizedCharacteristic(@NonNull PlatformCharacteristic pc, @NonNull RealizedComposableElement rce) {
 		this.rolename = pc.getRolename();
 		this.description= pc.getDescription();
 		this.lowerBound = pc.getLowerBound();
@@ -59,7 +61,7 @@ public class RealizedCharacteristic {
 	 * PlatformComposition
 	 * @param pc
 	 */
-	public void update(PlatformCharacteristic pc, RealizedComposableElement rce) {
+	public void update(@NonNull PlatformCharacteristic pc, RealizedComposableElement rce) {
 		/**
 		 * Allowed updates:
 		 * 1) rolename can change - but can't become empty

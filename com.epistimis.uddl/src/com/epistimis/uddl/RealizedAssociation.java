@@ -3,6 +3,8 @@ package com.epistimis.uddl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
@@ -16,7 +18,7 @@ public class RealizedAssociation extends RealizedEntity {
 	 */
 	private Map<String, RealizedParticipant> participant;
 
-	public RealizedAssociation(PlatformAssociation pa) {
+	public RealizedAssociation(@NonNull PlatformAssociation pa) {
 		super(pa);
 
 		participant = processSpecializationForParticipants(pa);

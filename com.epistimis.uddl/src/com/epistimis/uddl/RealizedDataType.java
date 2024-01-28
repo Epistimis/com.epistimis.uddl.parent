@@ -1,5 +1,7 @@
 package com.epistimis.uddl;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import com.epistimis.uddl.uddl.PlatformDataType;
 
 /**
@@ -55,7 +57,7 @@ public class RealizedDataType extends RealizedComposableElement {
 
 	private DataType type;
 
-	public RealizedDataType(PlatformDataType pdt) {
+	public RealizedDataType(@NonNull PlatformDataType pdt) {
 		super(pdt);
 		String clzName = pdt.getClass().getSimpleName();
 		// Strip off 'Platform' and 'Impl'
