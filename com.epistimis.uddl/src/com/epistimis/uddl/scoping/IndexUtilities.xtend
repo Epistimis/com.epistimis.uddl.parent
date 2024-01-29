@@ -52,7 +52,7 @@ class IndexUtilities {
 	@Inject ResourceDescriptionsProvider rdp
 	@Inject IContainer.Manager cm
 	@Inject IQualifiedNameProvider qnp
-	@Inject IPackageProvider pkgProvider;
+//	@Inject IPackageProvider pkgProvider;
 
 	/**
 	 * Get all the EObjectDescriptions of the specified type visible from the context object
