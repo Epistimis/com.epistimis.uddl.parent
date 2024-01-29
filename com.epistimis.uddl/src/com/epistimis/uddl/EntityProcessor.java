@@ -101,6 +101,7 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 	abstract public ComposableElement getCompositionType(Composition comp);
 	abstract public Entity 			  getParticipantType(Participant part);
 	
+	abstract public String			  getCharacteristicDescription(Characteristic characteristic);
 
 	abstract public boolean isContainer(UddlElement obj);
 	abstract public Container conv2Container(UddlElement obj);

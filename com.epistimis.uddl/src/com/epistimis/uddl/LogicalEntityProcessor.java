@@ -6,6 +6,7 @@ package com.epistimis.uddl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
+import com.epistimis.uddl.uddl.ConceptualCharacteristic;
 import com.epistimis.uddl.uddl.LogicalAssociation;
 import com.epistimis.uddl.uddl.LogicalCharacteristic;
 import com.epistimis.uddl.uddl.LogicalComposableElement;
@@ -98,6 +99,12 @@ public class LogicalEntityProcessor extends
 	public LogicalEntity getParticipantType(LogicalParticipant part) {
 		// TODO Auto-generated method stub
 		return part.getType();
+	}
+
+	@Override
+	public String getCharacteristicDescription(LogicalCharacteristic characteristic)
+	{
+		return characteristic.getDescription();
 	}
 
 	@Override

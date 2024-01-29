@@ -25,7 +25,6 @@ import com.epistimis.uddl.RealizationProcessor;
 import com.epistimis.uddl.UddlQNP;
 import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
-import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.inject.Inject;
 
 /**
@@ -334,7 +333,7 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 		for (BaseComposition cc : rproc.getUnrealizedCompositions(rentity)) {
 			String displayString = proposalDisplayString(cc);
 			ICompletionProposal prop = pp.createCompletionProposal(qnp.getFullyQualifiedName(cc).toString(),displayString, null, context);
-			prop = pu.modifyConfigurableCompletionProposal(prop, context, getCompositionRealizesReference(),((UddlElement)cc).getDescription());
+			prop = pu.modifyConfigurableCompletionProposal(prop, context, getCompositionRealizesReference(),bProc.getCharacteristicDescription(cc));
 			acceptor.accept(prop);
 		}
 

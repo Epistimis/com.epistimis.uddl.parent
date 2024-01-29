@@ -6,6 +6,7 @@ package com.epistimis.uddl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
+import com.epistimis.uddl.uddl.LogicalCharacteristic;
 import com.epistimis.uddl.uddl.PlatformAssociation;
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
 import com.epistimis.uddl.uddl.PlatformComposableElement;
@@ -98,6 +99,12 @@ public class PlatformEntityProcessor extends
 	public PlatformEntity getParticipantType(PlatformParticipant part) {
 		// TODO Auto-generated method stub
 		return part.getType();
+	}
+
+	@Override
+	public String getCharacteristicDescription(PlatformCharacteristic characteristic)
+	{
+		return characteristic.getDescription();
 	}
 
 	@Override

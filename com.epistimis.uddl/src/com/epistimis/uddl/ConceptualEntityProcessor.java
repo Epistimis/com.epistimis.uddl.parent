@@ -103,6 +103,12 @@ public class ConceptualEntityProcessor extends
 	}
 
 	@Override
+	public String getCharacteristicDescription(ConceptualCharacteristic characteristic)
+	{
+		return characteristic.getDescription();
+	}
+
+	@Override
 	public boolean isContainer(UddlElement obj) {
 		// TODO Auto-generated method stub
 		return (obj instanceof ConceptualDataModel);
