@@ -6,20 +6,14 @@
  */
 package com.epistimis.uddl.generator
 
-import com.epistimis.uddl.uddl.PlatformAssociation
-import com.epistimis.uddl.uddl.PlatformComposableElement
-import com.epistimis.uddl.uddl.PlatformDataType
-import com.epistimis.uddl.uddl.PlatformEntity
+import com.epistimis.uddl.RealizationResolver
+import com.epistimis.uddl.RealizedComposableElement
+import java.lang.invoke.MethodHandles
+import org.apache.log4j.Logger
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import com.epistimis.uddl.RealizedAssociation
-import com.epistimis.uddl.RealizedDataType
-import com.epistimis.uddl.RealizedEntity
-import com.epistimis.uddl.RealizedComposableElement
-import org.apache.log4j.Logger
-import java.lang.invoke.MethodHandles
 
 /**
  * Generates code from your model files on save.
@@ -32,35 +26,36 @@ class UddlGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 
-		/**
-		 * The first version of the generator will work directly from PlatformEntity - without queries. This will only collect all the realization
-		 * info from a PlatformEntity -> LogicalEntity -> ConceptualEntity to determine what to generate.
-		 */
-		val elements = resource.allContents.toIterable.filter(PlatformComposableElement);
-
-		/**
-		 * Collect, for each pentity, all the realization info for each PlatformComposition it contains
-		 * The focus here is identifying exactly what has been down-selected and what hasn't. 
-		 */
-		for (PlatformComposableElement elem : elements) {
-			/**
-			 * Some of these will be PlatformParticipants
-			 */
-			if (elem instanceof PlatformAssociation) {
-				new RealizedAssociation(elem);
-			} else if (elem instanceof PlatformDataType) {
-				new RealizedDataType(elem);
-			} else if (elem instanceof PlatformEntity) {
-				new RealizedEntity(elem);
-			} else {
-				logger.warn("No processing available for type " + elem.class.toString);
-			}
-		}
-		/**
-		 * Now go back and link all the PlatformEntity types
-		 * 
-		 */
-		RealizedComposableElement.linkTypes();
+		RealizationResolver.resolve(resource);
+//		/**
+//		 * The first version of the generator will work directly from PlatformEntity - without queries. This will only collect all the realization
+//		 * info from a PlatformEntity -> LogicalEntity -> ConceptualEntity to determine what to generate.
+//		 */
+//		val elements = resource.allContents.toIterable.filter(PlatformComposableElement);
+//
+//		/**
+//		 * Collect, for each pentity, all the realization info for each PlatformComposition it contains
+//		 * The focus here is identifying exactly what has been down-selected and what hasn't. 
+//		 */
+//		for (PlatformComposableElement elem : elements) {
+//			/**
+//			 * Some of these will be PlatformParticipants
+//			 */
+//			if (elem instanceof PlatformAssociation) {
+//				new RealizedAssociation(elem);
+//			} else if (elem instanceof PlatformDataType) {
+//				new RealizedDataType(elem);
+//			} else if (elem instanceof PlatformEntity) {
+//				new RealizedEntity(elem);
+//			} else {
+//				logger.warn("No processing available for type " + elem.class.toString);
+//			}
+//		}
+//		/**
+//		 * Now go back and link all the PlatformEntity types
+//		 * 
+//		 */
+//		RealizedComposableElement.linkTypes();
 
 		/**
 		 * 
@@ -68,21 +63,21 @@ class UddlGenerator extends AbstractGenerator {
 		 * is no indication which language a software component will be generated in.
 		 */
 		try {
-			val gen2 = new ProtobufDataStructureGenerator(RealizedComposableElement.allComposableElements);
+			val gen2 = new ProtobufDataStructureGenerator(RealizedComposableElement.allComposable2Realized);
 			gen2.doGenerate(resource, fsa, context);
 		}
 		catch (Exception excp) {
 			logger.error("Protobuf exception: " + excp.localizedMessage,excp); //(excp.stackTrace);
 		}
 		try {
-			val gen1 = new IDLDataStructureGenerator(RealizedComposableElement.allComposableElements);
+			val gen1 = new IDLDataStructureGenerator(RealizedComposableElement.allComposable2Realized);
 			gen1.doGenerate(resource, fsa, context);			
 		}
 		catch (Exception excp) {
 			logger.error("IDL exception: " + excp.localizedMessage,excp); //(excp.stackTrace);
 		}
 		try {
-			val gen3 = new RDBMSDataStructureGenerator(RealizedComposableElement.allComposableElements);
+			val gen3 = new RDBMSDataStructureGenerator(RealizedComposableElement.allComposable2Realized);
 			gen3.doGenerate(resource, fsa, context);
 		}
 		catch (Exception excp) {
