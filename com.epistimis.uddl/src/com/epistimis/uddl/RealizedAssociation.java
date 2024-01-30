@@ -8,6 +8,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
+import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.PlatformAssociation;
 
 public class RealizedAssociation extends RealizedEntity {
@@ -31,7 +32,7 @@ public class RealizedAssociation extends RealizedEntity {
 		 * First recurse if this is also specialized, the process locally. That allows locals to override anything
 		 * inherited via specialization
 		 */
-		PlatformEntity specializedEntity = pa.getSpecializes();
+		PlatformEntity specializedEntity = IndexUtilities.unProxiedEObject(pa.getSpecializes(),pa);
 		if ((specializedEntity != null) && (specializedEntity instanceof PlatformAssociation)) {
 			/**
 			 * This assumes that once we inherit from PlatformAssociation, everything down the specialization hierarchy
@@ -49,7 +50,7 @@ public class RealizedAssociation extends RealizedEntity {
 		Map<String,RealizedParticipant> results = new HashMap<String, RealizedParticipant>();
 		for (PlatformParticipant pc: pe.getParticipant()) {
 			RealizedParticipant rp = null;
-			PlatformComposition specializedComp = (PlatformComposition) pc.getSpecializes();
+			PlatformComposition specializedComp = (PlatformComposition) IndexUtilities.unProxiedEObject(pc.getSpecializes(),pc);
 			if (specializedComp != null) {
 				/** this is already in the map, find it by the rolename */
 				 rp = participantsSoFar.remove(specializedComp.getRolename());

@@ -1,16 +1,21 @@
 package com.epistimis.uddl;
 
+import java.lang.invoke.MethodHandles;
+
+import org.apache.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNull;
 
+import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformParticipant;
 
 public class RealizedParticipant extends RealizedCharacteristic {
 
+	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 	/**
 	 * Track the original type because we need this later to do linkage
 	 */
-	private PlatformEntity type;
+	private @NonNull PlatformEntity type;
 
 	private int sourceLowerBound;
 
@@ -24,7 +29,7 @@ public class RealizedParticipant extends RealizedCharacteristic {
 	}
 	public RealizedParticipant(@NonNull PlatformParticipant pp, RealizedComposableElement rce) {
 		super(pp,rce);
-		this.type = pp.getType();
+		this.type = IndexUtilities.unProxiedEObject(pp.getType(),pp);
 		sourceLowerBound = pp.getSourceLowerBound();
 		sourceUpperBound = pp.getSourceUpperBound();
 	}
@@ -44,6 +49,9 @@ public class RealizedParticipant extends RealizedCharacteristic {
 	}
 
 	public PlatformEntity getType() {
+		if (type == null) {
+			logger.error("Returning null type from RealizedParticipant " + realizedCharacteristic.toString());
+		}
 		return this.type;
 	}
 	

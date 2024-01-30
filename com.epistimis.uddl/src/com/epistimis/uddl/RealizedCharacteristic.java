@@ -1,10 +1,16 @@
 package com.epistimis.uddl;
 
+//import java.lang.invoke.MethodHandles;
+import java.text.MessageFormat;
+
+//import org.apache.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNull;
 
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
 
 public class RealizedCharacteristic {
+
+	//private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 	/**
 	 * NOTE: (P/L/C) Composition element specialization is interpreted as follows:
 	 * If a (P/L/C) Composition element specializes, it must specialize a Composition element from an Entity at the same (P/L/C)
@@ -14,8 +20,13 @@ public class RealizedCharacteristic {
 	 * The FACE spec itself does not support overriding. Specialization just adds composition elements. So the override capability here
 	 * is overkill for now.
 	 */
+	/**
+	 * NOTE: We do not have a 'specializes' attribute for the 'Realized' classes *because* we unroll the specialization when
+	 * creating these. In fact, that's a major reason these 'Realized' classes exist. A characteristic specializes if its containing entity
+	 * also specializes and has an characteristic that 'overrides' a characteristic from the specialized Entity
+	 */
 	
-	private PlatformCharacteristic realizedCharacteristic;
+	protected PlatformCharacteristic realizedCharacteristic;
 
 	/**
 	 * Use the lowest level rolename (Platform)
@@ -34,7 +45,6 @@ public class RealizedCharacteristic {
 	 * The upper bound cardinality. -1 means unbounded.
 	 */
 	private int upperBound;
-
 
 	/**
 	 * The realizedType of this composition Element
@@ -111,6 +121,11 @@ public class RealizedCharacteristic {
 
 	public String getRolename() {
 		return rolename;
+	}
+	
+	public String toString() {
+		return MessageFormat.format("{0} {1} [{2}:{3}] \'{4}\' from {5}", realizedType.toString(), rolename, lowerBound, upperBound, description,
+				realizedCharacteristic.toString());
 	}
 }
 /*

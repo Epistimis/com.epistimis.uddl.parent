@@ -3,6 +3,7 @@ package com.epistimis.uddl;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.google.common.base.Optional;
@@ -34,9 +35,6 @@ public class RealizedEntity extends RealizedComposableElement {
 	 * original relationship between PlatformEntity and RealizedEntity.
 	 */
 
-	private String name;
-
-	private String description;
 
 	/**
 	 * The key will be the rolename of the composition. If a specialization results in a change in rolename, then the entry will be
@@ -51,7 +49,6 @@ public class RealizedEntity extends RealizedComposableElement {
 	public RealizedEntity(PlatformEntity pe) {
 		super(pe);
 		composition = processSpecializationForCompositions(pe);
-		this.name = pe.getName(); // Always has to have a name, so just do that
 	}
 
 	protected Map<String, RealizedComposition> processSpecializationForCompositions(PlatformEntity pe) {
@@ -60,16 +57,13 @@ public class RealizedEntity extends RealizedComposableElement {
 		 * First recurse if this is also specialized, the process locally. That allows locals to override anything
 		 * inherited via specialization
 		 */
-		PlatformEntity specializedEntity = pe.getSpecializes();
+		PlatformEntity specializedEntity = IndexUtilities.unProxiedEObject(pe.getSpecializes(),pe);
 		if (specializedEntity != null) {
 			compositionSoFar = processSpecializationForCompositions(specializedEntity);
 		} else {
 			compositionSoFar = new HashMap<String, RealizedComposition>();
 		}
-		// Set the description here because it might not always have a value
-		if (Optional.fromNullable(pe.getDescription()).or("").trim().length() > 0) {
-			this.description = pe.getDescription();
-		}
+		setDescription(pe);
 		return processLocalCompositions(pe,compositionSoFar);
 	}
 
@@ -78,7 +72,7 @@ public class RealizedEntity extends RealizedComposableElement {
 		Map<String,RealizedComposition> results = new HashMap<String, RealizedComposition>();
 		for (PlatformComposition pc: pe.getComposition()) {
 			RealizedComposition rc = null;
-			PlatformComposition specializedComp = (PlatformComposition) pc.getSpecializes();
+			PlatformComposition specializedComp = (PlatformComposition) IndexUtilities.unProxiedEObject( pc.getSpecializes(),pe);
 			if (specializedComp != null) {
 				/** this is already in the map, find it by the rolename */
 				 rc = compositionSoFar.remove(specializedComp.getRolename());
@@ -110,12 +104,5 @@ public class RealizedEntity extends RealizedComposableElement {
 		return composition;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
 
 }
