@@ -1,12 +1,14 @@
 package com.epistimis.uddl;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.conversion.impl.QualifiedNameValueConverter;
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.QualifiedName;
 //import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider;
 
+import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.ConceptualCharacteristic;
 import com.epistimis.uddl.uddl.ConceptualCompositeQuery;
 import com.epistimis.uddl.uddl.ConceptualEntity;
@@ -24,8 +26,10 @@ import com.epistimis.uddl.uddl.PlatformQueryComposition;
 import com.epistimis.uddl.uddl.PlatformStruct;
 import com.epistimis.uddl.uddl.PlatformStructMember;
 import com.google.inject.Inject;
+import static java.util.Objects.requireNonNull;
 
 public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // XbaseQualifiedNameProvider
+	
 	
 	// Because the base class one is private
 	@Inject
@@ -42,8 +46,15 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 	 * @return
 	 */
 	public <T extends EObject,U extends EObject> QualifiedName relativeQualifiedName(T obj, U ctx) {
-		QualifiedName oName = getFullyQualifiedName(obj);
-		QualifiedName ctxName = getFullyQualifiedName(ctx);
+		requireNonNull(obj,"You must specify the EObject you want an RQN for");
+		EObject o = IndexUtilities.unProxiedEObject(obj,ctx);
+		QualifiedName oName = getFullyQualifiedName(o);
+		if (ctx == null) {
+			return oName;
+		}
+		// TODO: Is it possibly this one is a proxy as well?
+		EObject c = IndexUtilities.unProxiedEObject(ctx,obj);
+		QualifiedName ctxName = getFullyQualifiedName(c);
 		
 		int maxSegsToCompare = Math.min(oName.getSegmentCount(), ctxName.getSegmentCount());
 		int skipSegs = -1;
