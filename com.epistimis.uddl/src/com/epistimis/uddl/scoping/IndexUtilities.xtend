@@ -281,6 +281,48 @@ class IndexUtilities {
 	}
 
 	/**
+	 * Resolve any proxy (if there) and return the object
+	 */
+	def static <T extends EObject> unProxiedEObject(T obj, EObject ctx) {
+		if (obj === null) {
+			return null; // nothing to deProxy
+		}
+		if (obj.eIsProxy()) {
+				return EcoreUtil.resolve(obj,ctx) as T;
+		} else {
+			return obj;
+		}
+	}
+
+	/**
+	 * Resolve any proxy (if there) and return the object
+	 */
+	def static <T extends EObject> unProxiedEObject(T obj, Resource res) {
+		if (obj === null) {
+			return null; // nothing to deProxy
+		}
+		if (obj.eIsProxy()) {
+				return EcoreUtil.resolve(obj,res) as T;
+		} else {
+			return obj;
+		}
+	}
+
+	/**
+	 * Resolve any proxy (if there) and return the object
+	 */
+	def static <T extends EObject> unProxiedEObject(T obj, ResourceSet rs) {
+		if (obj === null) {
+			return null; // nothing to deProxy
+		}
+		if (obj.eIsProxy()) {
+				return EcoreUtil.resolve(obj,rs) as T;
+		} else {
+			return obj;
+		}
+	}
+
+	/**
 	 * Find a unique object of the specified type and name. Log errors if none or more
 	 * than one is found.
 	 */
