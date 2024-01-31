@@ -68,7 +68,14 @@ public class RealizedEntity extends RealizedComposableElement {
 	}
 
 	protected Map<String, RealizedComposition> processLocalCompositions(PlatformEntity pe, Map<String, RealizedComposition> compositionSoFar) {
-
+		/**
+		 * NOTE: We do not merge compositionSoFar into results deliberately. Why? Because we might have multiple
+		 * compositions that rename on specialization. In fact, we might have several that swap names. If we 
+		 * were to merge these maps, we would not be able to tell if we could remove something from 'results'
+		 * or not, because we wouldn't know if the 'results' map entry was an updated version reusing a name. 
+		 * By keeping the maps separate, we we can do that safely. Then, at the very end, we merge what is left 
+		 * of compositionSoFar into results - everything we want to 'override' has already been removed from it.
+		 */
 		Map<String,RealizedComposition> results = new HashMap<String, RealizedComposition>();
 		for (PlatformComposition pc: pe.getComposition()) {
 			RealizedComposition rc = null;
@@ -78,10 +85,10 @@ public class RealizedEntity extends RealizedComposableElement {
 				 rc = compositionSoFar.remove(specializedComp.getRolename());
 				/**
 				 * By removing from the first list under the original rolename and inserting in the
-				 * new results by the new rolename, we also address any change to the rolename that might
-				 * occur as part of specialization.
+				 * new results by the new rolename (line 92) , we also address any change to the rolename 
+				 * that might occur as part of specialization.
 				 */
-					rc.update(pc, null);
+				rc.update(pc, null);
 			}
 			else {
 				/**
@@ -92,7 +99,9 @@ public class RealizedEntity extends RealizedComposableElement {
 			results.put(pc.getRolename(), rc);
 
 		}
-
+		// Merge in whatever is left of compositionsSoFar
+		results.putAll(compositionSoFar);
+		
 		return results;
 	}
 

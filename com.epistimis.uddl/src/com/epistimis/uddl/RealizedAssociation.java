@@ -46,21 +46,27 @@ public class RealizedAssociation extends RealizedEntity {
 	}
 
 	protected Map<String, RealizedParticipant> processLocalParticipants(PlatformAssociation pe, Map<String, RealizedParticipant> participantsSoFar) {
-
+		/**
+		 * NOTE: We do not merge participantsSoFar into results deliberately. Why? Because we might have multiple
+		 * compositions that rename on specialization. In fact, we might have several that swap names. If we 
+		 * were to merge these maps, we would not be able to tell if we could remove something from 'results'
+		 * or not, because we wouldn't know if the 'results' map entry was an updated version reusing a name. 
+		 * By keeping the maps separate, we we can do that safely. Then, at the very end, we merge what is left 
+		 * of participantsSoFar into results - everything we want to 'override' has already been removed from it.
+		 */
 		Map<String,RealizedParticipant> results = new HashMap<String, RealizedParticipant>();
 		for (PlatformParticipant pc: pe.getParticipant()) {
 			RealizedParticipant rp = null;
-			PlatformComposition specializedComp = (PlatformComposition) IndexUtilities.unProxiedEObject(pc.getSpecializes(),pc);
-			if (specializedComp != null) {
+			PlatformParticipant specializedPart = (PlatformParticipant) IndexUtilities.unProxiedEObject(pc.getSpecializes(),pc);
+			if (specializedPart != null) {
 				/** this is already in the map, find it by the rolename */
-				 rp = participantsSoFar.remove(specializedComp.getRolename());
+				 rp = participantsSoFar.remove(specializedPart.getRolename());
 				/**
 				 * By removing from the first list under the original rolename and inserting in the
 				 * new results by the new rolename, we also address any change to the rolename that might
 				 * occur as part of specialization.
 				 */
-					rp.update(pc, null);
-
+				rp.update(pc, null);
 			}
 			else {
 				/**
@@ -71,7 +77,8 @@ public class RealizedAssociation extends RealizedEntity {
 			results.put(pc.getRolename(), rp);
 
 		}
-
+		// Merge remaining previous results
+		results.putAll(participantsSoFar);
 		return results;
 	}
 
