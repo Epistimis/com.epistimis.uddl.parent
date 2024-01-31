@@ -103,6 +103,10 @@ public class Main {
 					set.getResource(URI.createFileURI(arg), true);
 		}
 
+		// Because we may generate code that crosses resource boundaries - and because there may be errors
+		// in those resources that are relevant but undetectable in initial file we load, we need to
+		// determine all the files to load and valiadate them all before doing code gen. 
+
 		/**
 		 * Validate the resources - since validation depends on resolving cross references, do that first
 		 * This should? do most of the work when resolving the first resource - it shouldn't repeat work?
