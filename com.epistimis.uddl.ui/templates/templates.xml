@@ -48,22 +48,42 @@ ${cursor}
 	};
 	maxis    ${name}_MeasAxis  "An instance of the ${name} MeasurementSystemAxis with a uniqueness constraint." -&gt; ${realizes}
 	{
-		msaxis:  ${name}_MeasSysAxis 
+		msaxis:  MeasurementSystems.EnumerationMeasurementSystem.AbstractDiscreteSetMeasurementSystem.Abstract_DiscreteSet_MeasSysAxis 
 		vtu: [ ${name}UnitLess ]
 		![ "IsUnique"]
 	};
-	msa   ${name}_MeasSysAxis  "Measurement system axis for ${name} measured in enum values"
-	{
-		axis: CoordinateSystems.Discrete.Discrete_CoordSysAxis 
-		vtu: [ ${name}UnitLess ]
-	};
+}
+</template>
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.DataModel" deleted="false" description="A set of measures for a unitless integral value (e.g. a count )" enabled="true" name="INT_MEASURES">ldm   ${name}
+{
+	int ${name} "Basic ${name} values - as integers" ;
 
-	msys ${name}_MeasSystem "A measurement system for ${name} info"
-	{
-		msa: [ ${name}_MeasSysAxis ]
-		coord: CoordinateSystems.Discrete.Discrete_CoordSys
-	};
+	vtu ${name} Units.UnitlessDimensionless.Unitless ${name}UnitLess "Standard ${name}" ;
 
+	meas ${name}_Meas "Measurement representing a ${name} as a single element" -&gt; ${realizes}
+	{
+		axis: [ ${name}_MeasAxis ] sys: MeasurementSystems.CountingMeasurementSystem.CountMeasurementSystem.Count_MeasSys
+	};
+	maxis ${name}_MeasAxis -&gt; ${realizes}
+	{
+		msaxis: FACE_Shared_Data_Model_Logical.MeasurementSystems.CountingMeasurementSystem.CountMeasurementSystem.Count_MeasSysAxis
+	};
+}
+</template>
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.DataModel" deleted="false" description="Creates an entire set of measures for a textual Observable" enabled="true" name="STRING_MEASURES">ldm   ${name}
+{
+	str ${name} "Basic ${name} values - as strings" ;
+
+	vtu ${name} Units.UnitlessDimensionless.Unitless ${name}UnitLess "Standard ${name} " ;
+
+	meas ${name}_Meas "Measurement representing a ${name} as a single element" -&gt; ${realizes}
+	{
+		axis: [ ${name}_MeasAxis ] sys: MeasurementSystems.InformationElementMeasurementSystem.TextMeasurementSystem.Text_UTF8_MeasSys
+	};
+	maxis ${name}_MeasAxis -&gt; ${realizes}
+	{
+		msaxis: MeasurementSystems.InformationElementMeasurementSystem.TextMeasurementSystem.Text_MeasSysAxis
+	};
 }
 </template>
 <template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalAffineConversion" deleted="false" description="An AffineConversion is a relationship between two ConvertibleElements in the form mx+b" enabled="true" id="1" name="ACONV">aconv ${name} "${description}" {
@@ -98,7 +118,7 @@ ${cursor}
 <template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalDataModel" deleted="false" description="A LogicalDataModel is a container for LDM Elements" enabled="true" id="26" name="LDM">ldm ${name}  "${description}" {
 	${cursor}
 }</template>
-<template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalDataModel" deleted="false" description="Create a complete set of measures for an Enum" enabled="true" name="ENUM_MEASURES">ldm   ${name}
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalDataModel" deleted="false" description="Create a complete set of measures for an Enum" enabled="true" name="ENUM_MEASURES(L)">ldm   ${name}
 {
 	enum ${name} "Basic ${name} values " [ ${cursor} ];
 
@@ -109,22 +129,42 @@ ${cursor}
 	};
 	maxis    ${name}_MeasAxis  "An instance of the ${name} MeasurementSystemAxis with a uniqueness constraint." -&gt; ${realizes}
 	{
-		msaxis:  ${name}_MeasSysAxis 
+		msaxis:  MeasurementSystems.EnumerationMeasurementSystem.AbstractDiscreteSetMeasurementSystem.Abstract_DiscreteSet_MeasSysAxis 
 		vtu: [ ${name}UnitLess ]
 		![ "IsUnique"]
 	};
-	msa   ${name}_MeasSysAxis  "Measurement system axis for ${name} measured in enum values"
-	{
-		axis: CoordinateSystems.Discrete.Discrete_CoordSysAxis 
-		vtu: [ ${name}UnitLess ]
-	};
+}
+</template>
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalDataModel" deleted="false" description="A set of measures for a unitless integral value (e.g. a count )" enabled="true" name="INT_MEASURES(L)">ldm   ${name}
+{
+	int ${name} "Basic ${name} values - as integers" ;
 
-	msys ${name}_MeasSystem "A measurement system for ${name} info"
-	{
-		msa: [ ${name}_MeasSysAxis ]
-		coord: CoordinateSystems.Discrete.Discrete_CoordSys
-	};
+	vtu ${name} Units.UnitlessDimensionless.Unitless ${name}UnitLess "Standard ${name}" ;
 
+	meas ${name}_Meas "Measurement representing a ${name} as a single element" -&gt; ${realizes}
+	{
+		axis: [ ${name}_MeasAxis ] sys: MeasurementSystems.CountingMeasurementSystem.CountMeasurementSystem.Count_MeasSys
+	};
+	maxis ${name}_MeasAxis -&gt; ${realizes}
+	{
+		msaxis: FACE_Shared_Data_Model_Logical.MeasurementSystems.CountingMeasurementSystem.CountMeasurementSystem.Count_MeasSysAxis
+	};
+}
+</template>
+<template autoinsert="true" context="com.epistimis.uddl.Uddl.LogicalDataModel" deleted="false" description="Creates an entire set of measures for a textual Observable" enabled="true" name="STRING_MEASURES(L)">ldm   ${name}
+{
+	str ${name} "Basic ${name} values - as strings" ;
+
+	vtu ${name} Units.UnitlessDimensionless.Unitless ${name}UnitLess "Standard ${name} " ;
+
+	meas ${name}_Meas "Measurement representing a ${name} as a single element" -&gt; ${realizes}
+	{
+		axis: [ ${name}_MeasAxis ] sys: MeasurementSystems.InformationElementMeasurementSystem.TextMeasurementSystem.Text_UTF8_MeasSys
+	};
+	maxis ${name}_MeasAxis -&gt; ${realizes}
+	{
+		msaxis: MeasurementSystems.InformationElementMeasurementSystem.TextMeasurementSystem.Text_MeasSysAxis
+	};
 }
 </template>
 
