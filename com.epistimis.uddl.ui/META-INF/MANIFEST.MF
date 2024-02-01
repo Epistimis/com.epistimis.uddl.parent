@@ -27,6 +27,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.epistimis.uddl.ui.contentassist,
  com.epistimis.uddl.ui.hover,
  com.epistimis.uddl.ui.internal,
+ com.epistimis.uddl.ui.labeling,
+ com.epistimis.uddl.ui.outline,
  com.epistimis.uddl.ui.quickfix,
  com.epistimis.uddl.ui.wizard
 Bundle-Activator: com.epistimis.uddl.ui.internal.UddlActivator

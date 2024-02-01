@@ -8,6 +8,8 @@ package com.epistimis.uddl.ui.outline;
 
 import org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider;
 
+import com.epistimis.uddl.uddl.LogicalEnumerationLabel;
+
 /**
  * Customization of the default outline structure.
  *
@@ -15,4 +17,8 @@ import org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider;
  */
 public class UddlOutlineTreeProvider extends DefaultOutlineTreeProvider {
 
+	protected boolean _isLeaf(LogicalEnumerationLabel lbl) {
+		return true;
+	}
+	
 }
