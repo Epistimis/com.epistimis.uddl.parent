@@ -5,6 +5,7 @@ package com.epistimis.uddl;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.jdt.annotation.NonNull;
 
 import com.epistimis.uddl.scoping.IndexUtilities;
 import com.google.inject.Inject;
@@ -29,7 +30,7 @@ public class NavigationUtilities {
 	 * @param ofType
 	 * @return
 	 */
-	public static EObject root(EObject context, EClass rootClz, boolean ofType) {
+	public static EObject root(@NonNull EObject context, @NonNull EClass rootClz, boolean ofType) {
 		EObject container = context.eContainer();
 		if (container == null) {
 			// If there is no container, then context must be the root
@@ -67,7 +68,7 @@ public class NavigationUtilities {
 	 * @param ofType
 	 * @return
 	 */
-	public static int nestingLevels(EObject context, EClass rootClz,boolean ofType) {
+	public static int nestingLevels(@NonNull EObject context, @NonNull EClass rootClz, boolean ofType) {
 		EObject container = context.eContainer();
 		if (container == null) {
 			// If there is no container, then context must be the root
@@ -76,7 +77,7 @@ public class NavigationUtilities {
 		if (ofType) {
 			if (container.eClass().equals(rootClz))
 			{
-				return 0;
+				return 1;
 			}
 			else {
 				// keep going
@@ -86,7 +87,7 @@ public class NavigationUtilities {
 		else {
 			if (!container.eClass().equals(rootClz))
 			{
-				return 0;
+				return 1;
 			}
 			else {
 				// keep going

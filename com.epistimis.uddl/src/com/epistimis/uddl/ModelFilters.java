@@ -3,8 +3,10 @@ package com.epistimis.uddl;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -16,17 +18,22 @@ import com.epistimis.uddl.exceptions.WrongTypeException;
 import com.epistimis.uddl.uddl.ConceptualBasisEntity;
 import com.epistimis.uddl.uddl.ConceptualEntity;
 import com.epistimis.uddl.uddl.LogicalAbstractMeasurement;
+import com.epistimis.uddl.uddl.LogicalAbstractMeasurementSystem;
 import com.epistimis.uddl.uddl.LogicalElement;
 import com.epistimis.uddl.uddl.LogicalEntity;
+import com.epistimis.uddl.uddl.LogicalLandmark;
 import com.epistimis.uddl.uddl.LogicalMeasurement;
 import com.epistimis.uddl.uddl.LogicalMeasurementAxis;
+import com.epistimis.uddl.uddl.LogicalMeasurementSystem;
+import com.epistimis.uddl.uddl.LogicalReferencePoint;
 import com.epistimis.uddl.uddl.LogicalValueTypeUnit;
 import com.epistimis.uddl.uddl.PlatformDataType;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.google.inject.Inject;
 
 /**
- * Containts methods used to filter model elements that are generally useful
+ * Containts methods used to filter model elements that are generally useful - and specific to UDDL.
+ * Generalized methods not specific to UDDL can be found in IndexUtilities and NavigationUtilities.
  * 
  * @author stevehickman
  *
@@ -136,12 +143,12 @@ public class ModelFilters {
 	}
 
 	/**
-	 * Get the VTU associated with this PDT realization.
+	 * Get the VTU associated with this PDT realization, if there is one.
 	 * 
 	 * @param pdt
 	 * @return
 	 */
-	public List<LogicalValueTypeUnit> getValueTypeUnit(PlatformDataType pdt) {
+	public static List<LogicalValueTypeUnit> getValueTypeUnitIfThere(@NonNull PlatformDataType pdt) {
 		List<LogicalValueTypeUnit> result = new ArrayList<>();
 		LogicalAbstractMeasurement absMeasure = pdt.getRealizes();
 		if (absMeasure instanceof LogicalMeasurement) {
@@ -158,10 +165,54 @@ public class ModelFilters {
 			result.add((LogicalValueTypeUnit)absMeasure);
 			return result;
 		}
-		else {
+		return result;
+	}
+	
+	public List<LogicalValueTypeUnit> getValueTypeUnit(@NonNull PlatformDataType pdt) {
+		LogicalAbstractMeasurement absMeasure = pdt.getRealizes();
+		List<LogicalValueTypeUnit> result = getValueTypeUnitIfThere(pdt);
+		if (result.isEmpty()) {
 			throw new WrongTypeException(MessageFormat.format("{0} has type {0} which cannot be realized by a PlatformDataType", 
 					qnp.getFullyQualifiedName(absMeasure).toString(),absMeasure.getClass().getName()));
 		}
+		else {
+			return result;
+		}
+	}
+	/**
+	 * Get the landmarks associated with this PDT, if there are any
+	 * @param pdt
+	 * @return
+	 */
+	public static List<LogicalLandmark> getLandmarks(@NonNull PlatformDataType pdt) {
+		LogicalAbstractMeasurement absMeasure = pdt.getRealizes();
+		if (absMeasure instanceof LogicalMeasurement) {
+			LogicalMeasurement lm = (LogicalMeasurement) absMeasure;			
+			LogicalAbstractMeasurementSystem amsys = lm.getMeasurementSystem();
+			if (amsys instanceof LogicalMeasurementSystem) {
+				LogicalMeasurementSystem lmsys = (LogicalMeasurementSystem)amsys;
+				return lmsys.getReferencePoint().stream().map(LogicalReferencePoint::getLandmark).collect(Collectors.toList());
+			}
+		}
+		return new ArrayList<>();
+	}
+
+	/**
+	 * Get the reference points associated with this PDT, if there are any
+	 * @param pdt
+	 * @return
+	 */
+	public static List<LogicalReferencePoint> getReferencePoints(@NonNull PlatformDataType pdt) {
+		LogicalAbstractMeasurement absMeasure = pdt.getRealizes();
+		if (absMeasure instanceof LogicalMeasurement) {
+			LogicalMeasurement lm = (LogicalMeasurement) absMeasure;			
+			LogicalAbstractMeasurementSystem amsys = lm.getMeasurementSystem();
+			if (amsys instanceof LogicalMeasurementSystem) {
+				LogicalMeasurementSystem lmsys = (LogicalMeasurementSystem)amsys;
+				return lmsys.getReferencePoint();
+			}
+		}
+		return new ArrayList<>();
 	}
 
 }
