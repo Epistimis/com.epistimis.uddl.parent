@@ -59,6 +59,8 @@ import org.eclipse.xtext.formatting2.regionaccess.ISemanticRegion
 
 import static com.epistimis.uddl.uddl.UddlPackage.Literals.*
 import com.epistimis.uddl.uddl.LogicalEnumerationLabel
+import com.epistimis.uddl.uddl.PlatformStruct
+import com.epistimis.uddl.uddl.PlatformStructMember
 
 class UddlFormatter extends AbstractFormatter2 {
 
@@ -559,5 +561,21 @@ class UddlFormatter extends AbstractFormatter2 {
 		formatAttributeElement(obj.regionFor.feature(PLATFORM_QUERY_COMPOSITION__TYPE), document);
 		formatAttributeElement(obj.regionFor.feature(PLATFORM_QUERY_COMPOSITION__ROLENAME), document);
 	}
+	
+	def dispatch void format(PlatformStruct obj, extension IFormattableDocument document) {
+		obj.formatObj(document);
+		for (c : obj.member) {
+			c.format
+			c.append[setNewLines(1, 1, 2)]
+		}
+	}
+
+	def dispatch void format(PlatformStructMember obj, extension IFormattableDocument document) {
+		formatAttributeElement(obj.regionFor.feature(PLATFORM_STRUCT_MEMBER__TYPE), document);
+		formatAttributeElement(obj.regionFor.feature(PLATFORM_STRUCT_MEMBER__ROLENAME), document);
+		formatAttributeElement(obj.regionFor.feature(PLATFORM_STRUCT_MEMBER__PRECISION), document);
+		formatAttributeElement(obj.regionFor.feature(PLATFORM_STRUCT_MEMBER__REALIZES), document);
+	}
+	
 	// TODO: implement for LogicalDataModel, PlatformDataModel, ConceptualEntity, ConceptualAssociation, ConceptualParticipant, ConceptualParticipantPathNode, ConceptualCharacteristicPathNode, ConceptualCompositeQuery, LogicalEnumerated, LogicalEnumeratedSet, LogicalMeasurementSystem, LogicalMeasurementSystemAxis, LogicalReferencePoint, LogicalValueTypeUnit, LogicalMeasurement, LogicalMeasurementAxis, LogicalEntity, LogicalAssociation, LogicalParticipant, LogicalParticipantPathNode, LogicalCharacteristicPathNode, LogicalCompositeQuery, PlatformStruct, PlatformEntity, PlatformAssociation, PlatformParticipant, PlatformParticipantPathNode, PlatformCharacteristicPathNode, PlatformCompositeQuery
 }
