@@ -27,8 +27,6 @@ public class UddlValueConverters extends DefaultTerminalConverters {
             // TODO make this more robust
             return Long.toString(value)+"L";
         }
-
-
     };
 
     IValueConverter<Float> floatValueConverter = new IValueConverter<Float>() {
@@ -44,8 +42,6 @@ public class UddlValueConverters extends DefaultTerminalConverters {
             // TODO make this more robust
             return Float.toString(value);
         }
-
-
     };
 
     IValueConverter<Double> doubleValueConverter = new IValueConverter<Double>() {
@@ -61,8 +57,6 @@ public class UddlValueConverters extends DefaultTerminalConverters {
             // TODO make this more robust
             return Double.toString(value);
         }
-
-
     };
 
  
@@ -79,10 +73,36 @@ public class UddlValueConverters extends DefaultTerminalConverters {
             // TODO make this more robust
             return Boolean.toString(value);
         }
-
-
     };
 
+    IValueConverter<Boolean> rrlowerValueConverter = new IValueConverter<Boolean>() {
+
+        @Override
+        public Boolean toValue(String string, INode node) throws ValueConverterException {
+        	return string.equals("[") ? Boolean.TRUE : Boolean.FALSE;
+        	
+        }
+
+        @Override
+        public String toString(Boolean value) throws ValueConverterException {
+        	return value? "[" : "(";
+        }
+    };
+    
+    IValueConverter<Boolean> rrupperValueConverter = new IValueConverter<Boolean>() {
+
+        @Override
+        public Boolean toValue(String string, INode node) throws ValueConverterException {
+        	return string.equals("]") ? Boolean.TRUE : Boolean.FALSE;
+        	
+        }
+
+        @Override
+        public String toString(Boolean value) throws ValueConverterException {
+        	return value? "]" : ")";
+        }
+    };
+    
 
     @ValueConverter(rule = "LONG")
     public IValueConverter<Long> LONG() {
@@ -104,5 +124,14 @@ public class UddlValueConverters extends DefaultTerminalConverters {
         return booleanValueConverter;
     }
 
+    @ValueConverter(rule = "RRLOWER")
+    public IValueConverter<Boolean> RRLOWER() {
+        return rrlowerValueConverter;
+    }
+
+    @ValueConverter(rule = "RRUPPER")
+    public IValueConverter<Boolean> RRUPPER() {
+        return rrupperValueConverter;
+    }
 
 }
