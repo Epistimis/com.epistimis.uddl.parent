@@ -11,7 +11,7 @@ import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
-//import org.eclipse.xtext.scoping.IGlobalScopeProvider;
+import org.eclipse.xtext.scoping.IGlobalScopeProvider;
 
 import com.epistimis.uddl.extension.ConceptualComposableElementExt;
 import com.epistimis.uddl.extension.ConceptualEntityExt;
@@ -19,7 +19,7 @@ import com.epistimis.uddl.extension.ConceptualObservableExt;
 import com.epistimis.uddl.extension.UddlElementExt;
 import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.scoping.UddlPackageProvider;
-//import com.epistimis.uddl.scoping.UddlGlobalScopeProvider;
+import com.epistimis.uddl.scoping.UddlGlobalScopeProvider;
 import com.epistimis.uddl.scoping.UddlResourceDescriptionStrategy;
 
 /**
@@ -52,9 +52,9 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		return UddlResourceDescriptionStrategy.class;
 	}
 
-//	// Enable imports by uncommenting this. The default is to import anything visible in a project
-//	// See section 3.3.1,3.3.2 of the Advanced XText Manual PDF 
-//	// or https://blogs.itemis.com/en/in-five-minutes-to-transitive-imports-within-a-dsl-with-xtext
+	// Enable imports by uncommenting this. The default is to import anything visible in a project
+	// See section 3.3.1,3.3.2 of the Advanced XText Manual PDF 
+	// or https://blogs.itemis.com/en/in-five-minutes-to-transitive-imports-within-a-dsl-with-xtext
 //	@Override
 //	public
 //	Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
@@ -85,6 +85,9 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		return ModelFilters.class;
 	}
 
+	public Class<? extends DefaultValue> bindDefaultValue() {
+		return DefaultValue.class;
+	}
 	
 	// ------------- Entity / Query / Realization Processors 
 	

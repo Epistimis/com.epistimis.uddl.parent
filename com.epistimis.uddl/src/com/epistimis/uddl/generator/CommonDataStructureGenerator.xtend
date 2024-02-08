@@ -333,12 +333,14 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 				pdmIncludes.add(pdm);
 				return generateImportStatement(pdm,ctx);
 			}
-		} else {
+		} else if (type instanceof PlatformEntity){
 			val PlatformEntity entType = type as PlatformEntity;
 			if (!entityIncludes.contains(entType)) {
 				entityIncludes.add(entType);
 				return generateImportStatement(entType,ctx);
 			}
+		} else {
+			logger.error("Unable to cast PlatformComposableElement type: " + type.toString)
 		}
 		/** If we get here, then it was already included */
 		return "";

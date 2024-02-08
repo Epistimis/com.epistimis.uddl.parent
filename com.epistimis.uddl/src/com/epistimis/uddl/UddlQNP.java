@@ -1,7 +1,9 @@
 package com.epistimis.uddl;
 
+import static java.util.Objects.requireNonNull;
+
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.xtext.conversion.impl.QualifiedNameValueConverter;
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
@@ -26,7 +28,6 @@ import com.epistimis.uddl.uddl.PlatformQueryComposition;
 import com.epistimis.uddl.uddl.PlatformStruct;
 import com.epistimis.uddl.uddl.PlatformStructMember;
 import com.google.inject.Inject;
-import static java.util.Objects.requireNonNull;
 
 public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // XbaseQualifiedNameProvider
 	
@@ -45,7 +46,7 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 	 * @param ctx
 	 * @return
 	 */
-	public <T extends EObject,U extends EObject> QualifiedName relativeQualifiedName(T obj, U ctx) {
+	public <T extends EObject,U extends EObject> QualifiedName relativeQualifiedName(@NonNull T obj, U ctx) {
 		requireNonNull(obj,"You must specify the EObject you want an RQN for");
 		EObject o = IndexUtilities.unProxiedEObject(obj,ctx);
 		QualifiedName oName = getFullyQualifiedName(o);
