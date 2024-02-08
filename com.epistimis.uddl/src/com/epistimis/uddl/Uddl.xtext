@@ -736,7 +736,7 @@ PlatformStruct:
 	'struct' name=ID  (description=STRING)? '->' realizes=[LogicalAbstractMeasurement/*LogicalElement*/|QN] '{'
 		member+=PlatformStructMember
 		member+=PlatformStructMember
-		(member+=PlatformStructMember)?
+		(member+=PlatformStructMember*)
 	'};'
 ;
 
