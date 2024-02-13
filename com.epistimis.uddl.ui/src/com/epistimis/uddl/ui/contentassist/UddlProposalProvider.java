@@ -11,10 +11,14 @@ import java.text.MessageFormat;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.xtext.Assignment;
-import org.eclipse.xtext.CrossReference;
 import org.eclipse.xtext.RuleCall;
+import org.eclipse.xtext.conversion.impl.QualifiedNameValueConverter;
 import org.eclipse.xtext.naming.QualifiedName;
+import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.scoping.IScopeProvider;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
@@ -35,6 +39,8 @@ import com.epistimis.uddl.uddl.PlatformComposableElement;
 import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.PlatformStruct;
+import com.epistimis.uddl.uddl.UddlElement;
+import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.inject.Inject;
 
 /**
@@ -55,6 +61,7 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	final static String STRUCT_REALIZATION_ERR 		= "PlatformStruct {0} must realize a LogicalMeasurement with 2+ axes / attributes. {1} only has {2}";
 	final static String STRUCT_AXIS_FMT 			= "{0} {1} ( {2} ) ;" ;
 	final static String STRUCT_ATTRIBUTE_FMT 		= "{0} {1} ( {2} ) -> {3} ;" ;
+	final static String GENERIC_REF_DISPLAY_FMT 	= "{0} - {1}";
 	
 	@Inject UddlQNP 					qnp;
 	@Inject IndexUtilities 				ndxUtil;
@@ -70,11 +77,86 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	@Inject CLRealizationProposalProcessor clrpproc;
 	@Inject LPRealizationProposalProcessor lprpproc;
 	
+	@Inject PropUtils    pu;
 	 
 	protected <T extends EObject,U extends EObject> QualifiedName relativeQualifiedName(T obj, U ctx) {
 		return qnp.relativeQualifiedName(obj, ctx);
 	}
 
+	public QualifiedNameValueConverter getQualifiedNameValueConverter() { return qnp.getQualifiedNameValueConverter(); }
+
+//	UddlProposalProvider() {
+//		// This should set the proposal creator when this is instantiated.
+//		setCrossReferenceProposalCreator(new MinimalLengthReferenceProposalCreator());
+//	}
+
+	/**
+	 * A generalized proposal acceptance process that also shortens CrossRefs if possible.
+	 * @param model The model object where the reference should be filled
+	 * @param ref	The reference to be filled
+	 * @param context
+	 * @param acceptor
+	 */
+	public void genAndAcceptCandidateProposal(IEObjectDescription candidate, Resource res, EReference ref, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		EObject obj = IndexUtilities.objectFromDescription(res,candidate);
+		if (!(obj instanceof UddlElement)) {
+			logger.error("genAndAcceptCandidateProposal called for candidate " + candidate.getQualifiedName().toString() + " that is not a UddlElement");
+			return;
+		}
+		genAndAcceptCandidateProposal((UddlElement)obj,res,ref,context,acceptor);
+	}
+	public void genAndAcceptCandidateProposal(UddlElement candidate, Resource res, EReference ref, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		String desc = candidate.getDescription();
+		genAndAcceptCandidateProposal(candidate,desc,res,ref,context,acceptor);
+	}
+
+	public void genAndAcceptCandidateProposal(EObject candidate, String description, Resource res, EReference ref, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		QualifiedName cname = qnp.getFullyQualifiedName(candidate);
+		genAndAcceptCandidateProposal(cname, description,res,ref,context,acceptor);
+	}
+
+	public void genAndAcceptCandidateProposal(IEObjectDescription candidate, String description, Resource res, EReference ref, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		QualifiedName cname = candidate.getQualifiedName();
+		genAndAcceptCandidateProposal(cname, description,res,ref,context,acceptor);
+	}
+	public void genAndAcceptCandidateProposal(QualifiedName name, String description, Resource res, EReference ref, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		String displayString = MessageFormat.format(GENERIC_REF_DISPLAY_FMT, name.getLastSegment(), name.toString());
+		ICompletionProposal prop = createCompletionProposal(name.toString(), displayString, null, context);
+		prop = pu.modifyConfigurableCompletionProposal(prop, context, ref,description);
+		acceptor.accept(prop);		
+	}
+
+	/**
+	 * A generalized proposal acceptance process that also shortens CrossRefs if possible.
+	 * @param model The model object where the reference should be filled
+	 * @param ref	The reference to be filled
+	 * @param context
+	 * @param acceptor
+	 */
+	public void acceptCommonCandidateProposals(EObject model, EReference ref, ContentAssistContext context,
+			/*UddlProposalProvider pp, */ ICompletionProposalAcceptor acceptor) {
+
+		// Get the candidates
+		Iterable<IEObjectDescription> candidates = pu.getCandidateDescriptions(model, ref);
+		for (IEObjectDescription candidate : candidates) {
+			genAndAcceptCandidateProposal(candidate, model.eResource(),ref, context, acceptor);
+		}
+	}
+
+//	/**
+//	 * I think if I override this method (from AbstractJavaBasedContentProposalProvider), I can supply a proposal creator
+//	 * that will automatically shortern the proposal references
+//	 */
+//	@Override
+//	protected Function<IEObjectDescription, ICompletionProposal> getProposalFactory(String ruleName,
+//			ContentAssistContext contentAssistContext) {
+//		return new DefaultProposalCreator(contentAssistContext, ruleName, getQualifiedNameConverter());
+//	}
 
 	/** Logical -> Conceptual */
 	
@@ -94,7 +176,13 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	@Override
 	public void complete_LogicalComposition(EObject obj, RuleCall ruleCall, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		clrpproc.complete_Composition(this,clrproc, (LogicalEntity)obj, ruleCall, context, acceptor);		
+		LogicalEntity ent = null;
+		if (obj instanceof LogicalEntity) { ent = (LogicalEntity)obj; }
+		else if (obj instanceof LogicalComposition) { ent = (LogicalEntity)obj.eContainer(); }
+		else {
+			throw new RuntimeException("Can't cast to LogicalEntity:" + obj.eClass().toString());
+		}
+		clrpproc.complete_Composition(this,clrproc, ent, ruleCall, context, acceptor);		
 	}
 
 //	@Override
@@ -118,14 +206,23 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	@Override
 	public void completeLogicalComposition_Rolename(EObject obj, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		clrpproc.completeComposition_Rolename(this, clrproc, (LogicalEntity)obj, assignment, context, acceptor);
+		clrpproc.completeComposition_Rolename(this, clrproc, (LogicalEntity)obj.eContainer(), assignment, context, acceptor);
 	}
 
 	@Override
 	public void completeLogicalComposition_Realizes(EObject obj, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		clrpproc.completeComposition_Realizes(this, clrproc, (LogicalEntity)obj, assignment, context, acceptor);
+		clrpproc.completeComposition_Realizes(this, clrproc, (LogicalEntity)obj.eContainer(), assignment, context, acceptor);
 	}
+
+	@Override
+	public void completeLogicalMeasurement_Realizes(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		// Do I need to call super? Don't think so
+//		super.completeLogicalMeasurement_Realizes(model,assignment,context,acceptor);
+		EReference ref = UddlPackage.Literals.LOGICAL_MEASUREMENT__REALIZES;
+		acceptCommonCandidateProposals(model,ref,context,acceptor);
+	}
+
 
 	/** Platform -> Logical */
 
@@ -144,7 +241,13 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	@Override
 	public void complete_PlatformComposition(EObject obj, RuleCall ruleCall, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		lprpproc.complete_Composition(this,lprproc, (PlatformEntity)obj, ruleCall, context, acceptor);
+		PlatformEntity ent = null;
+		if (obj instanceof PlatformEntity) { ent = (PlatformEntity)obj; }
+		else if (obj instanceof PlatformComposition) { ent = (PlatformEntity)obj.eContainer(); }
+		else {
+			throw new RuntimeException("Can't cast to PlatformEntity:" + obj.eClass().toString());
+		}
+		lprpproc.complete_Composition(this,lprproc, ent, ruleCall, context, acceptor);
 
 	}
 
@@ -169,18 +272,17 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	@Override
 	public void completePlatformComposition_Rolename(EObject obj, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		lprpproc.completeComposition_Rolename(this, lprproc, (PlatformEntity)obj, assignment, context, acceptor);
+		lprpproc.completeComposition_Rolename(this, lprproc, (PlatformEntity)obj.eContainer(), assignment, context, acceptor);
 	}
 		
 
 	@Override
 	public void completePlatformComposition_Realizes(EObject obj, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		lprpproc.completeComposition_Realizes(this, lprproc, (PlatformEntity)obj, assignment, context, acceptor);
+		lprpproc.completeComposition_Realizes(this, lprproc, (PlatformEntity)obj.eContainer(), assignment, context, acceptor);
 
 	}
 
-	
 	
 	@Override
 	public void completePlatformStruct_Member(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
@@ -216,14 +318,16 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 			for (LogicalMeasurementAxis axis: meas.getMeasurementAxis()) {
 				PlatformComposableElement realizingPCE = (PlatformComposableElement) lprproc.getRealizingType(/*pkgs,*/axis, ABS_MEAS_REALIZATION_ERR,ABS_MEAS_REALIZATION_MANY );
 				if (realizingPCE != null) {
-					StringBuilder oneProp = new StringBuilder();
-					oneProp.append("\n" + ndent);
+					StringBuilder insertionTextBldr = new StringBuilder();
+					insertionTextBldr.append("\n" + ndent);
 					// Set the type name
 					QualifiedName n = qnp.relativeQualifiedName(realizingPCE, model);
 					String displayString = MessageFormat.format(MEMBER_DISPLAY_FMT,n.getLastSegment());
-					oneProp.append(MessageFormat.format(STRUCT_AXIS_FMT,n.toString(), n.getLastSegment().toLowerCase(), DEFAULT_PRECISION));
-					String insertionString = oneProp.toString();
-					acceptor.accept(createCompletionProposal(insertionString,displayString, null, context));
+					insertionTextBldr.append(MessageFormat.format(STRUCT_AXIS_FMT,n.toString(), n.getLastSegment().toLowerCase(), DEFAULT_PRECISION));
+					String insertionString = insertionTextBldr.toString();
+					ICompletionProposal prop = createCompletionProposal(insertionString,displayString, null, context);
+					prop = pu.modifyConfigurableCompletionProposal(prop, context, UddlPackage.Literals.LOGICAL_MEASUREMENT_AXIS__REALIZES,realizingPCE.getDescription());
+					acceptor.accept(prop);
 					insertionText.append(insertionString);					
 				}
 			}
@@ -232,15 +336,17 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 				EObject realizedAttrType = attr.getType();
 				PlatformComposableElement realizingPCE = (PlatformComposableElement) lprproc.getRealizingType(/*pkgs,*/realizedAttrType, ABS_MEAS_REALIZATION_ERR,ABS_MEAS_REALIZATION_MANY );
 				if (realizingPCE != null) {					
-					StringBuilder oneProp = new StringBuilder();
-					oneProp.append("\n" + ndent);
+					StringBuilder insertionTextBldr = new StringBuilder();
+					insertionTextBldr.append("\n" + ndent);
 					// Set the type name
 					QualifiedName typeName = qnp.relativeQualifiedName(realizingPCE, model);
 					QualifiedName n = qnp.relativeQualifiedName(attr, model);
 					String displayString = MessageFormat.format(MEMBER_DISPLAY_FMT,n.toString());
-					oneProp.append(MessageFormat.format(STRUCT_ATTRIBUTE_FMT,typeName.toString(), n.getLastSegment().toLowerCase(), DEFAULT_PRECISION, n.toString()));
-					String insertionString = oneProp.toString();
-					acceptor.accept(createCompletionProposal(insertionString,displayString, null, context));
+					insertionTextBldr.append(MessageFormat.format(STRUCT_ATTRIBUTE_FMT,typeName.toString(), n.getLastSegment().toLowerCase(), DEFAULT_PRECISION, n.toString()));
+					String insertionString = insertionTextBldr.toString();
+					ICompletionProposal prop = createCompletionProposal(insertionString,displayString, null, context);
+					prop = pu.modifyConfigurableCompletionProposal(prop, context, UddlPackage.Literals.LOGICAL_MEASUREMENT_ATTRIBUTE__TYPE,realizingPCE.getDescription());
+					acceptor.accept(prop);
 					insertionText.append(insertionString);			
 				}
 			}
