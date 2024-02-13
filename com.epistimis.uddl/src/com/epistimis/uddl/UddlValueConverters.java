@@ -75,31 +75,44 @@ public class UddlValueConverters extends DefaultTerminalConverters {
         }
     };
 
-    IValueConverter<Boolean> rrlowerValueConverter = new IValueConverter<Boolean>() {
+    IValueConverter<Boolean> realRangeLowerValueConverter = new IValueConverter<Boolean>() {
 
         @Override
         public Boolean toValue(String string, INode node) throws ValueConverterException {
-        	return string.equals("[") ? Boolean.TRUE : Boolean.FALSE;
-        	
+        	if ((string.startsWith("[")) || (string.isEmpty())) {
+        		return Boolean.TRUE;
+        	}
+        	if (string.startsWith("(")) {
+        		return Boolean.FALSE;
+        	}
+           // default
+        	return Boolean.TRUE;
         }
 
         @Override
         public String toString(Boolean value) throws ValueConverterException {
-        	return value? "[" : "(";
+            return value.booleanValue()? "[" : "(" ;
         }
     };
-    
-    IValueConverter<Boolean> rrupperValueConverter = new IValueConverter<Boolean>() {
+
+    IValueConverter<Boolean> realRangeUpperValueConverter = new IValueConverter<Boolean>() {
 
         @Override
         public Boolean toValue(String string, INode node) throws ValueConverterException {
-        	return string.equals("]") ? Boolean.TRUE : Boolean.FALSE;
-        	
+        	if ((string.startsWith("]")) || (string.isEmpty())) {
+        		return Boolean.TRUE;
+        	}
+        	if (string.startsWith(")")) {
+        		return Boolean.FALSE;
+        	}
+           // default
+        	return Boolean.TRUE;
         }
 
         @Override
         public String toString(Boolean value) throws ValueConverterException {
-        	return value? "]" : ")";
+
+            return value.booleanValue()? "]" : ")" ;
         }
     };
     
@@ -126,12 +139,12 @@ public class UddlValueConverters extends DefaultTerminalConverters {
 
     @ValueConverter(rule = "RRLOWER")
     public IValueConverter<Boolean> RRLOWER() {
-        return rrlowerValueConverter;
+        return realRangeLowerValueConverter;
     }
 
     @ValueConverter(rule = "RRUPPER")
     public IValueConverter<Boolean> RRUPPER() {
-        return rrupperValueConverter;
+        return realRangeUpperValueConverter;
     }
 
 }
