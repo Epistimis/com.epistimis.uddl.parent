@@ -3,12 +3,9 @@
  */
 package com.epistimis.uddl.unrolled;
 
-import java.util.Map.Entry;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-
-import org.eclipse.emf.common.util.EList;
 
 import com.epistimis.uddl.uddl.PlatformAssociation;
 import com.epistimis.uddl.uddl.PlatformCharacteristic;
@@ -37,17 +34,6 @@ public class UnrollingFactoryP extends
 							UnrolledParticipantP,
 							UnrolledAssociationP
 							> {
-
-
-
-	@Override
-	UnrolledEntityP createEntity(PlatformEntity entity) {
-		// TODO Auto-generated method stub
-		UnrolledEntityP retval = new UnrolledEntityP(entity);
-//		updateMaps(entity, retval);
-		return retval;
-	}
-
 
 	@Override
 	public Set<Entry<PlatformComposableElement, UnrolledComposableElement<PlatformComposableElement>>> getC2REntrySet() {
@@ -105,10 +91,72 @@ public class UnrollingFactoryP extends
 //		return "";
 	}
 
-//	@Override
-//	UnrolledEntityP createEntity(PlatformEntity entity) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+
+	@Override
+	boolean isAssociation(PlatformComposableElement obj) {
+		// TODO Auto-generated method stub
+		return obj instanceof PlatformAssociation;
+	}
+
+
+	@Override
+	boolean isElementalComposable(PlatformComposableElement obj) {
+		// TODO Auto-generated method stub
+		return obj instanceof PlatformDataType;
+	}
+
+
+	@Override
+	boolean isEntity(PlatformComposableElement obj) {
+		// TODO Auto-generated method stub
+		return obj instanceof PlatformEntity;
+	}
+
+
+	@Override
+	PlatformAssociation conv2Association(PlatformComposableElement obj) {
+		// TODO Auto-generated method stub
+		return (PlatformAssociation)obj;
+	}
+
+
+	@Override
+	PlatformDataType conv2ElementalComposable(PlatformComposableElement obj) {
+		// TODO Auto-generated method stub
+		return (PlatformDataType)obj;
+	}
+
+
+	@Override
+	PlatformEntity conv2Entity(PlatformComposableElement obj) {
+		// TODO Auto-generated method stub
+		return (PlatformEntity)obj;
+	}
+
+
+	@Override
+	UnrolledComposableElementP createElementalComposable(PlatformComposableElement obj) {
+		// TODO Auto-generated method stub
+		return new UnrolledDataType((PlatformDataType)obj);
+	}
+
+
+	@Override
+	UnrolledEntityP createEntity(PlatformComposableElement obj) {
+		// TODO Auto-generated method stub
+		UnrolledEntityP retval = new UnrolledEntityP((PlatformEntity)obj);
+//		updateMaps(entity, retval);
+		return retval;
+	}
+
+
+	@Override
+	UnrolledAssociationP createAssociation(PlatformComposableElement obj) {
+		// TODO Auto-generated method stub
+		UnrolledAssociationP retval = new UnrolledAssociationP((PlatformAssociation)obj);
+//		updateMaps(entity, retval);
+		return retval;
+	}
+
 
 }

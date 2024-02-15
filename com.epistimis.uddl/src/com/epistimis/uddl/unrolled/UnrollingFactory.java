@@ -13,16 +13,13 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
 //import com.epistimis.uddl.RealizedEntity;
 //import com.epistimis.uddl.UnrolledAssociation;
 //import com.epistimis.uddl.UnrolledDataType;
 import com.epistimis.uddl.scoping.IndexUtilities;
-import com.epistimis.uddl.uddl.PlatformAssociation;
-import com.epistimis.uddl.uddl.PlatformComposableElement;
-import com.epistimis.uddl.uddl.PlatformDataType;
-import com.epistimis.uddl.uddl.PlatformEntity;
 import com.epistimis.uddl.uddl.UddlElement;
 import com.google.common.collect.Iterables;
 
@@ -54,10 +51,22 @@ public abstract class UnrollingFactory<ComposableElement extends UddlElement,
 	abstract <UComp extends  UnrolledComposableElement<ComposableElement>> UComp 				getUnrolledForComposable(ComposableElement type);
 	abstract ComposableElement 										getType(UComposition uc);
 	abstract Map<String,UComposition> 								getComposition(UEntity entity);
-	abstract UEntity 												createEntity(Entity entity);
 	abstract boolean												isUEntity(Object uce);
 	abstract void 													clearMaps();
 	abstract String 												getName(ComposableElement obj);
+	
+	abstract boolean												isElementalComposable(ComposableElement obj);
+	abstract ElementalComposable									conv2ElementalComposable(ComposableElement obj);
+	abstract UComposableElement										createElementalComposable(ComposableElement obj);
+	
+	abstract boolean    											isEntity(ComposableElement obj);
+	abstract Entity													conv2Entity(ComposableElement obj);
+	abstract UEntity 												createEntity(ComposableElement obj);
+
+	abstract boolean												isAssociation(ComposableElement obj);
+	abstract Association											conv2Association(ComposableElement obj);
+	abstract UAssociation 											createAssociation(ComposableElement obj);
+	
 	/**
 	 * Get the type parameters for this generic class See also
 	 * https://stackoverflow.com/questions/4213972/java-generics-get-class-of-generic-methods-return-type
@@ -117,9 +126,80 @@ public abstract class UnrollingFactory<ComposableElement extends UddlElement,
 	}
 
 
+	public void resolve(EObject obj) {
+		EcoreUtil2.resolveAll(obj);
+		ResourceSet rs = obj.eResource().getResourceSet();
+		unroll(rs);
+	}
+	
+	public void resolve(Resource resource) {
+		EcoreUtil2.resolveAll(resource);
+
+		ResourceSet rs = resource.getResourceSet();
+		unroll(rs);
+	}
 
 	/**
-	 * Use the maps to match types. This uses the PlatformComposableElement instances as keys, not FQNs. This should work but it is based on
+	 * 'Realize' and resolve all the EObjects in the specified ResourceSet. The
+	 * results are cached.
+	 * 
+	 * @param resource
+	 */
+	public void resolve(ResourceSet rs) {
+
+		/**
+		 * Before doing anything else, resolve all ECore cross references - because we
+		 * don't know if some have been lazy linked
+		 */
+		EcoreUtil2.resolveAll(rs);
+		unroll(rs);
+	}
+	
+	private void unroll(ResourceSet rs) {
+		// Before creating new instances, check to see if we already have an instance.
+		// TODO: We need a way to determine if the AST has changed so we can invalidate the cache.
+		// How do we do that? Since the cache is keyed by instance ID, it is sufficient that a change
+		// will cause a new instance to be created, so the old instance won't be found? The problem
+		// is that approach leaves the old instances in the cache, just unused - which creates a memory
+		// leak. We need to know to remove old instances. Alternatively, we just always flush the cache
+		// at this point - which is what we do here.
+		clearMaps();
+		for (Resource res : rs.getResources()) {
+			/**
+			 * This will only collect all the realization info from a PlatformEntity ->
+			 * LogicalEntity -> ConceptualEntity to determine what is available. The results
+			 * can then be used to create instances, generate code, or ....
+			 */
+			final Iterable<ComposableElement> elements = Iterables.<ComposableElement>filter(
+					IteratorExtensions.<EObject>toIterable(res.getAllContents()), getComposableElementType());
+			// When we create the Unrolled objects, they are automatically cached - we don't need to do anything 
+			// with them here.
+			for (final ComposableElement elem : elements) {
+				if (isAssociation(elem)) {
+					createAssociation(elem);
+				} else {
+					if (isElementalComposable(elem)) {
+						createElementalComposable(elem);
+					} else {
+						if (isEntity(elem)) {
+							createEntity(elem);
+						} else {
+							logger.warn(MessageFormat.format("No processing available for type {0}",
+									elem.getClass().toString()));
+						}
+					}
+				}
+			}
+		}
+		/**
+		 * Now go back and link all the Entity / Association types
+		 * 
+		 */
+		linkTypes();
+	}
+
+	/**
+	 * Use the maps to match types. This uses the ComposableElement instances as keys, not FQNs. This should work but it is based on
 	 * object identity.
 	 */
 	public void linkTypes() {
@@ -140,63 +220,6 @@ public abstract class UnrollingFactory<ComposableElement extends UddlElement,
 				}
 			}
 		}
-	}
-
-	/**
-	 * 'Realize' and resolve all the EObjects in the specified ResourceSet. The
-	 * results are cached.
-	 * 
-	 * @param resource
-	 */
-	public void resolve(ResourceSet rs) {
-
-		/**
-		 * Before doing anything else, resolve all ECore cross references - because we
-		 * don't know if some have been lazy linked
-		 */
-		// EcoreUtil2.resolveAll(rs);
-
-		// Before creating new instances, check to see if we already have an instance.
-		// TODO: We need a way to determine if the AST has changed so we can invalidate the cache.
-		// How do we do that? Since the cache is keyed by instance ID, it is sufficient that a change
-		// will cause a new instance to be created, so the old instance won't be found? The problem
-		// is that approach leaves the old instances in the cache, just unused - which creates a memory
-		// leak. We need to know to remove old instances. Alternatively, we just always flush the cache
-		// at this point - which is what we do here.
-//		UnrolledComposableElement.allComposable2Realized.clear();
-//		UnrolledComposableElement.allRealized2Composable.clear();
-		clearMaps();
-		for (Resource res : rs.getResources()) {
-			/**
-			 * This will only collect all the realization info from a PlatformEntity ->
-			 * LogicalEntity -> ConceptualEntity to determine what is available. The results
-			 * can then be used to create instances, generate code, or ....
-			 */
-			final Iterable<ComposableElement> elements = Iterables.<ComposableElement>filter(
-					IteratorExtensions.<EObject>toIterable(res.getAllContents()), getComposableElementType());
-				
-			for (final ComposableElement elem : elements) {
-				if ((elem instanceof PlatformAssociation)) {
-					new UnrolledAssociationP(((PlatformAssociation) elem));
-				} else {
-					if ((elem instanceof PlatformDataType)) {
-						new UnrolledDataType(((PlatformDataType) elem));
-					} else {
-						if ((elem instanceof PlatformEntity)) {
-							new UnrolledEntityP(((PlatformEntity) elem));
-						} else {
-							logger.warn(MessageFormat.format("No processing available for type {0}",
-									elem.getClass().toString()));
-						}
-					}
-				}
-			}
-		}
-		/**
-		 * Now go back and link all the PlatformEntity types
-		 * 
-		 */
-		linkTypes();
 	}
 	
 }

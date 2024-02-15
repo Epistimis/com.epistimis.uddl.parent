@@ -6,8 +6,8 @@
  */
 package com.epistimis.uddl.generator
 
-import com.epistimis.uddl.RealizationResolver
 import com.epistimis.uddl.unrolled.UnrolledComposableElementP
+import com.epistimis.uddl.unrolled.UnrollingFactoryP
 import java.lang.invoke.MethodHandles
 import org.apache.log4j.Logger
 import org.eclipse.emf.ecore.resource.Resource
@@ -23,10 +23,11 @@ import org.eclipse.xtext.generator.IGeneratorContext
 class UddlGenerator extends AbstractGenerator {
 
 	static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+	static UnrollingFactoryP ufp = new UnrollingFactoryP();
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 
-		RealizationResolver.resolve(resource);
+		ufp.resolve(resource);
 //		/**
 //		 * The first version of the generator will work directly from PlatformEntity - without queries. This will only collect all the realization
 //		 * info from a PlatformEntity -> LogicalEntity -> ConceptualEntity to determine what to generate.
