@@ -306,7 +306,7 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 			logger.info(msg);
 		}
 		for (EObject rce: realizingTypes) {
-			String insertionString = pu.minimalReferenceString( rce, rentity);
+			String insertionString = qnp.minimalReferenceString( rce, rentity);
 			String displayString = getRealizingTypeName(rce);
 			ICompletionProposal prop = pp.createCompletionProposal(insertionString,displayString, null, context);
 			prop = pu.modifyConfigurableCompletionProposal(prop, context, getCompositionTypeReference(), ((UddlElement)rce).getDescription());

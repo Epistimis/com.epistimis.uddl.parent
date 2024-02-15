@@ -75,7 +75,7 @@ public class CLRealizationProposalProcessor extends
 		EObject ce = rezProc.getRealizingType(bc.getType(), OBSERVABLE_REALIZATION_ERR,
 				OBSERVABLE_REALIZATION_MANY);
 		if (ce != null) {
-			typeName = pu.minimalReferenceString(ce, bc); //qnp.relativeQualifiedName(ce, bc).toString();
+			typeName = qnp.minimalReferenceString(ce, bc); //qnp.relativeQualifiedName(ce, bc).toString();
 		}
 
 		return String.format(indent + typeName + compositionFormatString, bc.getRolename(), bc.getLowerBound(),
@@ -87,7 +87,7 @@ public class CLRealizationProposalProcessor extends
 		String typeName = dummyType;
 		EObject ce = rezProc.getRealizingType(bc.getType(), ENTITY_REALIZATION_ERR, ENTITY_REALIZATION_MANY);
 		if (ce != null) {
-			typeName = pu.minimalReferenceString(ce, bc); //qnp.relativeQualifiedName(ce, bc).toString();
+			typeName = qnp.minimalReferenceString(ce, bc); //qnp.relativeQualifiedName(ce, bc).toString();
 		}
 		return String.format(indent + typeName + participantFormatString, bc.getRolename(), bc.getLowerBound(),
 				bc.getUpperBound(), bc.getDescription(), qnp.getFullyQualifiedName(bc).toString(),

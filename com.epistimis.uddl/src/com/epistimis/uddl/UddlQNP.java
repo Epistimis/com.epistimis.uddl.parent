@@ -2,7 +2,13 @@ package com.epistimis.uddl;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.xtext.conversion.impl.QualifiedNameValueConverter;
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider;
@@ -31,7 +37,7 @@ import com.google.inject.Inject;
 
 public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // XbaseQualifiedNameProvider
 	
-	
+	@Inject IndexUtilities ndxUtils;
 	// Because the base class one is private
 	@Inject
 	protected IQualifiedNameConverter converter = new IQualifiedNameConverter.DefaultImpl();
@@ -104,6 +110,64 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 		}
 		return oName.skipFirst(testSegCnt);
 		
+	}
+
+	/**
+	 * Return the shortest QN that will work as a valid reference, taking
+	 * into account all the imported namespaces in the resource where the reference
+	 * will go.
+	 * 
+	 * @param ref The object to which we want the reference
+	 * @param ctx The context object - where the reference will go
+	 * @return The reference QualifiedName
+	 */
+	public QualifiedName minimalReferenceQN(EObject ref, EObject ctx) {
+		// A minimal reference can be created based on the RQN - and then we can look at
+		// the imports
+		// in the Resource containing the context object and shorten it further from
+		// there.
+		QualifiedName result = relativeQualifiedName(ref, ctx);
+
+		Resource res = ctx.eResource();
+		EList<EObject> content = res.getContents();
+		// Get the root instance, then all the includes. The challenge here is that the
+		// type
+		// of the root object can differ depending on the file type. So we need to query
+		// for the includes using
+		// AQL
+		Map<String, Object> variables = new HashMap<String, Object>();
+		variables.put("self", content.get(0));
+
+		// This works because all grammars use the same 'includes' feature name
+		// including.
+		Collection<EObject> importedNamespaces = ndxUtils.processAQL(res.getResourceSet(), variables,
+				"self.eGet('includes').eGet('importedNamespace')");
+
+		// Now get the 'importedNamespace' from each, remove the wildcard (if it's
+		// there) and convert the remainder
+		// to a QualifiedName. Then compare to the rqn to see if we can shorten the RQN.
+		for (Object o : importedNamespaces) {
+			String str = o.toString();
+			QualifiedName testQN = minimalQualifiedName(ref, str);
+			if (testQN.getSegmentCount() < result.getSegmentCount()) {
+				result = testQN;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Return the shortest QN as string that will work as a valid reference, taking
+	 * into account all the imported namespaces in the resource where the reference
+	 * will go.
+	 * 
+	 * @param ref The object to which we want the reference
+	 * @param ctx The context object - where the reference will go
+	 * @return The reference string
+	 */
+	public String minimalReferenceString(EObject ref, EObject ctx) {
+		QualifiedName qn = minimalReferenceQN(ref,ctx);
+		return qn.toString();
 	}
 
 	/**
