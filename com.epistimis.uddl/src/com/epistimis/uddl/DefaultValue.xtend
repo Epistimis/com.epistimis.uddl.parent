@@ -30,6 +30,7 @@ import com.epistimis.uddl.uddl.LogicalValueTypeUnit
 import com.epistimis.uddl.uddl.LogicalEnumeratedBase
 
 import java.text.MessageFormat
+import org.eclipse.emf.ecore.EObject
 
 /**
  * We can extract landmarks from the Measurement system associated with the measurement and use those for default values, if 
@@ -39,29 +40,29 @@ class DefaultValue {
 	@Inject UddlQNP qnp;
 	@Inject ModelFilters modelFilters;
 
-	def dispatch Boolean 		getDefaultValue( PlatformBoolean 	value) 		{return Boolean.FALSE;}
-	def dispatch Character 		getDefaultValue( PlatformChar 		value) 		{return Character.valueOf('*');}
-	def dispatch Character 		getDefaultValue( PlatformOctet 		value) 		{return Character.valueOf('*');}
-	def dispatch Float			getDefaultValue( PlatformFloat 		value) 		{return Float.valueOf(0);}
-	def dispatch Double    		getDefaultValue( PlatformDouble 	value) 		{return Double.valueOf(0);}
-	def dispatch Double 		getDefaultValue( PlatformLongDouble value) 		{return Double.valueOf(0);}
-	def dispatch Short	 		getDefaultValue( PlatformShort 		value) 		{return Short.valueOf( 0 as short);}
-	def dispatch Long	 		getDefaultValue( PlatformLong 		value) 		{return Long.valueOf(0);}
-	def dispatch Long	 		getDefaultValue( PlatformLongLong 	value) 		{return Long.valueOf(0);}
-	def dispatch Short	 		getDefaultValue( PlatformUShort 	value) 		{return Short.valueOf( 0 as short);}
-	def dispatch Long	 		getDefaultValue( PlatformULong 		value) 		{return Long.valueOf(0);}
-	def dispatch Long	 		getDefaultValue( PlatformULongLong 	value) 		{return Long.valueOf(0);}
-	def dispatch String 		getDefaultValue( PlatformString 	value) 		{return String.valueOf("*");}
-	def dispatch String 		getDefaultValue( PlatformBoundedString 	value) 	{return String.valueOf("*");}
-	def dispatch Character 		getDefaultValue( PlatformCharArray 	value) 		{return Character.valueOf('*');}
+	def dispatch Boolean 		getDefaultValue( PlatformBoolean 	value, EObject ctx) 		{return Boolean.FALSE;}
+	def dispatch Character 		getDefaultValue( PlatformChar 		value, EObject ctx) 		{return Character.valueOf('*');}
+	def dispatch Character 		getDefaultValue( PlatformOctet 		value, EObject ctx) 		{return Character.valueOf('*');}
+	def dispatch Float			getDefaultValue( PlatformFloat 		value, EObject ctx) 		{return Float.valueOf(0);}
+	def dispatch Double    		getDefaultValue( PlatformDouble 	value, EObject ctx) 		{return Double.valueOf(0);}
+	def dispatch Double 		getDefaultValue( PlatformLongDouble value, EObject ctx) 		{return Double.valueOf(0);}
+	def dispatch Short	 		getDefaultValue( PlatformShort 		value, EObject ctx) 		{return Short.valueOf( 0 as short);}
+	def dispatch Long	 		getDefaultValue( PlatformLong 		value, EObject ctx) 		{return Long.valueOf(0);}
+	def dispatch Long	 		getDefaultValue( PlatformLongLong 	value, EObject ctx) 		{return Long.valueOf(0);}
+	def dispatch Short	 		getDefaultValue( PlatformUShort 	value, EObject ctx) 		{return Short.valueOf( 0 as short);}
+	def dispatch Long	 		getDefaultValue( PlatformULong 		value, EObject ctx) 		{return Long.valueOf(0);}
+	def dispatch Long	 		getDefaultValue( PlatformULongLong 	value, EObject ctx) 		{return Long.valueOf(0);}
+	def dispatch String 		getDefaultValue( PlatformString 	value, EObject ctx) 		{return String.valueOf("*");}
+	def dispatch String 		getDefaultValue( PlatformBoundedString 	value, EObject ctx) 	{return String.valueOf("*");}
+	def dispatch Character 		getDefaultValue( PlatformCharArray 	value, EObject ctx) 		{return Character.valueOf('*');}
 
-	def dispatch Character 		getDefaultValue( PlatformSequence 	value) 		{return Character.valueOf('*');}
-	def dispatch Character 		getDefaultValue( PlatformArray 		value) 		{return Character.valueOf('*');}
+	def dispatch Character 		getDefaultValue( PlatformSequence 	value, EObject ctx) 		{return Character.valueOf('*');}
+	def dispatch Character 		getDefaultValue( PlatformArray 		value, EObject ctx) 		{return Character.valueOf('*');}
 
-	def dispatch QualifiedName	getDefaultValue( PlatformEnumeration value) 	
+	def dispatch QualifiedName	getDefaultValue( PlatformEnumeration value, EObject ctx) 	
 	{
 		val LogicalEnumeratedBase leb = getEnumValue(value);
-		return (leb  === null) ?  QualifiedName.EMPTY : qnp.relativeQualifiedName(leb,value);
+		return (leb  === null) ?  QualifiedName.EMPTY : qnp.minimalReferenceQN(leb,ctx);
 	}
 
 	def LogicalEnumeratedBase getEnumValue(PlatformEnumeration value)	 {
@@ -103,33 +104,33 @@ class DefaultValue {
 	 */
 	static final String QUOTED_STRING_FMT = "\"{0}\"";
 	static final String QUOTED_CHAR_FMT = "\'{0}\'";
-	static final String QUOTED_STRING_LIST_FMT = "[ \"{0}\" ]";
+	//static final String QUOTED_STRING_LIST_FMT = "[ \"{0}\" ]";
 	static final String QUOTED_CHAR_LIST_FMT = "[ \'{0}\' ]";
 	static final String EXPLAINED_VALUE_FMT = "{0} /* {1} */"; // In case we want to explain where the default came from (e.g. Landmark name, NAICS code description
 	
-	def dispatch String getDefaultValueAsString( PlatformBoolean 	value) 		{return Boolean.FALSE.toString();}
-	def dispatch String getDefaultValueAsString( PlatformChar 		value) 		{return MessageFormat.format(QUOTED_CHAR_FMT,"*");}
-	def dispatch String getDefaultValueAsString( PlatformOctet 		value) 		{return MessageFormat.format(QUOTED_CHAR_FMT,"*");}
-	def dispatch String	getDefaultValueAsString( PlatformFloat 		value) 		{return Float.valueOf(0).toString();}
-	def dispatch String getDefaultValueAsString( PlatformDouble 	value) 		{return Double.valueOf(0).toString();}
-	def dispatch String getDefaultValueAsString( PlatformLongDouble value) 		{return Double.valueOf(0).toString();}
-	def dispatch String	getDefaultValueAsString( PlatformShort 		value) 		{return Short.valueOf( 0 as short).toString();}
-	def dispatch String	getDefaultValueAsString( PlatformLong 		value) 		{return Long.valueOf(0).toString();}
-	def dispatch String	getDefaultValueAsString( PlatformLongLong 	value) 		{return Long.valueOf(0).toString();}
-	def dispatch String	getDefaultValueAsString( PlatformUShort 	value) 		{return Short.valueOf( 0 as short).toString();}
-	def dispatch String	getDefaultValueAsString( PlatformULong 		value) 		{return Long.valueOf(0).toString();}
-	def dispatch String	getDefaultValueAsString( PlatformULongLong 	value) 		{return Long.valueOf(0).toString();}
-	def dispatch String getDefaultValueAsString( PlatformString 	value) 		{return MessageFormat.format(QUOTED_STRING_FMT,"*");}
-	def dispatch String getDefaultValueAsString( PlatformBoundedString 	value) 	{return MessageFormat.format(QUOTED_STRING_FMT,"*");}
-	def dispatch String getDefaultValueAsString( PlatformCharArray 	value) 		{return MessageFormat.format(QUOTED_CHAR_LIST_FMT,"*");}
+	def dispatch String getDefaultValueAsString( PlatformBoolean 	value, EObject ctx) 		{return Boolean.FALSE.toString();}
+	def dispatch String getDefaultValueAsString( PlatformChar 		value, EObject ctx) 		{return MessageFormat.format(QUOTED_CHAR_FMT,"*");}
+	def dispatch String getDefaultValueAsString( PlatformOctet 		value, EObject ctx) 		{return MessageFormat.format(QUOTED_CHAR_FMT,"*");}
+	def dispatch String	getDefaultValueAsString( PlatformFloat 		value, EObject ctx) 		{return Float.valueOf(0).toString();}
+	def dispatch String getDefaultValueAsString( PlatformDouble 	value, EObject ctx) 		{return Double.valueOf(0).toString();}
+	def dispatch String getDefaultValueAsString( PlatformLongDouble value, EObject ctx) 		{return Double.valueOf(0).toString();}
+	def dispatch String	getDefaultValueAsString( PlatformShort 		value, EObject ctx) 		{return Short.valueOf( 0 as short).toString();}
+	def dispatch String	getDefaultValueAsString( PlatformLong 		value, EObject ctx) 		{return Long.valueOf(0).toString();}
+	def dispatch String	getDefaultValueAsString( PlatformLongLong 	value, EObject ctx) 		{return Long.valueOf(0).toString();}
+	def dispatch String	getDefaultValueAsString( PlatformUShort 	value, EObject ctx) 		{return Short.valueOf( 0 as short).toString();}
+	def dispatch String	getDefaultValueAsString( PlatformULong 		value, EObject ctx) 		{return Long.valueOf(0).toString();}
+	def dispatch String	getDefaultValueAsString( PlatformULongLong 	value, EObject ctx) 		{return Long.valueOf(0).toString();}
+	def dispatch String getDefaultValueAsString( PlatformString 	value, EObject ctx) 		{return MessageFormat.format(QUOTED_STRING_FMT,"*");}
+	def dispatch String getDefaultValueAsString( PlatformBoundedString 	value, EObject ctx) 	{return MessageFormat.format(QUOTED_STRING_FMT,"*");}
+	def dispatch String getDefaultValueAsString( PlatformCharArray 	value, EObject ctx) 		{return MessageFormat.format(QUOTED_CHAR_LIST_FMT,"*");}
 
-	def dispatch String getDefaultValueAsString( PlatformSequence 	value) 		{return MessageFormat.format(QUOTED_CHAR_LIST_FMT,"*");}
-	def dispatch String getDefaultValueAsString( PlatformArray 		value) 		{return MessageFormat.format(QUOTED_CHAR_LIST_FMT,"*");}
+	def dispatch String getDefaultValueAsString( PlatformSequence 	value, EObject ctx) 		{return MessageFormat.format(QUOTED_CHAR_LIST_FMT,"*");}
+	def dispatch String getDefaultValueAsString( PlatformArray 		value, EObject ctx) 		{return MessageFormat.format(QUOTED_CHAR_LIST_FMT,"*");}
 
-	def dispatch String	getDefaultValueAsString( PlatformEnumeration value) 	
+	def dispatch String	getDefaultValueAsString( PlatformEnumeration value, EObject ctx) 	
 	{
 		val LogicalEnumeratedBase leb = getEnumValue(value);
-		return  (leb === null) ? QualifiedName.EMPTY.toString():  MessageFormat.format(EXPLAINED_VALUE_FMT,qnp.relativeQualifiedName(leb,value).toString(),leb.description);
+		return  (leb === null) ? QualifiedName.EMPTY.toString():  MessageFormat.format(EXPLAINED_VALUE_FMT,qnp.minimalReferenceString(leb,ctx),leb.description);
 	}
 	
 }
