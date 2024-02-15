@@ -7,7 +7,7 @@
 package com.epistimis.uddl.generator
 
 import com.epistimis.uddl.RealizationResolver
-import com.epistimis.uddl.RealizedComposableElement
+import com.epistimis.uddl.unrolled.UnrolledComposableElementP
 import java.lang.invoke.MethodHandles
 import org.apache.log4j.Logger
 import org.eclipse.emf.ecore.resource.Resource
@@ -55,7 +55,7 @@ class UddlGenerator extends AbstractGenerator {
 //		 * Now go back and link all the PlatformEntity types
 //		 * 
 //		 */
-//		RealizedComposableElement.linkTypes();
+//		UnrolledComposableElementP.linkTypes();
 
 		/**
 		 * 
@@ -63,21 +63,21 @@ class UddlGenerator extends AbstractGenerator {
 		 * is no indication which language a software component will be generated in.
 		 */
 		try {
-			val gen2 = new ProtobufDataStructureGenerator(RealizedComposableElement.allComposable2Realized);
+			val gen2 = new ProtobufDataStructureGenerator(UnrolledComposableElementP.allComposable2Unrolled);
 			gen2.doGenerate(resource, fsa, context);
 		}
 		catch (Exception excp) {
 			logger.error("Protobuf exception: " + excp.localizedMessage,excp); //(excp.stackTrace);
 		}
 		try {
-			val gen1 = new IDLDataStructureGenerator(RealizedComposableElement.allComposable2Realized);
+			val gen1 = new IDLDataStructureGenerator(UnrolledComposableElementP.allComposable2Unrolled);
 			gen1.doGenerate(resource, fsa, context);			
 		}
 		catch (Exception excp) {
 			logger.error("IDL exception: " + excp.localizedMessage,excp); //(excp.stackTrace);
 		}
 		try {
-			val gen3 = new RDBMSDataStructureGenerator(RealizedComposableElement.allComposable2Realized);
+			val gen3 = new RDBMSDataStructureGenerator(UnrolledComposableElementP.allComposable2Unrolled);
 			gen3.doGenerate(resource, fsa, context);
 		}
 		catch (Exception excp) {

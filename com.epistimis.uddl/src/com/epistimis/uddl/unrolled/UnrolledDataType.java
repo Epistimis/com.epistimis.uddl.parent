@@ -1,4 +1,4 @@
-package com.epistimis.uddl;
+package com.epistimis.uddl.unrolled;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -12,7 +12,7 @@ import com.epistimis.uddl.uddl.PlatformDataType;
  * @author stevehickman
  *
  */
-public class RealizedDataType extends RealizedComposableElement {
+public class UnrolledDataType extends UnrolledComposableElementP {
 
 	public enum DataType {
 		SEQUENCE("PlatformSequence"), BOOLEAN("PlatformBoolean"), CHAR("PlatformChar"), FIXED("PlatformFixed"),
@@ -57,12 +57,12 @@ public class RealizedDataType extends RealizedComposableElement {
 
 	private DataType type;
 
-	public RealizedDataType(@NonNull PlatformDataType pdt) {
+	public UnrolledDataType(@NonNull PlatformDataType pdt) {
 		super(pdt);
 		String clzName = pdt.getClass().getSimpleName();
 		// Strip off 'Platform' and 'Impl'
 		String enumVal = clzName.substring(8,clzName.lastIndexOf("Impl")).toUpperCase();
-		this.setType(Enum.valueOf(RealizedDataType.DataType.class,enumVal));
+		this.setType(Enum.valueOf(UnrolledDataType.DataType.class,enumVal));
 
 	}
 

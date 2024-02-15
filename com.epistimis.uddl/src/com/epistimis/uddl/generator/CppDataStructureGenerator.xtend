@@ -22,9 +22,9 @@ import com.epistimis.uddl.uddl.PlatformULong
 import com.epistimis.uddl.uddl.PlatformULongLong
 import com.epistimis.uddl.uddl.PlatformUShort
 import com.epistimis.uddl.uddl.PlatformUnsignedInteger
+import com.epistimis.uddl.unrolled.UnrolledComposableElement
 import java.util.Map
 import org.eclipse.emf.ecore.EObject
-import com.epistimis.uddl.RealizedComposableElement
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.
@@ -36,7 +36,7 @@ import com.epistimis.uddl.RealizedComposableElement
  */
 class CppDataStructureGenerator extends CommonDataStructureGenerator {
 
-	new(Map<PlatformComposableElement,RealizedComposableElement> ace) {
+	new(Map<PlatformComposableElement,UnrolledComposableElement<PlatformComposableElement>> ace) {
 		super(ace);
 	}
 	

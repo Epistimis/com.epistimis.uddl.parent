@@ -1,14 +1,16 @@
-package com.epistimis.uddl;
+package com.epistimis.uddl.unrolled;
 
 //import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
 
+import org.eclipse.emf.ecore.EObject;
 //import org.apache.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNull;
 
-import com.epistimis.uddl.uddl.PlatformCharacteristic;
+import com.epistimis.uddl.uddl.UddlElement;
 
-public class RealizedCharacteristic {
+public abstract class UnrolledCharacteristic<ComposableElement extends UddlElement,Characteristic  extends EObject, 
+												UComposableElement extends UnrolledComposableElement<ComposableElement>> {
 
 	//private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 	/**
@@ -26,7 +28,12 @@ public class RealizedCharacteristic {
 	 * also specializes and has an characteristic that 'overrides' a characteristic from the specialized Entity
 	 */
 	
-	protected PlatformCharacteristic realizedCharacteristic;
+	abstract String getRolename(Characteristic c);
+	abstract String getDescription(Characteristic c);
+	abstract int    getLowerBound(Characteristic c);
+	abstract int 	getUpperBound(Characteristic c);
+	
+	protected Characteristic referencedCharacteristic;
 
 	/**
 	 * Use the lowest level rolename (Platform)
@@ -47,23 +54,25 @@ public class RealizedCharacteristic {
 	private int upperBound;
 
 	/**
-	 * The realizedType of this composition Element
+	 * The unrolledType of this composition Element
+	 * NOTE: This does not use UComposableElement because that type is not a base class of UEntity or UAssociation.
+	 * UnrolledComposableElement<ComposableElement> is the base class.
 	 */
-	private RealizedComposableElement realizedType;
+	private UnrolledComposableElement<ComposableElement> unrolledType;
 
-	public RealizedCharacteristic(@NonNull String rolename) {
+	public UnrolledCharacteristic(@NonNull String rolename) {
 		this.rolename = rolename;
 		this.lowerBound = 1;
 		this.upperBound = 1;
 	}
 
-	public RealizedCharacteristic(@NonNull PlatformCharacteristic pc, @NonNull RealizedComposableElement rce) {
-		this.rolename = pc.getRolename();
-		this.description= pc.getDescription();
-		this.lowerBound = pc.getLowerBound();
-		this.upperBound = pc.getUpperBound();
-		this.realizedCharacteristic = pc;
-		this.realizedType = rce;
+	public UnrolledCharacteristic(@NonNull Characteristic pc, @NonNull UComposableElement rce) {
+		this.rolename = getRolename(pc);
+		this.description= getDescription(pc);
+		this.lowerBound = getLowerBound(pc);
+		this.upperBound = getUpperBound(pc);
+		this.referencedCharacteristic = pc;
+		this.unrolledType = rce;
 	}
 
 	/**
@@ -71,7 +80,7 @@ public class RealizedCharacteristic {
 	 * PlatformComposition
 	 * @param pc
 	 */
-	public void update(@NonNull PlatformCharacteristic pc, RealizedComposableElement rce) {
+	public void updateChar(Characteristic pc, UComposableElement rce) {
 		/**
 		 * Allowed updates:
 		 * 1) rolename can change - but can't become empty
@@ -79,40 +88,40 @@ public class RealizedCharacteristic {
 		 * 3) bounds can be no looser - but they can be more restricted
 		 * 4) precision cannot be made better?
 		 */
-		if (pc.getRolename().trim().length() > 0) {
-			this.rolename = pc.getRolename();
+		if (getRolename(pc).trim().length() > 0) {
+			this.rolename = getRolename(pc);
 		}
-		if (pc.getDescription().trim().length() > 0) {
-			this.description = pc.getDescription();
+		if (getDescription(pc).trim().length() > 0) {
+			this.description = getDescription(pc);
 		}
-		if (pc.getLowerBound() > this.lowerBound) {
-			this.lowerBound = pc.getLowerBound();
+		if (getLowerBound(pc) > this.lowerBound) {
+			this.lowerBound = getLowerBound(pc);
 		}
 		/**
 		 * If the updating upper bound is unbounded, then it can't narrow the
 		 * existing definition, so go no further
 		 */
-		if (pc.getUpperBound() != -1) {
-			if ((this.upperBound == -1) || (pc.getUpperBound() < this.upperBound)) {
-				this.upperBound = pc.getUpperBound();
+		if (getUpperBound(pc) != -1) {
+			if ((this.upperBound == -1) || (getUpperBound(pc) < this.upperBound)) {
+				this.upperBound = getUpperBound(pc);
 			}
 		}
 
 		if (rce != null) {
-			this.realizedType = rce;
+			this.unrolledType = rce;
 		}
 
 	}
 
-	public PlatformCharacteristic getRealizedCharacteristic() {
-		return this.realizedCharacteristic;
+	public Characteristic getCharacteristic() {
+		return this.referencedCharacteristic;
 	}
-	public RealizedComposableElement getRealizeType() {
-		return this.realizedType;
+	public UnrolledComposableElement<ComposableElement> getRealizeType() {
+		return this.unrolledType;
 	}
 
-	public void setRealizedType(RealizedComposableElement rce) {
-		this.realizedType = rce;
+	public void setUnrolledType(UnrolledComposableElement<ComposableElement> rce) {
+		this.unrolledType = rce;
 	}
 
 	public String getDescription() {
@@ -124,24 +133,24 @@ public class RealizedCharacteristic {
 	}
 	
 	public String toString() {
-		return MessageFormat.format("{0} {1} [{2}:{3}] \'{4}\' from {5}", realizedType.toString(), rolename, lowerBound, upperBound, description,
-				realizedCharacteristic.toString());
+		return MessageFormat.format("{0} {1} [{2}:{3}] \'{4}\' from {5}", unrolledType.toString(), rolename, lowerBound, upperBound, description,
+				referencedCharacteristic.toString());
 	}
 }
 /*
  * ConceptualComposition:
-	realizedType=[ConceptualComposableElement|QN]  rolename=ID '[' (lowerBound=INT)? ':' (upperBound=INT)? ']' (description=STRING)? ':' (specializes=[ConceptualCharacteristic|QN])? ';'
+	unrolledType=[ConceptualComposableElement|QN]  rolename=ID '[' (lowerBound=INT)? ':' (upperBound=INT)? ']' (description=STRING)? ':' (specializes=[ConceptualCharacteristic|QN])? ';'
 ;
  */
 /*
  *
 LogicalComposition:
-	realizedType=[LogicalComposableElement|QN]  rolename=ID '[' lowerBound=INT ':' upperBound=INT ']' (description=STRING)? (':' specializes=[LogicalCharacteristic|QN])?  '->' realizes=[ConceptualComposition|QN]
+	unrolledType=[LogicalComposableElement|QN]  rolename=ID '[' lowerBound=INT ':' upperBound=INT ']' (description=STRING)? (':' specializes=[LogicalCharacteristic|QN])?  '->' realizes=[ConceptualComposition|QN]
 ;
  */
 /*
 PlatformComposition:
-realizedType=[PlatformComposableElement|QN]  rolename=ID '[' lowerBound=INT ':' upperBound=INT ']' (description=STRING)? (':' specializes=[PlatformCharacteristic|QN])?  '->' realizes=[LogicalComposition|QN]
+unrolledType=[PlatformComposableElement|QN]  rolename=ID '[' lowerBound=INT ':' upperBound=INT ']' (description=STRING)? (':' specializes=[PlatformCharacteristic|QN])?  '->' realizes=[LogicalComposition|QN]
 	'{'
 		'prec:' precision=FLOAT
 	'}'';'

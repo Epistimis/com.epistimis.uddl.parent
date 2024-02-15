@@ -15,9 +15,9 @@ import com.epistimis.uddl.uddl.PlatformFloat
 import com.epistimis.uddl.uddl.PlatformInteger
 import com.epistimis.uddl.uddl.PlatformParticipant
 import com.epistimis.uddl.uddl.PlatformString
+import com.epistimis.uddl.unrolled.UnrolledComposableElement
 import java.util.Map
 import org.eclipse.emf.ecore.EObject
-import com.epistimis.uddl.RealizedComposableElement
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.
@@ -29,7 +29,7 @@ import com.epistimis.uddl.RealizedComposableElement
  */
 class PythonDataStructureGenerator extends CommonDataStructureGenerator {
 
-	new(Map<PlatformComposableElement,RealizedComposableElement> ace) {
+	new(Map<PlatformComposableElement,UnrolledComposableElement<PlatformComposableElement>> ace) {
 		super(ace);
 	}
 	

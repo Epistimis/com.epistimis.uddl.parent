@@ -21,9 +21,10 @@ import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGenerator2
 import org.eclipse.xtext.generator.IGeneratorContext
 import org.eclipse.xtext.naming.IQualifiedNameProvider
-import com.epistimis.uddl.RealizedComposableElement
+import com.epistimis.uddl.unrolled.UnrolledComposableElementP
 import org.apache.log4j.Logger
 import java.lang.invoke.MethodHandles
+import com.epistimis.uddl.unrolled.UnrolledComposableElement
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.
@@ -43,9 +44,9 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 	List<PlatformEntity> processedEntities;
 	List<PlatformDataModel> processedPDMs;
 
-	protected Map<PlatformComposableElement, RealizedComposableElement> allComposableElements;
+	protected Map<PlatformComposableElement, UnrolledComposableElement<PlatformComposableElement>> allComposableElements;
 
-	new(Map<PlatformComposableElement, RealizedComposableElement> ace) {
+	new(Map<PlatformComposableElement, UnrolledComposableElement<PlatformComposableElement>> ace) {
 		allComposableElements = ace;
 	}
 

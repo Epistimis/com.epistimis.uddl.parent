@@ -1,56 +1,67 @@
-package com.epistimis.uddl;
+package com.epistimis.uddl.unrolled;
 
 import java.lang.invoke.MethodHandles;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jdt.annotation.NonNull;
 
 import com.epistimis.uddl.scoping.IndexUtilities;
-import com.epistimis.uddl.uddl.PlatformEntity;
-import com.epistimis.uddl.uddl.PlatformParticipant;
+import com.epistimis.uddl.uddl.UddlElement;
 
-public class RealizedParticipant extends RealizedCharacteristic {
+public abstract class UnrolledParticipant<ComposableElement extends UddlElement, 
+											Entity extends ComposableElement, 
+											Characteristic  extends EObject,  
+											Participant extends Characteristic,
+											UComposableElement extends UnrolledComposableElement<ComposableElement>>  
+		extends UnrolledCharacteristic<ComposableElement, Characteristic,UComposableElement> {
 
 	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+	
+	abstract public int 				getSourceLowerBound(Participant p);
+	abstract public int 				getSourceUpperBound(Participant p);
+	abstract public ComposableElement 	getType(Participant p);
+	abstract 		Entity 				conv2Entity(ComposableElement ce);
+	
 	/**
 	 * Track the original type because we need this later to do linkage
 	 */
-	private @NonNull PlatformEntity type;
+	private @NonNull Entity type;
 
 	private int sourceLowerBound;
 
 	private int sourceUpperBound;
 
-	public RealizedParticipant(@NonNull String rolename) {
+	public UnrolledParticipant(@NonNull String rolename) {
 		super(rolename);
 		// TODO Auto-generated constructor stub
 		sourceLowerBound = 1;
 		sourceUpperBound = 1;
 	}
-	public RealizedParticipant(@NonNull PlatformParticipant pp, RealizedComposableElement rce) {
+	public UnrolledParticipant(@NonNull Participant pp, UComposableElement rce) {
 		super(pp,rce);
-		this.type = IndexUtilities.unProxiedEObject(pp.getType(),pp);
-		sourceLowerBound = pp.getSourceLowerBound();
-		sourceUpperBound = pp.getSourceUpperBound();
+		this.type = conv2Entity(IndexUtilities.unProxiedEObject(getType(pp),pp));
+		sourceLowerBound = getSourceLowerBound(pp);
+		sourceUpperBound = getSourceUpperBound(pp);
 	}
 
-	public void update(@NonNull PlatformParticipant pc, RealizedComposableElement rce) {
-		super.update(pc, rce);
+	public void update(@NonNull Participant pc, UComposableElement rce) {
+		super.updateChar(pc, rce);
 
 		// TODO: https://app.clickup.com/t/86bx15uh4
 		// Characteristic type specialization could be tightened on realization
-		if (pc.getSourceLowerBound()  > this.sourceLowerBound) {
-			this.sourceLowerBound = pc.getSourceLowerBound();
+		if (getSourceLowerBound(pc)  > this.sourceLowerBound) {
+			this.sourceLowerBound = getSourceLowerBound(pc);
 		}
-		if (pc.getSourceUpperBound()  < this.sourceUpperBound) {
-			this.sourceUpperBound = pc.getSourceUpperBound();
+		if (getSourceUpperBound(pc)  < this.sourceUpperBound) {
+			this.sourceUpperBound = getSourceUpperBound(pc);
 		}
 
 	}
 
-	public PlatformEntity getType() {
+	public Entity getType() {
 		if (type == null) {
-			logger.error("Returning null type from RealizedParticipant " + realizedCharacteristic.toString());
+			logger.error("Returning null type from UnrolledParticipant " + referencedCharacteristic.toString());
 		}
 		return this.type;
 	}

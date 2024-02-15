@@ -1,7 +1,6 @@
 package com.epistimis.uddl.generator
 
 import com.epistimis.uddl.ModelFilters
-import com.epistimis.uddl.RealizedComposableElement
 import com.epistimis.uddl.uddl.LogicalValueTypeUnit
 import com.epistimis.uddl.uddl.PlatformArray
 import com.epistimis.uddl.uddl.PlatformBoolean
@@ -29,10 +28,11 @@ import com.epistimis.uddl.uddl.PlatformStruct
 import com.epistimis.uddl.uddl.PlatformULong
 import com.epistimis.uddl.uddl.PlatformULongLong
 import com.epistimis.uddl.uddl.PlatformUShort
+import com.epistimis.uddl.unrolled.UnrolledComposableElement
+import com.google.inject.Inject
 import java.util.List
 import java.util.Map
 import org.eclipse.emf.ecore.EObject
-import com.google.inject.Inject
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.
@@ -46,7 +46,7 @@ class IDLDataStructureGenerator extends CommonDataStructureGenerator {
 	@Inject
 	ModelFilters modelFilters;
 
-	new(Map<PlatformComposableElement,RealizedComposableElement> ace) {
+	new(Map<PlatformComposableElement,UnrolledComposableElement<PlatformComposableElement>>  ace) {
 		super(ace);
 	}
 	

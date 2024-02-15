@@ -24,8 +24,11 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.acceleo.query;bundle-version="7.0.0",
  org.eclipse.core.resources
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Export-Package:  com.epistimis.uddl,
+Export-Package: com.epistimis.uddl,
+ com.epistimis.uddl.constraints,
+ com.epistimis.uddl.constraints.standalone,
  com.epistimis.uddl.exceptions,
+ com.epistimis.uddl.extension,
  com.epistimis.uddl.formatting2,
  com.epistimis.uddl.generator,
  com.epistimis.uddl.parser.antlr,
@@ -34,10 +37,8 @@ Export-Package:  com.epistimis.uddl,
  com.epistimis.uddl.serializer,
  com.epistimis.uddl.services,
  com.epistimis.uddl.uddl,
- com.epistimis.uddl.extension,
  com.epistimis.uddl.uddl.impl,
  com.epistimis.uddl.uddl.util,
- com.epistimis.uddl.validation,
- com.epistimis.uddl.constraints,
- com.epistimis.uddl.constraints.standalone
+ com.epistimis.uddl.unrolled,
+ com.epistimis.uddl.validation
 Import-Package: org.apache.log4j

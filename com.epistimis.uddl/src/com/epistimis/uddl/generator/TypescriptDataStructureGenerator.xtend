@@ -5,16 +5,16 @@ import com.epistimis.uddl.uddl.PlatformBoundedString
 import com.epistimis.uddl.uddl.PlatformChar
 import com.epistimis.uddl.uddl.PlatformCharArray
 import com.epistimis.uddl.uddl.PlatformComposableElement
-import com.epistimis.uddl.uddl.PlatformDataType
-import com.epistimis.uddl.uddl.PlatformNumber
-import com.epistimis.uddl.uddl.PlatformString
-import java.util.Map
-import com.epistimis.uddl.uddl.PlatformDataModel
-import com.epistimis.uddl.uddl.PlatformEntity
 import com.epistimis.uddl.uddl.PlatformComposition
+import com.epistimis.uddl.uddl.PlatformDataModel
+import com.epistimis.uddl.uddl.PlatformDataType
+import com.epistimis.uddl.uddl.PlatformEntity
+import com.epistimis.uddl.uddl.PlatformNumber
 import com.epistimis.uddl.uddl.PlatformParticipant
+import com.epistimis.uddl.uddl.PlatformString
+import com.epistimis.uddl.unrolled.UnrolledComposableElement
+import java.util.Map
 import org.eclipse.emf.ecore.EObject
-import com.epistimis.uddl.RealizedComposableElement
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.
@@ -26,7 +26,7 @@ import com.epistimis.uddl.RealizedComposableElement
  */
 class TypescriptDataStructureGenerator extends CommonDataStructureGenerator {
 
-	new(Map<PlatformComposableElement, RealizedComposableElement> ace) {
+	new(Map<PlatformComposableElement, UnrolledComposableElement<PlatformComposableElement>> ace) {
 		super(ace);
 	}
 

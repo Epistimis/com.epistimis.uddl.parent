@@ -1,51 +1,66 @@
-package com.epistimis.uddl;
+package com.epistimis.uddl.unrolled;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jdt.annotation.NonNull;
 
-import com.epistimis.uddl.uddl.PlatformComposition;
-import com.epistimis.uddl.uddl.PlatformEntity;
-import com.epistimis.uddl.uddl.PlatformParticipant;
+import com.epistimis.uddl.uddl.UddlElement;
 import com.epistimis.uddl.scoping.IndexUtilities;
-import com.epistimis.uddl.uddl.PlatformAssociation;
 
-public class RealizedAssociation extends RealizedEntity {
 
+public abstract class UnrolledAssociation<ComposableElement extends UddlElement, 
+											Entity extends ComposableElement, 
+											Association extends Entity, 
+											Characteristic  extends EObject,  
+											Composition extends Characteristic,
+											Participant extends Characteristic,
+											UComposableElement extends UnrolledComposableElement<ComposableElement>,
+											UComposition extends UnrolledComposition<ComposableElement, Characteristic, Composition,UComposableElement>,
+											UParticipant extends UnrolledParticipant<ComposableElement, Entity, Characteristic, Participant,UComposableElement>> 
+	extends UnrolledEntity<ComposableElement, Entity, Characteristic,  Composition ,UComposableElement, UComposition> 
+	{
 	/**
 	 * The key will be the rolename of the participant. If a specialization results in a change in rolename, then the entry will be
 	 * removed from the old rolename and reinserted using the new rolename.
 	 */
-	private Map<String, RealizedParticipant> participant;
-
-	public RealizedAssociation(@NonNull PlatformAssociation pa) {
+	private Map<String, UParticipant> participant;
+	
+	abstract public Entity  			getSpecializes(Entity e);
+	abstract public EList<Participant>	getParticipant(Association assoc);
+	abstract boolean 					isAssociation(Entity e);
+	abstract UParticipant 				createParticipant(Participant c);
+	
+	public UnrolledAssociation(@NonNull Association pa) {
 		super(pa);
 
 		participant = processSpecializationForParticipants(pa);
 
 	}
 
-	protected Map<String, RealizedParticipant> processSpecializationForParticipants(PlatformAssociation pa) {
-		Map<String, RealizedParticipant> participantsSoFar;
+	@SuppressWarnings("unchecked") // Cast to Association OK because of isAssociation check
+	protected Map<String, UParticipant> processSpecializationForParticipants(Association pa) {
+		Map<String, UParticipant> participantsSoFar;
 		/**
 		 * First recurse if this is also specialized, the process locally. That allows locals to override anything
 		 * inherited via specialization
 		 */
-		PlatformEntity specializedEntity = IndexUtilities.unProxiedEObject(pa.getSpecializes(),pa);
-		if ((specializedEntity != null) && (specializedEntity instanceof PlatformAssociation)) {
+		Entity specializedEntity = IndexUtilities.unProxiedEObject(getSpecializes(pa),pa);
+		if ((specializedEntity != null) && isAssociation(specializedEntity)) {
 			/**
-			 * This assumes that once we inherit from PlatformAssociation, everything down the specialization hierarchy
-			 * must also be a PlatformAssociation.
+			 * This assumes that once we inherit from Association, everything down the specialization hierarchy
+			 * must also be a Association.
 			 */
-			participantsSoFar = processSpecializationForParticipants((PlatformAssociation)specializedEntity);
+			participantsSoFar = processSpecializationForParticipants((Association)specializedEntity);
 		} else {
-			participantsSoFar = new HashMap<String, RealizedParticipant>();
+			participantsSoFar = new HashMap<String, UParticipant>();
 		}
 		return processLocalParticipants(pa,participantsSoFar);
 	}
 
-	protected Map<String, RealizedParticipant> processLocalParticipants(PlatformAssociation pe, Map<String, RealizedParticipant> participantsSoFar) {
+	protected Map<String, UParticipant> processLocalParticipants(Association pe, Map<String, UParticipant> participantsSoFar) {
 		/**
 		 * NOTE: We do not merge participantsSoFar into results deliberately. Why? Because we might have multiple
 		 * compositions that rename on specialization. In fact, we might have several that swap names. If we 
@@ -54,13 +69,14 @@ public class RealizedAssociation extends RealizedEntity {
 		 * By keeping the maps separate, we we can do that safely. Then, at the very end, we merge what is left 
 		 * of participantsSoFar into results - everything we want to 'override' has already been removed from it.
 		 */
-		Map<String,RealizedParticipant> results = new HashMap<String, RealizedParticipant>();
-		for (PlatformParticipant pc: pe.getParticipant()) {
-			RealizedParticipant rp = null;
-			PlatformParticipant specializedPart = (PlatformParticipant) IndexUtilities.unProxiedEObject(pc.getSpecializes(),pc);
+		Map<String,UParticipant> results = new HashMap<String, UParticipant>();
+		for (Participant pc: getParticipant(pe)) {
+			UParticipant rp = null;
+			@SuppressWarnings("unchecked") // OCL checks mean participants can only specialize participants
+			Participant specializedPart = (Participant) IndexUtilities.unProxiedEObject(getSpecializes(pc),pc);
 			if (specializedPart != null) {
 				/** this is already in the map, find it by the rolename */
-				 rp = participantsSoFar.remove(specializedPart.getRolename());
+				 rp = participantsSoFar.remove(getRolename(specializedPart));
 				/**
 				 * By removing from the first list under the original rolename and inserting in the
 				 * new results by the new rolename, we also address any change to the rolename that might
@@ -72,9 +88,9 @@ public class RealizedAssociation extends RealizedEntity {
 				/**
 				 * It wasn't specializing anything, so create a new one
 				 */
-				rp = new RealizedParticipant(pc,null);
+				rp = createParticipant(pc);
   			}
-			results.put(pc.getRolename(), rp);
+			results.put(getRolename(pc), rp);
 
 		}
 		// Merge remaining previous results
@@ -82,7 +98,7 @@ public class RealizedAssociation extends RealizedEntity {
 		return results;
 	}
 
-	public Map<String, RealizedParticipant> getParticipant() {
+	public Map<String, UParticipant> getParticipant() {
 		return participant;
 	}
 
