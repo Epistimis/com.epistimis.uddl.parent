@@ -63,21 +63,22 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	final static String STRUCT_ATTRIBUTE_FMT 		= "{0} {1} ( {2} ) -> {3} ;" ;
 	final static String GENERIC_REF_DISPLAY_FMT 	= "{0} - {1}";
 	
-	@Inject UddlQNP 					qnp;
-	@Inject IndexUtilities 				ndxUtil;
-	@Inject	IScopeProvider 				sp;
+	@Inject protected UddlQNP 						qnp;
+	@Inject	protected IScopeProvider 				sp; // inherited scopeProvider is private
+
+	@Inject protected IndexUtilities 				ndxUtil;
 	
-	@Inject ConceptualEntityProcessor 	ceProc;
-	@Inject LogicalEntityProcessor 		leProc;
-	@Inject PlatformEntityProcessor 	peProc;
+	@Inject protected ConceptualEntityProcessor 	ceProc;
+	@Inject protected LogicalEntityProcessor 		leProc;
+	@Inject protected PlatformEntityProcessor 		peProc;
 	
-	@Inject CLRealizationProcessor		clrproc;
-	@Inject LPRealizationProcessor		lprproc;
+	@Inject protected CLRealizationProcessor		clrproc;
+	@Inject protected LPRealizationProcessor		lprproc;
 	
-	@Inject CLRealizationProposalProcessor clrpproc;
-	@Inject LPRealizationProposalProcessor lprpproc;
+	@Inject protected CLRealizationProposalProcessor clrpproc;
+	@Inject protected LPRealizationProposalProcessor lprpproc;
 	
-	@Inject PropUtils    pu;
+	@Inject	protected PropUtils    					pu;
 	 
 	protected <T extends EObject,U extends EObject> QualifiedName relativeQualifiedName(T obj, U ctx) {
 		return qnp.relativeQualifiedName(obj, ctx);
