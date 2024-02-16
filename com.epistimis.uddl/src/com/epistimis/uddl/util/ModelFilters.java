@@ -1,4 +1,4 @@
-package com.epistimis.uddl;
+package com.epistimis.uddl.util;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -19,7 +19,6 @@ import com.epistimis.uddl.uddl.ConceptualBasisEntity;
 import com.epistimis.uddl.uddl.ConceptualEntity;
 import com.epistimis.uddl.uddl.LogicalAbstractMeasurement;
 import com.epistimis.uddl.uddl.LogicalAbstractMeasurementSystem;
-import com.epistimis.uddl.uddl.LogicalElement;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalLandmark;
 import com.epistimis.uddl.uddl.LogicalMeasurement;

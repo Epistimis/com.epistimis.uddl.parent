@@ -3,18 +3,21 @@
  */
 package com.epistimis.uddl
 
+import java.text.MessageFormat
+import java.util.List
 import com.google.inject.Inject
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.naming.QualifiedName
+
 import com.epistimis.uddl.uddl.PlatformLongDouble
 import com.epistimis.uddl.uddl.LogicalEnumerated
 import com.epistimis.uddl.uddl.PlatformDouble
 import com.epistimis.uddl.uddl.PlatformLongLong
 import com.epistimis.uddl.uddl.PlatformULongLong
 import com.epistimis.uddl.uddl.PlatformChar
-import org.eclipse.xtext.naming.QualifiedName
 import com.epistimis.uddl.uddl.PlatformSequence
 import com.epistimis.uddl.uddl.PlatformOctet
 import com.epistimis.uddl.uddl.PlatformFloat
-import java.util.List
 import com.epistimis.uddl.uddl.PlatformStruct
 import com.epistimis.uddl.uddl.PlatformEnumeration
 import com.epistimis.uddl.uddl.PlatformULong
@@ -28,9 +31,7 @@ import com.epistimis.uddl.uddl.PlatformBoolean
 import com.epistimis.uddl.uddl.PlatformArray
 import com.epistimis.uddl.uddl.LogicalValueTypeUnit
 import com.epistimis.uddl.uddl.LogicalEnumeratedBase
-
-import java.text.MessageFormat
-import org.eclipse.emf.ecore.EObject
+import com.epistimis.uddl.util.ModelFilters
 
 /**
  * We can extract landmarks from the Measurement system associated with the measurement and use those for default values, if 
@@ -65,6 +66,10 @@ class DefaultValue {
 		return (leb  === null) ?  QualifiedName.EMPTY : qnp.minimalReferenceQN(leb,ctx);
 	}
 
+	/**
+	 * Getting an enum value staring from a PlatformEnumeration requires backtracking to find the related LogicalEnumerated. 
+	 * We just need a value, so pick the first one.
+	 */
 	def LogicalEnumeratedBase getEnumValue(PlatformEnumeration value)	 {
 		/**
 		 * Get the actual enumeration being used and pick a value from that.
@@ -90,7 +95,7 @@ class DefaultValue {
 	 * @param value
 	 * @return
 	 */
-	def dispatch  Object	getDefaultValue( PlatformStruct value) 	
+	def dispatch  Object	getDefaultValue( PlatformStruct value, EObject ctx) 	
 	{
 		/**
 		 * Go through all the structure members and get default values for each one. This may be recursive.

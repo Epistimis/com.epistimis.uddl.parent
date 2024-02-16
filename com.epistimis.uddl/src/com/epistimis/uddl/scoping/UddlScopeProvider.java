@@ -6,32 +6,29 @@
  */
 package com.epistimis.uddl.scoping;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.emf.common.util.EList;
+//import org.eclipse.emf.common.util.EList;
 
 //import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.resource.Resource;
+//import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.EcoreUtil2;
-import org.eclipse.xtext.resource.IEObjectDescription;
 //import org.eclipse.xtext.EcoreUtil2;
 //import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.scoping.Scopes;
 import org.eclipse.xtext.scoping.impl.FilteringScope;
-import org.eclipse.xtext.scoping.impl.MapBasedScope;
+//import org.eclipse.xtext.scoping.impl.MapBasedScope;
 
 import com.epistimis.uddl.ConceptualEntityProcessor;
 import com.epistimis.uddl.LogicalEntityProcessor;
 import com.epistimis.uddl.PlatformEntityProcessor;
 import com.epistimis.uddl.UddlQNP;
-import com.epistimis.uddl.uddl.ConceptualComposition;
+//import com.epistimis.uddl.uddl.ConceptualComposition;
 import com.epistimis.uddl.uddl.ConceptualEntity;
-import com.epistimis.uddl.uddl.LogicalComposition;
 //import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalEnumeratedBase;
@@ -41,7 +38,6 @@ import com.epistimis.uddl.uddl.LogicalValueTypeUnit;
 //import com.epistimis.uddl.uddl.PlatformDataType;
 import com.epistimis.uddl.uddl.PlatformEntity;
 
-//import org.eclipse.emf.ecore.resource.Resource;
 
 import com.epistimis.uddl.uddl.UddlPackage;
 import com.epistimis.uddl.util.IndexUtilities;

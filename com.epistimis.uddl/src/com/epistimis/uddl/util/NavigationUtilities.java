@@ -7,9 +7,6 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jdt.annotation.NonNull;
 
-import com.epistimis.uddl.util.IndexUtilities;
-import com.google.inject.Inject;
-
 /**
  * General Utilities that can be used to navigate around the model. These replicate some functionality already in OCL
  * 
@@ -18,7 +15,7 @@ import com.google.inject.Inject;
  */
 public class NavigationUtilities {
 
-	@Inject IndexUtilities iu;
+	//@Inject IndexUtilities iu;
 
 	/**
 	 * Walk up the containment hierarchy until we find a container that fails the test.

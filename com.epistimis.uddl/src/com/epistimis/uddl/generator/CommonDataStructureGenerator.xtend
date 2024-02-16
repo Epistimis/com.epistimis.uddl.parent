@@ -9,22 +9,21 @@ import com.epistimis.uddl.uddl.PlatformDataType
 import com.epistimis.uddl.uddl.PlatformEntity
 import com.epistimis.uddl.uddl.PlatformParticipant
 import com.epistimis.uddl.uddl.UddlElement
+import com.epistimis.uddl.unrolled.UnrolledComposableElement
 import com.google.inject.Inject
+import java.lang.invoke.MethodHandles
 import java.util.ArrayList
 import java.util.Collection
 import java.util.HashMap
 import java.util.List
 import java.util.Map
+import org.apache.log4j.Logger
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGenerator2
 import org.eclipse.xtext.generator.IGeneratorContext
 import org.eclipse.xtext.naming.IQualifiedNameProvider
-import com.epistimis.uddl.unrolled.UnrolledComposableElementP
-import org.apache.log4j.Logger
-import java.lang.invoke.MethodHandles
-import com.epistimis.uddl.unrolled.UnrolledComposableElement
 
 /**
  * NOTE: Need to handle attribute cardinality in a general way - 2 parts of this: determining cardinality and then rendering.

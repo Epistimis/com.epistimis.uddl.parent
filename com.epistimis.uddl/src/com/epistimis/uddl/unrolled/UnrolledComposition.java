@@ -6,10 +6,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jdt.annotation.NonNull;
 
-import com.epistimis.uddl.util.IndexUtilities;
-import com.epistimis.uddl.uddl.PlatformComposableElement;
-import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.UddlElement;
+import com.epistimis.uddl.util.IndexUtilities;
 
 public abstract class UnrolledComposition<ComposableElement extends UddlElement, 
 											Characteristic  extends EObject,  

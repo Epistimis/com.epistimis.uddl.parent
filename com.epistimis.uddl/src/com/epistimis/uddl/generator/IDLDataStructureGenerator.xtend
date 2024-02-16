@@ -1,6 +1,6 @@
 package com.epistimis.uddl.generator
 
-import com.epistimis.uddl.ModelFilters
+import com.epistimis.uddl.util.ModelFilters
 import com.epistimis.uddl.uddl.LogicalValueTypeUnit
 import com.epistimis.uddl.uddl.PlatformArray
 import com.epistimis.uddl.uddl.PlatformBoolean

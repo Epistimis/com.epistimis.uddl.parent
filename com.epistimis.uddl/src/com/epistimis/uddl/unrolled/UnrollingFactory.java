@@ -170,6 +170,7 @@ public abstract class UnrollingFactory<ComposableElement extends UddlElement,
 			 * LogicalEntity -> ConceptualEntity to determine what is available. The results
 			 * can then be used to create instances, generate code, or ....
 			 */
+			@SuppressWarnings("unchecked")
 			final Iterable<ComposableElement> elements = Iterables.<ComposableElement>filter(
 					IteratorExtensions.<EObject>toIterable(res.getAllContents()), getComposableElementType());
 			// When we create the Unrolled objects, they are automatically cached - we don't need to do anything 

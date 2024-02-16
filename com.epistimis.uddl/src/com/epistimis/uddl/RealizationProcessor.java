@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
@@ -19,8 +18,8 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 
-import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.google.inject.Inject;
 
 /**
