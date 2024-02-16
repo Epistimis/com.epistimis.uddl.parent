@@ -16,7 +16,7 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.QualifiedName;
 //import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider;
 
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.uddl.ConceptualCharacteristic;
 import com.epistimis.uddl.uddl.ConceptualCompositeQuery;
 import com.epistimis.uddl.uddl.ConceptualEntity;

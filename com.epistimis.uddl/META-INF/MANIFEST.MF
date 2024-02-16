@@ -40,5 +40,6 @@ Export-Package: com.epistimis.uddl,
  com.epistimis.uddl.uddl.impl,
  com.epistimis.uddl.uddl.util,
  com.epistimis.uddl.unrolled,
+ com.epistimis.uddl.util,
  com.epistimis.uddl.validation
 Import-Package: org.apache.log4j

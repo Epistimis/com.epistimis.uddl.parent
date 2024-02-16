@@ -8,7 +8,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jdt.annotation.NonNull;
 
 import com.epistimis.uddl.uddl.UddlElement;
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 
 
 public abstract class UnrolledAssociation<ComposableElement extends UddlElement, 

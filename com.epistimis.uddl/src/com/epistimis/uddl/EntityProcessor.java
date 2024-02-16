@@ -30,7 +30,7 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
 //import com.epistimis.face.face.UopPortableComponent;
 import com.epistimis.uddl.exceptions.CharacteristicNotFoundException;
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
 import com.google.inject.Inject;
 

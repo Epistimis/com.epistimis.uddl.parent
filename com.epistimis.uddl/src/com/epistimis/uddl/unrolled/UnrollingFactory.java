@@ -19,7 +19,7 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 //import com.epistimis.uddl.RealizedEntity;
 //import com.epistimis.uddl.UnrolledAssociation;
 //import com.epistimis.uddl.UnrolledDataType;
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
 import com.google.common.collect.Iterables;
 

@@ -6,7 +6,7 @@
  */
 package com.epistimis.uddl.tests
 
-import com.epistimis.uddl.scoping.IndexUtilities
+import com.epistimis.uddl.util.IndexUtilities
 import com.epistimis.uddl.uddl.DataModel
 import com.epistimis.uddl.uddl.UddlPackage
 import com.google.inject.Inject

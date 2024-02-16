@@ -1,4 +1,4 @@
-package com.epistimis.uddl;
+package com.epistimis.uddl.util;
 
 import java.util.Collection;
 import java.util.HashSet;

@@ -22,7 +22,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.hover.IEObjectHover;
 
 import com.epistimis.uddl.UddlQNP;
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.google.inject.Inject;
 
 /**

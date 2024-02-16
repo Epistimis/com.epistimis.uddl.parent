@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.eclipse.emf.ecore.EObject;
 
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
 import com.epistimis.uddl.uddl.UddlPackage;
 import com.google.inject.Inject;

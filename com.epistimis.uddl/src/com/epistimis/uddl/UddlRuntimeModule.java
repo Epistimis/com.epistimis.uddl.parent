@@ -17,7 +17,7 @@ import com.epistimis.uddl.extension.ConceptualComposableElementExt;
 import com.epistimis.uddl.extension.ConceptualEntityExt;
 import com.epistimis.uddl.extension.ConceptualObservableExt;
 import com.epistimis.uddl.extension.UddlElementExt;
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.scoping.UddlPackageProvider;
 import com.epistimis.uddl.scoping.UddlGlobalScopeProvider;
 import com.epistimis.uddl.scoping.UddlResourceDescriptionStrategy;

@@ -1,4 +1,4 @@
-package com.epistimis.uddl;
+package com.epistimis.uddl.util;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;

@@ -1,13 +1,13 @@
 /**
  * 
  */
-package com.epistimis.uddl;
+package com.epistimis.uddl.util;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jdt.annotation.NonNull;
 
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.google.inject.Inject;
 
 /**

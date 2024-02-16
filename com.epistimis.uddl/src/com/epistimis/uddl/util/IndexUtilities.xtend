@@ -1,4 +1,4 @@
-package com.epistimis.uddl.scoping
+package com.epistimis.uddl.util
 
 import com.epistimis.uddl.exceptions.NameCollisionException
 import com.epistimis.uddl.exceptions.NamedObjectNotFoundException
@@ -38,6 +38,8 @@ import org.eclipse.xtext.resource.IEObjectDescription
 import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
 import static java.util.Objects.requireNonNull;
 import java.util.HashMap
+import com.epistimis.uddl.scoping.ECrossReferenceAdapterCrossReferenceProvider
+import com.epistimis.uddl.scoping.ResourceSetRootEObjectProvider
 
 //import org.eclipse.acceleo.query.validation.type.IType
 //import org.eclipse.acceleo.query.validation.type.EClassifierType

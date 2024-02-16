@@ -44,6 +44,7 @@ import com.epistimis.uddl.uddl.PlatformEntity;
 //import org.eclipse.emf.ecore.resource.Resource;
 
 import com.epistimis.uddl.uddl.UddlPackage;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.google.common.base.Objects;
 import com.google.inject.Inject;
 

@@ -22,8 +22,9 @@ import org.eclipse.xtext.naming.QualifiedName;
 
 import com.epistimis.uddl.exceptions.NameCollisionException;
 import com.epistimis.uddl.exceptions.NamedObjectNotFoundException;
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.uddl.Taxonomy;
+import com.epistimis.uddl.util.NavigationUtilities;
 import com.google.inject.Inject;
 
 /**

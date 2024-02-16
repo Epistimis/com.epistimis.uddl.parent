@@ -23,7 +23,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
 import com.epistimis.uddl.EntityProcessor;
 import com.epistimis.uddl.RealizationProcessor;
 import com.epistimis.uddl.UddlQNP;
-import com.epistimis.uddl.scoping.IndexUtilities;
+import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
 import com.google.inject.Inject;
 
