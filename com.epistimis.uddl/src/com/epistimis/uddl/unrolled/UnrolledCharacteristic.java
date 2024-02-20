@@ -77,7 +77,7 @@ public abstract class UnrolledCharacteristic<ComposableElement extends UddlEleme
 
 	/**
 	 * Call this method to update this instance based on information from the passed in
-	 * PlatformComposition
+	 * 
 	 * @param pc
 	 */
 	public void updateChar(Characteristic pc, UComposableElement rce) {
@@ -116,7 +116,7 @@ public abstract class UnrolledCharacteristic<ComposableElement extends UddlEleme
 	public Characteristic getCharacteristic() {
 		return this.referencedCharacteristic;
 	}
-	public UnrolledComposableElement<ComposableElement> getRealizeType() {
+	public UnrolledComposableElement<ComposableElement> getUnrolledType() {
 		return this.unrolledType;
 	}
 
