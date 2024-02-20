@@ -1,11 +1,13 @@
 package com.epistimis.uddl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
+import com.epistimis.uddl.exceptions.WrongTypeException;
 import com.epistimis.uddl.uddl.ConceptualAssociation;
 import com.epistimis.uddl.uddl.ConceptualCharacteristic;
 import com.epistimis.uddl.uddl.ConceptualComposableElement;
@@ -56,5 +58,34 @@ public class ConceptualQueryProcessor extends
 		return characteristics;
 	}
 	protected String getCharacteristicRolename(ConceptualCharacteristic obj) { return obj.getRolename(); }
+
+	@Override
+	protected ConceptualComposableElement getCharacteristicType(ConceptualCharacteristic obj) {
+		// TODO Auto-generated method stub
+		if (obj instanceof ConceptualComposition) {
+			return ((ConceptualComposition)obj).getType();
+		};
+		if (obj instanceof ConceptualParticipant) {
+			return ((ConceptualParticipant)obj).getType();
+		}
+		
+		String msg = MessageFormat.format(WRONG_TYPE_FMT, qnp.getFullyQualifiedName(obj).toString(), "ConceptualComposition or ConceptualParticipant",
+				obj.getClass().toString());
+		throw new WrongTypeException(msg);
+
+	}
+
+	@Override
+	protected int getCharacteristicLowerBound(ConceptualCharacteristic obj) {
+		// TODO Auto-generated method stub
+		return obj.getLowerBound();
+	}
+
+	@Override
+	protected int getCharacteristicUpperBound(ConceptualCharacteristic obj) {
+		// TODO Auto-generated method stub
+		return obj.getUpperBound();
+	}
+
 
 }

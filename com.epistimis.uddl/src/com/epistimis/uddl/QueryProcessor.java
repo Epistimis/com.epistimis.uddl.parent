@@ -20,6 +20,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
+import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
@@ -30,8 +31,10 @@ import com.epistimis.uddl.exceptions.NameCollisionException;
 import com.epistimis.uddl.exceptions.NamedObjectNotFoundException;
 import com.epistimis.uddl.exceptions.QueryMatchException;
 import com.epistimis.uddl.exceptions.WrongTypeException;
+import com.epistimis.uddl.query.query.EntityJoinCriteria;
+import com.epistimis.uddl.query.query.EntityJoinExpression;
+import com.epistimis.uddl.query.query.EntityTypeCharacteristicEquivalenceExpression;
 import com.epistimis.uddl.query.query.ExplicitSelectedEntityCharacteristicReference;
-//import com.epistimis.uddl.query.query.ProjectedCharacteristicAlias;
 import com.epistimis.uddl.query.query.ProjectedCharacteristicExpression;
 import com.epistimis.uddl.query.query.ProjectedCharacteristicList;
 import com.epistimis.uddl.query.query.QueryIdentifier;
@@ -39,8 +42,9 @@ import com.epistimis.uddl.query.query.QueryStatement;
 import com.epistimis.uddl.query.query.SelectedEntity;
 import com.epistimis.uddl.query.query.SelectedEntityCharacteristicReference;
 import com.epistimis.uddl.query.query.SelectedEntityCharacteristicWildcardReference;
-import com.epistimis.uddl.scoping.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
+import com.epistimis.uddl.util.IndexUtilities;
+import com.epistimis.uddl.util.Pair;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
@@ -140,16 +144,13 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 	 */
 	abstract protected EClass getRelatedPackageEntityInstance(Query obj);
 
-	/**
-	 * Get the Characteristic's rolename
-	 * 
-	 * @param obj
-	 * @return
-	 */
-	abstract protected String getCharacteristicRolename(Characteristic obj);// abstract protected Characteristic
-																			// getCharacteristicByRolename(Entity ent,
-																			// String roleName) throws
-																			// CharacteristicNotFoundException;
+
+	//Get the Characteristic's type, rolename, or bounds
+	abstract protected ComposableElement getCharacteristicType(Characteristic obj);
+	abstract protected String getCharacteristicRolename(Characteristic obj);
+	abstract protected int getCharacteristicLowerBound(Characteristic obj);
+	abstract protected int getCharacteristicUpperBound(Characteristic obj);
+		
 
 	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
 			"Entity {0} does not have a characteristic with rolename {1}");
@@ -412,14 +413,10 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 				IteratorExtensions.<EObject>toIterable(qstmt.eAllContents()), SelectedEntity.class);
 		for (SelectedEntity se : selectedEntities) {
 
-			QueryIdentifier qid = (QueryIdentifier) se.getEntityType();
-			String entityName = qid.getId();
-			String alias = entityName;
-			QueryIdentifier sea = (QueryIdentifier) se.getSelectedEntityAlias();
-			if (sea != null && (sea.getId().trim().length() > 0)) {
-				alias = sea.getId();
-			}
-
+			Pair<String,String> ea = getEntityAndAlias(se);
+			String entityName = ea.getFirst();
+			String alias = ea.getSecond();
+			
 			/**
 			 * TODO: Gets a scope that is for this container hierarchy only. For imports,
 			 * need to use IndexUtilities to get all visible IEObjectDescriptions and filter
@@ -537,30 +534,42 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 				} else {
 					// pce must be an ExplicitSelectedEntityCharacteristicReference
 					ExplicitSelectedEntityCharacteristicReference esecr = (ExplicitSelectedEntityCharacteristicReference) pce;
+					Pair<String,String> cRoleAndAlias = getCharacteristicRolenameAndAlias(esecr);
+					
 					SelectedEntityCharacteristicReference secr = esecr.getSelectedEntityCharacteristicReference();
-//					ProjectedCharacteristicAlias alias = esecr.getProjectedCharacteristicAlias();
-					QueryIdentifier se = (QueryIdentifier) secr.getSelectedEntity();
-					if (se == null) {
-						// If no selected entity, that means the characteristic only exists in one of
-						// the entities specified
-						// in the query. Figure out which one it is.
-						for (Entity ent : matchedEntities.values()) {
-							try {
-								Characteristic c = getCharacteristicByRolename(ent,
-										((QueryIdentifier) secr.getCharacteristic()).getId());
-								selectedCharacteristics.put(getCharacteristicRolename(c), c);
-							} catch (CharacteristicNotFoundException e) {
-								// Not found in that ent - try the next one
-							}
-						}
+					String roleNameOrAlias = cRoleAndAlias.getSecond();
+					
+					Characteristic result = getSelectedEntityCharacteristic(secr,roleNameOrAlias, matchedEntities);
+					
+					selectedCharacteristics.put(roleNameOrAlias, result);
 
-					} else {
-						String entityOrAlias = ((QueryIdentifier) secr.getSelectedEntity()).getId();
-						Entity ent = matchedEntities.get(entityOrAlias);
-						Characteristic c = getCharacteristicByRolename(ent,
-								((QueryIdentifier) secr.getCharacteristic()).getId());
-						selectedCharacteristics.put(getCharacteristicRolename(c), c);
-					}
+					//					QueryIdentifier se = (QueryIdentifier) .getSelectedEntity();
+//					if (se == null) {
+//						// If no selected entity, that means the characteristic only exists in one of
+//						// the entities specified
+//						// in the query. Figure out which one it is.
+//						boolean found = false;
+//						for (Entity ent : matchedEntities.values()) {
+//							try {
+//								Characteristic c = getCharacteristicByRolename(ent,roleNameOrAlias);
+//								if (found) {
+//									// Found a second time - ambiguous.
+//									throw new NameCollisionException(roleNameOrAlias);
+//								} else {
+//									found = true;									
+//								}
+//								selectedCharacteristics.put(getCharacteristicRolename(c), c);
+//							} catch (CharacteristicNotFoundException e) {
+//								// Not found in that ent - try the next one
+//							}
+//						}
+//
+//					} else {
+//						String entityOrAlias = ((QueryIdentifier) se).getId();
+//						Entity ent = matchedEntities.get(entityOrAlias);
+//						Characteristic c = getCharacteristicByRolename(ent,roleNameOrAlias);
+//						selectedCharacteristics.put(getCharacteristicRolename(c), c);
+//					}
 
 				}
 			}
@@ -568,7 +577,148 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 		return selectedCharacteristics;
 
 	}
+	
+	/**
+	 * Extract the entity name - and the value for the alias/ lookup key. The alias will be the entity name unless another value is provided
+	 * 
+	 * @param se
+	 * @return first is the entity name, second is the value for the alias
+	 */
+	private Pair<String,String> getEntityAndAlias(SelectedEntity se) {
+		QueryIdentifier qid = (QueryIdentifier) se.getEntityType();
+		String entityName = qid.getId();
+		String alias = entityName;
+		QueryIdentifier sea = (QueryIdentifier) se.getSelectedEntityAlias();
+		if (sea != null && (sea.getId().trim().length() > 0)) {
+			alias = sea.getId();
+		}
+		return new Pair<String,String>(entityName, alias);
+	}
 
+	/**
+	 * Extract the rolename - and the value for the alias/ lookup key. The alias will be the rolename unless another value is provided
+	 * @param esecr
+	 * @return first is the rolename, second is the value for the alias
+	 */
+	private Pair<String,String> getCharacteristicRolenameAndAlias(ExplicitSelectedEntityCharacteristicReference esecr) {
+		SelectedEntityCharacteristicReference secr = esecr.getSelectedEntityCharacteristicReference();
+		QueryIdentifier alias = (QueryIdentifier) esecr.getProjectedCharacteristicAlias();
+		String roleName = ((QueryIdentifier) secr.getCharacteristic()).getId().trim();
+		String roleNameOrAlias = (alias != null) ? alias.getId() : roleName;
+		return new Pair<String,String>(roleName, roleNameOrAlias);
+	}
+	
+	/**
+	 * Return the referenced Characteristic - if it exists
+	 * @param secr
+	 * @param roleNameOrAlias - the name it will go by
+	 * @param matchedEntities - the entities that this query references, keyed by entity name or alias
+	 * @return
+	 */
+	private Characteristic getSelectedEntityCharacteristic(SelectedEntityCharacteristicReference secr, String roleNameOrAlias,
+			 Map<String, Entity> matchedEntities) {
+		QueryIdentifier se = (QueryIdentifier) secr.getSelectedEntity();
+
+		Characteristic result = null;
+		if (se == null) {
+			// If no selected entity, that means the characteristic only exists in one of
+			// the entities specified
+			// in the query. Figure out which one it is.
+			boolean found = false;
+			for (Entity ent : matchedEntities.values()) {
+				try {
+					result = getCharacteristicByRolename(ent,roleNameOrAlias);
+					if (found) {
+						// Found a second time - ambiguous.
+						throw new NameCollisionException(roleNameOrAlias);
+					} else {
+						found = true;									
+					}
+				} catch (CharacteristicNotFoundException e) {
+					// Not found in that ent - try the next one
+				}
+			}
+
+		} else {
+			String entityOrAlias = ((QueryIdentifier) se).getId();
+			Entity ent = matchedEntities.get(entityOrAlias);
+			result = getCharacteristicByRolename(ent,roleNameOrAlias);
+		}
+		return result;
+	}
+	/**
+	 * Process the joins. This method assumes joins are unambiguous - order of join expressions doesn't matter and references in the join criteria map uniquely based
+	 * on alias if specified or else name/rolename (No use of name/rolename if alias is specified).
+	 * @param q
+	 * @param qstmt
+	 * @param matchedEntities
+	 * @param rawSelections
+	 * @return
+	 */
+	public Map<String, QuerySelectedComposition<Characteristic>> processJoins(Query q, QueryStatement qstmt, Map<String, Entity> matchedEntities, Map<String, Characteristic> rawSelections) {
+//		final Iterable<EntityJoinCriteria> joinCriteria = Iterables.<EntityJoinCriteria>filter(
+//				IteratorExtensions.<EObject>toIterable(qstmt.eAllContents()), EntityJoinCriteria.class);
+		Map<String, QuerySelectedComposition<Characteristic>> result = new HashMap<>();
+		// Initialize results with the content of rawSelections - this gives us the base cardinality
+		for (Map.Entry<String, Characteristic> entry: rawSelections.entrySet()) {
+			QuerySelectedComposition<Characteristic> selection = new QuerySelectedComposition<Characteristic>();
+			selection.alias = entry.getKey();
+			selection.roleName = getCharacteristicRolename(entry.getValue());
+			selection.lowerBound = getCharacteristicLowerBound(entry.getValue());
+			selection.upperBound = getCharacteristicUpperBound(entry.getValue());
+			selection.referencedCharacteristic = entry.getValue();
+			result.put(entry.getKey(), selection);
+		}
+		EList<EntityJoinExpression> ejes = qstmt.getSelectedEntityExpression().getFrom().getEntity().getEje();
+		for (EntityJoinExpression eje: ejes) {
+			EntityJoinCriteria ejc = eje.getEntityJoinCriteria();
+			for (EntityTypeCharacteristicEquivalenceExpression etcee: ejc.getEtcee()) {
+				SelectedEntityCharacteristicReference secr = etcee.getSecr();
+				String roleNameOrAlias = ((QueryIdentifier)secr.getCharacteristic()).getId();
+				Characteristic joiningCharacteristic = getSelectedEntityCharacteristic(secr, roleNameOrAlias,matchedEntities);
+				ComposableElement ce = getCharacteristicType(joiningCharacteristic);
+				QualifiedName joiningCharTypeQN = qnp.getFullyQualifiedName(ce);
+
+				// By default, we join against the eje join entity
+				SelectedEntity se = (SelectedEntity) eje.getJoinEntity();
+				Entity joinedEnt = null;
+				// Is there a reference to the joined entity?
+				QueryIdentifier ser = (QueryIdentifier)etcee.getSelectedEntity();
+				if (ser == null) {
+					// If the SelectEntityReference is  null, then use the join  entity 
+					Pair<String, String> entAlias = getEntityAndAlias(se);
+					joinedEnt = matchedEntities.get(entAlias.getSecond());
+				} else {
+					// If the SelectEntityReference is not null, then join on that referenced entity - we assume the reference uses
+					// the alias if one is specified.
+					joinedEnt = matchedEntities.get(ser.getId());
+				}
+
+				// Check: we need to match the type. 
+				// That means that SelectedEntityCharacteristicReference must reference an element whose type matches 
+				// the type of the joined entity. Because these are model elements, the type is captured in the FQN of the element
+				QualifiedName joinedEntQN = qnp.getFullyQualifiedName(joinedEnt);
+				if (!joinedEntQN.equals(joiningCharTypeQN)) {
+					String msg = MessageFormat.format(WRONG_TYPE_FMT, qnp.getFullyQualifiedName(joiningCharacteristic).toString(), joinedEntQN.toString(),
+							joiningCharTypeQN.toString());
+					throw new WrongTypeException(msg);
+				}
+				//If we get here, the join will work - 
+				// Next: Determine impact on cardinality of characteristics from the join - cardinality is impacted by the 
+				// joining Entity/Characteristic relationship - but applies to all the selected characteristics of the joinedEnt
+				int applicableLB = getCharacteristicLowerBound(joiningCharacteristic);
+				int applicableUB = getCharacteristicUpperBound(joiningCharacteristic);
+				// Now loop through the selected characteristics - find the ones from the joinedEntity and update their bounds
+				for (QuerySelectedComposition<Characteristic> sel: result.values()) {
+					if (sel.referencedCharacteristic.eContainer() == joinedEnt) {
+						sel.updateBounds(applicableLB, applicableUB);
+					}
+				}
+			}
+		}
+		// At this point, all the selection cardinalities have been updated bsaed on the joins
+		return result;
+	}
 	/**
 	 * Taken from the book, SmallJavaLib.getSmallJavaObjectClass - and converted
 	 * from XTend to Java

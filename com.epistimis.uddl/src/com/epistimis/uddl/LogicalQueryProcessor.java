@@ -1,11 +1,13 @@
 package com.epistimis.uddl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 
+import com.epistimis.uddl.exceptions.WrongTypeException;
 import com.epistimis.uddl.uddl.LogicalAssociation;
 import com.epistimis.uddl.uddl.LogicalCharacteristic;
 import com.epistimis.uddl.uddl.LogicalComposableElement;
@@ -57,5 +59,33 @@ public class LogicalQueryProcessor extends
 		return characteristics;
 	}
 	protected String getCharacteristicRolename(LogicalCharacteristic obj) { return obj.getRolename(); }
+
+	@Override
+	protected LogicalComposableElement getCharacteristicType(LogicalCharacteristic obj) {
+		// TODO Auto-generated method stub
+		if (obj instanceof LogicalComposition) {
+			return ((LogicalComposition)obj).getType();
+		};
+		if (obj instanceof LogicalParticipant) {
+			return ((LogicalParticipant)obj).getType();
+		}
+		
+		String msg = MessageFormat.format(WRONG_TYPE_FMT, qnp.getFullyQualifiedName(obj).toString(), "LogicalComposition or LogicalParticipant",
+				obj.getClass().toString());
+		throw new WrongTypeException(msg);
+
+	}
+
+	@Override
+	protected int getCharacteristicLowerBound(LogicalCharacteristic obj) {
+		// TODO Auto-generated method stub
+		return obj.getLowerBound();
+	}
+
+	@Override
+	protected int getCharacteristicUpperBound(LogicalCharacteristic obj) {
+		// TODO Auto-generated method stub
+		return obj.getUpperBound();
+	}
 
 }
