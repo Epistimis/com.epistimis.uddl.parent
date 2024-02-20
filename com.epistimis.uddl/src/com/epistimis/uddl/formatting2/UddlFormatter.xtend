@@ -28,6 +28,7 @@ import com.epistimis.uddl.uddl.LogicalElement
 import com.epistimis.uddl.uddl.LogicalEntity
 import com.epistimis.uddl.uddl.LogicalEnumerated
 import com.epistimis.uddl.uddl.LogicalEnumeratedSet
+import com.epistimis.uddl.uddl.LogicalEnumerationLabel
 import com.epistimis.uddl.uddl.LogicalMeasurementSystem
 import com.epistimis.uddl.uddl.LogicalParticipant
 import com.epistimis.uddl.uddl.LogicalQuery
@@ -46,7 +47,8 @@ import com.epistimis.uddl.uddl.PlatformEntity
 import com.epistimis.uddl.uddl.PlatformParticipant
 import com.epistimis.uddl.uddl.PlatformQuery
 import com.epistimis.uddl.uddl.PlatformQueryComposition
-import com.epistimis.uddl.uddl.UddlElement
+import com.epistimis.uddl.uddl.PlatformStruct
+import com.epistimis.uddl.uddl.PlatformStructMember
 import com.google.inject.Inject
 import java.util.List
 import java.util.function.Predicate
@@ -58,9 +60,6 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.formatting2.regionaccess.ISemanticRegion
 
 import static com.epistimis.uddl.uddl.UddlPackage.Literals.*
-import com.epistimis.uddl.uddl.LogicalEnumerationLabel
-import com.epistimis.uddl.uddl.PlatformStruct
-import com.epistimis.uddl.uddl.PlatformStructMember
 
 class UddlFormatter extends AbstractFormatter2 {
 

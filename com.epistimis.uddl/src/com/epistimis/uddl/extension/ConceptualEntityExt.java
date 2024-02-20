@@ -13,7 +13,6 @@ import com.epistimis.uddl.uddl.ConceptualComposableElement;
 import com.epistimis.uddl.uddl.ConceptualComposition;
 import com.epistimis.uddl.uddl.ConceptualEntity;
 import com.google.inject.Inject;
-import com.epistimis.uddl.extension.ConceptualComposableElementExt;
 
 /**
  * 
