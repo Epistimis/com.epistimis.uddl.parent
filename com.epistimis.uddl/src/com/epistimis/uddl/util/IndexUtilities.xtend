@@ -40,6 +40,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.HashMap
 import com.epistimis.uddl.scoping.ECrossReferenceAdapterCrossReferenceProvider
 import com.epistimis.uddl.scoping.ResourceSetRootEObjectProvider
+import java.util.stream.Collectors
 
 //import org.eclipse.acceleo.query.validation.type.IType
 //import org.eclipse.acceleo.query.validation.type.EClassifierType
@@ -268,6 +269,14 @@ class IndexUtilities {
 			context.eResource.objectFromDescription(it)
 		]);
 	}
+	
+	/**
+	 * Convert a list of descriptions into a set of EObjects. Needed because, apparently, we can have
+	 * multiple IEObjectDescriptions for the same EObject
+	 */
+	def static uniqueObjectsFromDescriptions(List<IEObjectDescription> descriptions) {
+		return descriptions.stream().map([d|d.EObjectOrProxy]).collect(Collectors.toSet());
+	}
 
 	/**
 	 * Get the EObject from the EObjectDescription
@@ -355,7 +364,7 @@ class IndexUtilities {
 	 * @param typeName The type we were looking for
 	 * @param descriptions What we found
 	 */
-	def printIEObjectDescriptionNameCollisions(String qn, String typeName, List<IEObjectDescription> descriptions) {
+	def printIEObjectDescriptionNameCollisions(String qn, String typeName, Collection<IEObjectDescription> descriptions) {
 		var msg = MessageFormat.format(COLLISION_MSG_FMT, qn, typeName);
 		for (IEObjectDescription d : descriptions) {
 			msg += MessageFormat.format("\t {0}\n", d.getQualifiedName().toString());
@@ -369,7 +378,7 @@ class IndexUtilities {
 	 * @param typeName The type we were looking for
 	 * @param objects What we found
 	 */
-	def printEObjectNameCollisions(String qn, String typeName, List<EObject> objects) {
+	def printEObjectNameCollisions(String qn, String typeName, Collection<EObject> objects) {
 		var msg = MessageFormat.format(COLLISION_MSG_FMT, qn, typeName);
 		for (EObject o : objects) {
 			msg += MessageFormat.format("\t {0}\n", qnp.getFullyQualifiedName(o).toString());
