@@ -11,15 +11,16 @@ import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
-import org.eclipse.xtext.scoping.IGlobalScopeProvider;
+//import org.eclipse.xtext.scoping.IGlobalScopeProvider;
 
 import com.epistimis.uddl.extension.ConceptualComposableElementExt;
 import com.epistimis.uddl.extension.ConceptualEntityExt;
 import com.epistimis.uddl.extension.ConceptualObservableExt;
 import com.epistimis.uddl.extension.UddlElementExt;
 import com.epistimis.uddl.util.IndexUtilities;
+import com.epistimis.uddl.util.ModelFilters;
 import com.epistimis.uddl.scoping.UddlPackageProvider;
-import com.epistimis.uddl.scoping.UddlGlobalScopeProvider;
+//import com.epistimis.uddl.scoping.UddlGlobalScopeProvider;
 import com.epistimis.uddl.scoping.UddlResourceDescriptionStrategy;
 
 /**
@@ -73,7 +74,7 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 	 * Inject this if you want the additional methods provided by this QNP
 	 * @return
 	 */
-	public Class<? extends UddlQNP> bindIUddlQNP() {
+	public Class<? extends UddlQNP> bindUddlQNP() {
 		// TODO Auto-generated method stub
 		return UddlQNP.class;
 	}
