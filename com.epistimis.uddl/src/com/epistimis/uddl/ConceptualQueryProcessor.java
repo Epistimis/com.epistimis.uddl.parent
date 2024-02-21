@@ -2,7 +2,10 @@ package com.epistimis.uddl;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
@@ -27,6 +30,8 @@ public class ConceptualQueryProcessor extends
 		ConceptualView, ConceptualQuery, ConceptualCompositeQuery, ConceptualQueryComposition,ConceptualObservable, ConceptualDataModel,
 		ConceptualEntityProcessor> {
 
+	protected static Map<String,Map<String, QuerySelectedComposition<ConceptualCharacteristic>>> cardinalityCache = new HashMap<>();
+	
 	protected EList<ConceptualQueryComposition> getComposition(ConceptualCompositeQuery ent) {
 		return ent.getComposition();
 	}
@@ -85,6 +90,41 @@ public class ConceptualQueryProcessor extends
 	protected int getCharacteristicUpperBound(ConceptualCharacteristic obj) {
 		// TODO Auto-generated method stub
 		return obj.getUpperBound();
+	}
+
+	@Override
+	public void updateCardinalityCache(ConceptualQuery q,
+			Map<String, QuerySelectedComposition<ConceptualCharacteristic>> map) {
+		Map<String, QuerySelectedComposition<ConceptualCharacteristic>> foundMap = getCardinalties(q);
+		assert(foundMap == null); // We should not be updating existing content
+		String key = qnp.getFullyQualifiedName(q).toString();
+		cardinalityCache.put(key, map);
+		
+	}
+
+	@Override
+	public Map<String, QuerySelectedComposition<ConceptualCharacteristic>> getCardinalties(ConceptualQuery q) {
+		String key = qnp.getFullyQualifiedName(q).toString();
+		Map<String, QuerySelectedComposition<ConceptualCharacteristic>> foundMap = cardinalityCache.get(key);
+		return foundMap;
+	}
+
+	@Override
+	public void flushCardinalityCache() {
+		cardinalityCache.clear();
+		
+	}
+
+	@Override
+	public Map<String, ConceptualCharacteristic> selectCharacteristicsFromCache(ConceptualQuery q) {
+		Map<String, QuerySelectedComposition<ConceptualCharacteristic>> foundMap = getCardinalties(q);
+		
+		Map<String, ConceptualCharacteristic> result = new LinkedHashMap<String, ConceptualCharacteristic>();
+		for (Map.Entry<String, QuerySelectedComposition<ConceptualCharacteristic>> entry: foundMap.entrySet()) {
+			result.put(entry.getKey(), entry.getValue().referencedCharacteristic);
+		}
+		return result;
+
 	}
 
 

@@ -1,6 +1,9 @@
 package com.epistimis.uddl;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
@@ -24,6 +27,8 @@ public class PlatformQueryProcessor extends
 		QueryProcessor<PlatformComposableElement, PlatformCharacteristic, PlatformEntity, PlatformAssociation, PlatformComposition, PlatformParticipant, 
 		PlatformView, PlatformQuery, PlatformCompositeQuery, PlatformQueryComposition, PlatformDataType, PlatformDataModel,
 		PlatformEntityProcessor> {
+
+	protected static Map<String,Map<String, QuerySelectedComposition<PlatformCharacteristic>>> cardinalityCache = new HashMap<>();
 
 	protected EList<PlatformQueryComposition> getComposition(PlatformCompositeQuery ent) {
 		return ent.getComposition();
@@ -69,6 +74,38 @@ public class PlatformQueryProcessor extends
 	protected int getCharacteristicUpperBound(PlatformCharacteristic obj) {
 		// TODO Auto-generated method stub
 		return obj.getUpperBound();
+	}
+
+	@Override
+	public void updateCardinalityCache(PlatformQuery q, Map<String, QuerySelectedComposition<PlatformCharacteristic>> map) {
+		Map<String, QuerySelectedComposition<PlatformCharacteristic>> foundMap = getCardinalties(q);
+		assert(foundMap == null); // We should not be updating existing content
+		String key = qnp.getFullyQualifiedName(q).toString();
+		cardinalityCache.put(key, map);		
+	}
+
+	@Override
+	public Map<String, QuerySelectedComposition<PlatformCharacteristic>> getCardinalties(PlatformQuery q) {
+		String key = qnp.getFullyQualifiedName(q).toString();
+		Map<String, QuerySelectedComposition<PlatformCharacteristic>> foundMap = cardinalityCache.get(key);
+		return foundMap;
+	}
+
+	@Override
+	public void flushCardinalityCache() {
+		cardinalityCache.clear();
+		
+	}
+
+	@Override
+	public Map<String, PlatformCharacteristic> selectCharacteristicsFromCache(PlatformQuery q) {
+		Map<String, QuerySelectedComposition<PlatformCharacteristic>> foundMap = getCardinalties(q);
+		
+		Map<String, PlatformCharacteristic> result = new LinkedHashMap<String, PlatformCharacteristic>();
+		for (Map.Entry<String, QuerySelectedComposition<PlatformCharacteristic>> entry: foundMap.entrySet()) {
+			result.put(entry.getKey(), entry.getValue().referencedCharacteristic);
+		}
+		return result;
 	}
 
 }

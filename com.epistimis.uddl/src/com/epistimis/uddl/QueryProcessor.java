@@ -69,7 +69,20 @@ import com.google.inject.Inject;
  */
 // TODO: Insert references to EntityProcessor
 
-public abstract class QueryProcessor<ComposableElement extends UddlElement, Characteristic extends EObject, Entity extends ComposableElement, Association extends Entity, Composition extends Characteristic, Participant extends Characteristic, View extends UddlElement, Query extends View, CompositeQuery extends View, QueryComposition extends EObject, ElementalComposable extends ComposableElement, Container extends UddlElement, EProcessor extends EntityProcessor<ComposableElement, Characteristic, Entity, Association, Composition, Participant, ElementalComposable, Container>> {
+public abstract class QueryProcessor<ComposableElement extends UddlElement, 
+										Characteristic extends EObject, 
+										Entity extends ComposableElement, 
+										Association extends Entity, 
+										Composition extends Characteristic, 
+										Participant extends Characteristic, 
+										View extends UddlElement, 
+										Query extends View, 
+										CompositeQuery extends View, 
+										QueryComposition extends EObject, 
+										ElementalComposable extends ComposableElement, 
+										Container extends UddlElement, 
+										EProcessor extends EntityProcessor<ComposableElement, Characteristic, Entity, Association, Composition, Participant, ElementalComposable, Container>> {
+
 	// @Inject
 //	private Provider<ResourceSet> resourceSetProvider;
 //
@@ -87,6 +100,7 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement, Char
 	IndexUtilities ndxUtil;
 
 	@Inject
+	protected
 	IQualifiedNameProvider qnp;
 
 	@Inject
@@ -142,6 +156,15 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement, Char
 
 	abstract protected int getCharacteristicUpperBound(Characteristic obj);
 
+	abstract public void updateCardinalityCache(Query q,  Map<String, QuerySelectedComposition<Characteristic>> map);
+	abstract public Map<String, QuerySelectedComposition<Characteristic>> getCardinalties(Query q);
+	/**
+	 * Flush the cache anytime a file is edited - since we don't know the impact.
+	 */
+	abstract public void flushCardinalityCache();
+	
+	abstract public Map<String, Characteristic> selectCharacteristicsFromCache(Query q);
+	
 	static MessageFormat CharacteristicNotFoundMsgFmt = new MessageFormat(
 			"Entity {0} does not have a characteristic with rolename {1}");
 
@@ -219,8 +242,13 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement, Char
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Class getEntityProcessorType() {
+	public Class getContainerType() {
 		return returnedTypeParameter(11);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class getEntityProcessorType() {
+		return returnedTypeParameter(12);
 	}
 
 	public QueryProcessor() {
@@ -466,11 +494,11 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement, Char
 
 	/**
 	 * Common function for handling multipleIEObjectDescriptions, no matter how we got them
-	 * @param descriptions
-	 * @param chosenEntities
-	 * @param potentialExcp
-	 * @param queryFQN
-	 * @param alias
+	 * @param descriptions The descriptions 
+	 * @param chosenEntities The chosenEntities to update, if appropriate
+	 * @param potentialExcp The potential exception to update, if appropriate
+	 * @param queryFQN The FQN of the Query containing the spec - used to identify where the error occurred (if one did)
+	 * @param alias The key to use when updating chosenEntities, if it is updated
 	 */
 	private void handleMultipleIEObjectDescriptions(List<IEObjectDescription> descriptions,
 			Map<String, Entity> chosenEntities, QueryMatchException potentialExcp, String queryFQN, String alias) {
@@ -504,7 +532,7 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement, Char
 		}
 	}
 
-	static final String WRONG_TYPE_FMT = "Instance {0} expected to be of type {0} but was type {0}";
+	protected static final String WRONG_TYPE_FMT = "Instance {0} expected to be of type {0} but was type {0}";
 
 	/**
 	 * Match selected characteristics to specific characteristics of matched
@@ -673,7 +701,7 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement, Char
 	 * @param qstmt
 	 * @param matchedEntities
 	 * @param rawSelections
-	 * @return
+	 * @return A map of cardinalities by alias, after accounting for all the joins 
 	 */
 	public Map<String, QuerySelectedComposition<Characteristic>> processJoins(Query q, QueryStatement qstmt,
 			Map<String, Entity> matchedEntities, Map<String, Characteristic> rawSelections) {
@@ -691,6 +719,7 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement, Char
 			selection.referencedCharacteristic = entry.getValue();
 			result.put(entry.getKey(), selection);
 		}
+		// Now loop through all the join expressions and update cardinalities based on those joins
 		EList<EntityJoinExpression> ejes = qstmt.getSelectedEntityExpression().getFrom().getEntity().getEje();
 		for (EntityJoinExpression eje : ejes) {
 			EntityJoinCriteria ejc = eje.getEntityJoinCriteria();
@@ -807,6 +836,27 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement, Char
 		return eproc.getCharacteristicByRolename(ent, roleName);
 	}
 
+	/**
+	 * Get a map of the cardinalities of the selected characteritics in this query, keyed by the 
+	 * characteristic alias. This includes processing JOINs in the query and updating cardinalities 
+	 * accordingly. The value for each key contains all the info you need about the characteristic
+	 * and, by reference, the entity the characteristic is part of.
+	 * @param q the query to process
+	 * @return the map containing the characteristic info (cardindalities, etc.) for this query
+	 */
+	public Map<String, QuerySelectedComposition<Characteristic>> getSelectedCharacteristicCardinalities(Query q) {
+		Map<String, QuerySelectedComposition<Characteristic>> found = getCardinalties(q);
+		if (found == null) {
+			// If not found, then update it
+			QueryStatement qs = parseQuery(q);
+			Map<String,Entity> matchedEntities = matchQuerytoUDDL(q, qs);
+			Map<String, Characteristic> selectedChars = selectCharacteristicsFromUDDL(q, qs, matchedEntities);
+			found = processJoins( q, qs, matchedEntities, selectedChars);
+			updateCardinalityCache(q, found);
+		}
+		return found;
+		
+	}
 	public void setupParsing() {
 //
 //		// obtain a resourceset from the injector

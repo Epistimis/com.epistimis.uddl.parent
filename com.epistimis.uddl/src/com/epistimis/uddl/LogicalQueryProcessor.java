@@ -2,7 +2,10 @@ package com.epistimis.uddl;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
@@ -26,6 +29,8 @@ public class LogicalQueryProcessor extends
 		QueryProcessor<LogicalComposableElement,LogicalCharacteristic, LogicalEntity, LogicalAssociation, LogicalComposition, LogicalParticipant, 
 		LogicalView, LogicalQuery, LogicalCompositeQuery, LogicalQueryComposition,LogicalMeasurement, LogicalDataModel,
 		LogicalEntityProcessor> {
+
+	protected static Map<String,Map<String, QuerySelectedComposition<LogicalCharacteristic>>> cardinalityCache = new HashMap<>();
 
 	protected EList<LogicalQueryComposition> getComposition(LogicalCompositeQuery ent) {
 		return ent.getComposition();
@@ -86,6 +91,39 @@ public class LogicalQueryProcessor extends
 	protected int getCharacteristicUpperBound(LogicalCharacteristic obj) {
 		// TODO Auto-generated method stub
 		return obj.getUpperBound();
+	}
+
+	@Override
+	public void updateCardinalityCache(LogicalQuery q, Map<String, QuerySelectedComposition<LogicalCharacteristic>> map) {
+		Map<String, QuerySelectedComposition<LogicalCharacteristic>> foundMap = getCardinalties(q);
+		assert(foundMap == null); // We should not be updating existing content
+		String key = qnp.getFullyQualifiedName(q).toString();
+		cardinalityCache.put(key, map);
+		
+	}
+
+	@Override
+	public Map<String, QuerySelectedComposition<LogicalCharacteristic>> getCardinalties(LogicalQuery q) {
+		String key = qnp.getFullyQualifiedName(q).toString();
+		Map<String, QuerySelectedComposition<LogicalCharacteristic>> foundMap = cardinalityCache.get(key);
+		return foundMap;
+	}
+
+	@Override
+	public void flushCardinalityCache() {
+		cardinalityCache.clear();
+		
+	}
+
+	@Override
+	public Map<String, LogicalCharacteristic> selectCharacteristicsFromCache(LogicalQuery q) {
+		Map<String, QuerySelectedComposition<LogicalCharacteristic>> foundMap = getCardinalties(q);
+		
+		Map<String, LogicalCharacteristic> result = new LinkedHashMap<String, LogicalCharacteristic>();
+		for (Map.Entry<String, QuerySelectedComposition<LogicalCharacteristic>> entry: foundMap.entrySet()) {
+			result.put(entry.getKey(), entry.getValue().referencedCharacteristic);
+		}
+		return result;
 	}
 
 }
