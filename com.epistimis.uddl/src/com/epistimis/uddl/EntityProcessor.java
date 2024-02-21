@@ -92,9 +92,9 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 	abstract public boolean isAssociation(Entity ent);
 	abstract public Association conv2Association(Entity ent);
 
-	abstract public EList<Composition> getComposition(Entity obj);
+	abstract public EList<? extends Composition> getComposition(Entity obj);
 
-	abstract public EList<Participant> getParticipant(Association obj);
+	abstract public EList<? extends Participant> getParticipant(Association obj);
 
 	abstract public Composition conv2Composition(Characteristic characteristic);
 	abstract public Participant conv2Participant(Characteristic characteristic);
@@ -609,7 +609,7 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 			return IScope.NULLSCOPE;
 		}
 		else {
-			EList<Composition> comps = getComposition(entity);
+			EList<? extends Composition> comps = getComposition(entity);
 			// Can't use the default scopeFor because Compositions have a 'rolename' instead of a 'name'. 
 			// See the implementation of the default Scopes.scopeFor method.
 			// So, do this instead:
@@ -637,7 +637,7 @@ public abstract class EntityProcessor<ComposableElement extends UddlElement,
 		}
 		else {
 			Entity spec = getSpecializes(entity);
-			EList<Participant> parts = getParticipant(entity);
+			EList<? extends Participant> parts =  getParticipant(entity);
 			// Associations can specialize an Entity but not the otherway around (because once
 			// you have participants, you can't get rid of them). So, once we find a specialization
 			// that is *not* an Association, we can stop.

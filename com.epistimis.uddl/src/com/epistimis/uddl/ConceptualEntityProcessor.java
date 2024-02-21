@@ -23,7 +23,9 @@ import com.google.inject.Inject;
  * 
  */
 public class ConceptualEntityProcessor extends
-		EntityProcessor<ConceptualComposableElement, ConceptualCharacteristic, ConceptualEntity, ConceptualAssociation, ConceptualComposition, ConceptualParticipant, ConceptualObservable, ConceptualDataModel> {
+		EntityProcessor<ConceptualComposableElement, ConceptualCharacteristic, ConceptualEntity, 
+		ConceptualAssociation, ConceptualComposition, ConceptualParticipant, 
+		ConceptualObservable, ConceptualDataModel> {
 
 	@Inject
 	IQualifiedNameProvider qnp; // = new UddlQNP();
