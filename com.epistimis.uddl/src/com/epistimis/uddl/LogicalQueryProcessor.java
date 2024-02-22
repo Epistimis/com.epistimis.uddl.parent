@@ -66,7 +66,7 @@ public class LogicalQueryProcessor extends
 	protected String getCharacteristicRolename(LogicalCharacteristic obj) { return obj.getRolename(); }
 
 	@Override
-	protected LogicalComposableElement getCharacteristicType(LogicalCharacteristic obj) {
+	public LogicalComposableElement getCharacteristicType(LogicalCharacteristic obj) {
 		// TODO Auto-generated method stub
 		if (obj instanceof LogicalComposition) {
 			return ((LogicalComposition)obj).getType();

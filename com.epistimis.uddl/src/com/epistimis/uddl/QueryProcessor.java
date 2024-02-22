@@ -148,7 +148,7 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 	abstract protected EClass getRelatedPackageEntityInstance(Query obj);
 
 	// Get the Characteristic's type, rolename, or bounds
-	abstract protected ComposableElement getCharacteristicType(Characteristic obj);
+	abstract public ComposableElement getCharacteristicType(Characteristic obj);
 
 	abstract protected String getCharacteristicRolename(Characteristic obj);
 
@@ -343,8 +343,9 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 	 * Processing a CompositeQuery just means drilling down and processing each
 	 * contained individual query
 	 * 
-	 * @param query
-	 * @return
+	 * @param query A CompositeQuery to process
+	 * @return a map of (Query, QueryStatement) pairs. The QueryStatement is the result of parsing the specification in that
+	 * Query. This stores only individual queries- flattening the CompositeQuery
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<Query, QueryStatement> parseCompositeQuery(CompositeQuery query) {
@@ -366,8 +367,8 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 	/**
 	 * Get all the Entities referenced by this Query.
 	 * 
-	 * @param conn
-	 * @return
+	 * @param query A query to analyze.
+	 * @return a map of Entities referenced by this Query, keyed by the alias for the Entity used in the query
 	 */
 	public Map<String, Entity> getReferencedEntities(Query query) {
 		Map<String, Entity> entities = new HashMap<String, Entity>();
@@ -380,8 +381,8 @@ public abstract class QueryProcessor<ComposableElement extends UddlElement,
 	/**
 	 * Get all the Entities referenced by this CompositeQuery.
 	 * 
-	 * @param conn
-	 * @return
+	 * @param query A CompositeQuery to process
+	 * @return a map of Entities referenced by this Query, keyed by the alias for the Entity used in the query
 	 */
 	public Map<String, Entity> getReferencedEntitiesComposite(CompositeQuery query) {
 		Map<String, Entity> entities = new HashMap<String, Entity>();

@@ -49,7 +49,7 @@ public class PlatformQueryProcessor extends
 	protected String getCharacteristicRolename(PlatformCharacteristic obj) { return obj.getRolename(); }
 
 	@Override
-	protected PlatformComposableElement getCharacteristicType(PlatformCharacteristic obj) {
+	public PlatformComposableElement getCharacteristicType(PlatformCharacteristic obj) {
 		// TODO Auto-generated method stub
 		if (obj instanceof PlatformComposition) {
 			return ((PlatformComposition)obj).getType();

@@ -39,8 +39,7 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 	
 	@Inject IndexUtilities ndxUtils;
 	// Because the base class one is private
-	@Inject
-	protected IQualifiedNameConverter converter = new IQualifiedNameConverter.DefaultImpl();
+	@Inject protected IQualifiedNameConverter converter = new IQualifiedNameConverter.DefaultImpl();
 	
 	@Inject protected QualifiedNameValueConverter qualifiedNameValueConverter = new QualifiedNameValueConverter();
 	

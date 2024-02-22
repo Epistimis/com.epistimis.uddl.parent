@@ -65,7 +65,7 @@ public class ConceptualQueryProcessor extends
 	protected String getCharacteristicRolename(ConceptualCharacteristic obj) { return obj.getRolename(); }
 
 	@Override
-	protected ConceptualComposableElement getCharacteristicType(ConceptualCharacteristic obj) {
+	public ConceptualComposableElement getCharacteristicType(ConceptualCharacteristic obj) {
 		// TODO Auto-generated method stub
 		if (obj instanceof ConceptualComposition) {
 			return ((ConceptualComposition)obj).getType();

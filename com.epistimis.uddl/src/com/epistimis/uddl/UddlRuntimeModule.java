@@ -70,12 +70,18 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
         return UddlValueConverters.class ;
     }
 	
+	// --------  Other providers --------------------------------
+	public Class<? extends com.epistimis.uddl.scoping.IPackageProvider> bindIPackageProvider() {
+		return UddlPackageProvider.class;
+	}
+
+	// --------  Epistimis Specific bindings --------------------------------
+	
 	/** 
 	 * Inject this if you want the additional methods provided by this QNP
 	 * @return
 	 */
 	public Class<? extends UddlQNP> bindUddlQNP() {
-		// TODO Auto-generated method stub
 		return UddlQNP.class;
 	}
 
@@ -144,10 +150,6 @@ public class UddlRuntimeModule extends AbstractUddlRuntimeModule {
 		return ConceptualEntityExt.class;
 	}
 	
-	// --------  Other providers --------------------------------
-	public Class<? extends com.epistimis.uddl.scoping.IPackageProvider> bindIPackageProvider() {
-		return UddlPackageProvider.class;
-	}
 	
 	
 }
