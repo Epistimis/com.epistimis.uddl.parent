@@ -57,12 +57,12 @@ public class CLRealizationProposalProcessor extends
 	@Override
 	protected String proposalDisplayString(ConceptualCharacteristic bc) {
 
-		return proposalPrefix + bc.getRolename() + proposalSuffix;
+		return PROPOSAL_PREFIX + bc.getRolename() + PROPOSAL_SUFFIX;
 	}
 
 	@Override
 	protected String compositionInsertionString(ConceptualComposition bc, String indent) {
-		String typeName = dummyType;
+		String typeName = DUMMY_TYPE;
 
 		/**
 		 * Per the Spec/RIG, Observables can be realized by either Measurements (which
@@ -78,18 +78,18 @@ public class CLRealizationProposalProcessor extends
 			typeName = qnp.minimalReferenceString(ce, bc); //qnp.relativeQualifiedName(ce, bc).toString();
 		}
 
-		return String.format(indent + typeName + compositionFormatString, bc.getRolename(), bc.getLowerBound(),
+		return String.format(indent + typeName + COMPOSITION_FMT_STRING, bc.getRolename(), bc.getLowerBound(),
 				bc.getUpperBound(), bc.getDescription(), qnp.getFullyQualifiedName(bc).toString());
 	}
 
 	@Override
 	protected String participantInsertionString(ConceptualParticipant bc, String indent) {
-		String typeName = dummyType;
+		String typeName = DUMMY_TYPE;
 		EObject ce = rezProc.getRealizingType(bc.getType(), ENTITY_REALIZATION_ERR, ENTITY_REALIZATION_MANY);
 		if (ce != null) {
 			typeName = qnp.minimalReferenceString(ce, bc); //qnp.relativeQualifiedName(ce, bc).toString();
 		}
-		return String.format(indent + typeName + participantFormatString, bc.getRolename(), bc.getLowerBound(),
+		return String.format(indent + typeName + PARTICIPANT_FMT_STRING, bc.getRolename(), bc.getLowerBound(),
 				bc.getUpperBound(), bc.getDescription(), qnp.getFullyQualifiedName(bc).toString(),
 				bc.getSourceLowerBound(), bc.getSourceUpperBound());
 	}

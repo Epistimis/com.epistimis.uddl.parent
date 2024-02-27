@@ -59,12 +59,12 @@ public class LPRealizationProposalProcessor extends
 	@Override
 	protected String proposalDisplayString(LogicalCharacteristic bc) {
 
-		return proposalPrefix + bc.getRolename() + proposalSuffix;
+		return PROPOSAL_PREFIX + bc.getRolename() + PROPOSAL_SUFFIX;
 	}
 
 	@Override
 	protected String compositionInsertionString(LogicalComposition bc, String indent) {
-		String typeName = dummyType;
+		String typeName = DUMMY_TYPE;
 		PlatformComposableElement ce = null;
 		if (bc.getType() instanceof LogicalEntity) {
 			ce = (PlatformComposableElement) rezProc.getRealizingType(bc.getType(),ENTITY_REALIZATION_ERR,ENTITY_REALIZATION_MANY);
@@ -75,19 +75,19 @@ public class LPRealizationProposalProcessor extends
 		if (ce != null) {
 			typeName = qnp.relativeQualifiedName(ce,  bc).toString();
 		}
-		return String.format(indent + typeName + compositionFormatString, bc.getRolename(),
+		return String.format(indent + typeName + COMPOSITION_FMT_STRING, bc.getRolename(),
 				bc.getLowerBound(), bc.getUpperBound(), bc.getDescription(),
 				qnp.getFullyQualifiedName(bc).toString());
 	}
 
 	@Override
 	protected String participantInsertionString(LogicalParticipant bc, String  indent) {
-		String typeName = dummyType;
+		String typeName = DUMMY_TYPE;
 		PlatformEntity ce = (PlatformEntity) rezProc.getRealizingType(bc.getType(),ENTITY_REALIZATION_ERR,ENTITY_REALIZATION_MANY);
 		if (ce != null) {
 			typeName = qnp.relativeQualifiedName(ce,  bc).toString();
 		}
-		return String.format(indent + typeName + participantFormatString, bc.getRolename(),
+		return String.format(indent + typeName + PARTICIPANT_FMT_STRING, bc.getRolename(),
 				bc.getLowerBound(), bc.getUpperBound(), bc.getDescription(),
 				qnp.getFullyQualifiedName(bc).toString(), bc.getSourceLowerBound(), bc.getSourceUpperBound());
 	}

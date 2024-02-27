@@ -42,14 +42,14 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 
 	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
-	protected static String compositionFormatString = " %s[%d:%d] \"%s\" -> %s;\n";
-	protected static String participantFormatString = " %s[%d:%d] \"%s\" -> %s { source: [ %s : %d ] };\n";
-	protected static String dummyType 				= "__ReplaceMe__";
-	protected static String defaultComment 			= "// Replace " + dummyType + " with the ComposableElement type for each composition\n";
-	protected static String proposalPrefix 			= "(Default) ";
-	protected static String proposalSuffix 			= "";
-	protected static String realizeAll 				= "<<Default Realize All>>";
-	protected static String realizeRemaining 		= "<<Default Realize Remaining>>";
+	protected static String COMPOSITION_FMT_STRING 	= " %s[%d:%d] \"%s\" -> %s;\n";
+	protected static String PARTICIPANT_FMT_STRING 	= " %s[%d:%d] \"%s\" -> %s { source: [ %s : %d ] };\n";
+	protected static String DUMMY_TYPE 				= "__ReplaceMe__";
+	protected static String DEFAULT_CMT 			= "// Replace " + DUMMY_TYPE + " with the ComposableElement type for each composition\n";
+	protected static String PROPOSAL_PREFIX 		= "(Default) ";
+	protected static String PROPOSAL_SUFFIX 		= "";
+	protected static String REALIZE_ALL 			= "<<Default Realize All>>";
+	protected static String REALIZE_REMAINING 		= "<<Default Realize Remaining>>";
 
 	@Inject	UddlQNP qnp;
 	@Inject PropUtils pu;
@@ -231,7 +231,7 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 		List<BaseParticipant> realizedParticipants = rproc.getRealizedParticipants(rentity);
 		Collection<BaseParticipant> unrealizedParticipants = rproc.getUnrealizedParticipants(rentity);
 
-		String result = defaultComment;
+		String result = DEFAULT_CMT;
 		for (BaseComposition cc : unrealized) {
 			// If this one isn't already realized, then add it to the proposal
 			String oneRealizedCC = compositionInsertionString(cc,indent);
@@ -256,9 +256,9 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 		 * Only do the "all" if nothing has been done yet
 		 */
 		if (realized.isEmpty() && realizedParticipants.isEmpty()) {
-			acceptor.accept(pp.createCompletionProposal(result, realizeAll, null, context));
+			acceptor.accept(pp.createCompletionProposal(result, REALIZE_ALL, null, context));
 		} else if (!unrealized.isEmpty() || !unrealizedParticipants.isEmpty()) {
-			acceptor.accept(pp.createCompletionProposal(result, realizeRemaining, null, context));
+			acceptor.accept(pp.createCompletionProposal(result, REALIZE_REMAINING, null, context));
 		}
 
 	}
