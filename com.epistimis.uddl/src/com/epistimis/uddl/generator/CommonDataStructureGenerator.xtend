@@ -296,11 +296,14 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 				processAnEntity(pEnt, fsa, context);
 			}
 		} else {
-			logger.warn("Cannot process unsupported Entity type: " + pce.toString);
+			logger.warn("Cannot process unsupported PlatformComposableElement: " + debugDescription(pce));
 		}
 
 	}
 
+	def debugDescription(EObject obj) {
+		return obj.fullyQualifiedName.toString() + " (type: " + obj.eClass.toString + ") defined in " + obj.eResource.URI.toString();
+	}
 	/**
 	 * When creating a PDM header file, only include PlatformDataTypes. PlatformEntity gets a header per entity
 	 */
@@ -340,7 +343,7 @@ abstract class CommonDataStructureGenerator implements IGenerator2 {
 				return generateImportStatement(entType,ctx);
 			}
 		} else {
-			logger.error("Unable to cast PlatformComposableElement type: " + type.toString)
+			logger.error("Unable to generate include for PlatformComposableElement: " + debugDescription(type) );
 		}
 		/** If we get here, then it was already included */
 		return "";

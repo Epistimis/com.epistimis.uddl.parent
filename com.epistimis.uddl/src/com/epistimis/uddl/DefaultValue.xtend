@@ -36,6 +36,9 @@ import com.epistimis.uddl.util.ModelFilters
 /**
  * We can extract landmarks from the Measurement system associated with the measurement and use those for default values, if 
  * there are any. For enumerations, just take the enumeration name.
+ * 
+ * We can also look at the Measurement system for things that don't have landmarks. Is there a general solution we can use that will provide 
+ * defaults where possible, but fall back to hardcoded values here if no others are available?  This could include a model containing just default values.
  */
 class DefaultValue {
 	@Inject UddlQNP qnp;
