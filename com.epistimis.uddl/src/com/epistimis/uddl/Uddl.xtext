@@ -522,7 +522,11 @@ LogicalCharacteristic:
 	LogicalParticipant
 ;
 
-/** A logical Entity “realizes” a conceptual Entity in terms of Measurements and other logical Entities. Since a logical Entity is built from logical Measurements, it is independent of any specific platform data representation. A logical Entity's composition hierarchy is consistent with the composition hierarchy of the conceptual Entity that it realizes. The logical Entity’s composed Entities realize one to one the conceptual Entity’s composed Entities; the logical Entity’s composed Measurements realize many to one the conceptual Entity’s composed Observables.  */
+/** A logical Entity “realizes” a conceptual Entity in terms of Measurements and other logical Entities. Since a logical Entity is built from 
+ * logical Measurements, it is independent of any specific platform data representation. A logical Entity's composition hierarchy is consistent 
+ * with the composition hierarchy of the conceptual Entity that it realizes. The logical Entity’s composed Entities realize one to one the conceptual 
+ * Entity’s composed Entities; the logical Entity’s composed Measurements realize many to one the conceptual Entity’s composed Observables.
+ */
 LogicalEntity:
 	'lentity' name=ID  (description=STRING)? (':' specializes=[LogicalEntity|QN])? '->' realizes=[ConceptualEntity|QN] '{'
 		composition+=LogicalComposition*
@@ -742,7 +746,7 @@ PlatformStruct:
 
 /** A StructMember is the mechanism that allows Structs to be constructed from other PlatformDataTypes. The “type” of a StructMember is the PlatformDataType being used to construct the Struct. If “type” is a Primitive, the “precision” attribute specifies a measure of the detail in which a quantity is captured. */
 PlatformStructMember:
-	type=[PlatformDataType|QN] rolename=ID '(' precision=FLOAT ')' ('->' realizes=[LogicalMeasurementAttribute|QN] )? ';'
+	type=[PlatformDataType|QN] rolename=ID ('(' precision=FLOAT ')')? ('->' realizes=[LogicalMeasurementAttribute|QN] )? ';'
 ;
 
 /** A platform Characteristic contributes to the uniqueness of a platform Entity. The “rolename” attribute defines the name of the platform Characteristic within the scope of the platform Entity. The “lowerBound” and “upperBound” attributes define the multiplicity of the composed Characteristic. An “upperBound” multiplicity of –1 represents an unbounded sequence. */
@@ -751,7 +755,12 @@ PlatformCharacteristic:
 	PlatformParticipant
 ;
 
-/** A platform Entity “realizes” a logical Entity in terms of PhysicalDataTypes and other platform Entities composed of PhysicalDataTypes. A platform Entity’s composition hierarchy is consistent with the composition hierarchy of the logical Entity that it realizes. The platform Entity’s composed Entities realize one to one the logical Entity’s composed Entities; the platform Entity’s composed PhysicalDataTypes realize many to one the logical Entity’s composed Measurements. */
+/** 
+ * A platform Entity “realizes” a logical Entity in terms of PhysicalDataTypes and other platform Entities composed of PhysicalDataTypes. 
+ * A platform Entity’s composition hierarchy is consistent with the composition hierarchy of the logical Entity that it realizes. 
+ * The platform Entity’s composed Entities realize one to one the logical Entity’s composed Entities; the platform Entity’s composed PhysicalDataTypes 
+ * realize many to one the logical Entity’s composed Measurements. 
+ */
 PlatformEntity:
 	'pentity' name=ID  (description=STRING)? (':' specializes=[PlatformEntity|QN])? '->' realizes=[LogicalEntity|QN] '{'
 		composition+=PlatformComposition*
