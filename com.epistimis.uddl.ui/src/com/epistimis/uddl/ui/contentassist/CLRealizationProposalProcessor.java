@@ -33,7 +33,13 @@ import com.epistimis.uddl.uddl.UddlPackage;
  * 
  */
 public class CLRealizationProposalProcessor extends
-		EntityRealizationProposalProcessor<ConceptualComposableElement, LogicalComposableElement, ConceptualEntity, LogicalEntity, ConceptualCharacteristic, LogicalCharacteristic, ConceptualComposition, LogicalComposition, ConceptualParticipant, LogicalParticipant, ConceptualAssociation, LogicalAssociation, CLRealizationProcessor, ConceptualEntityProcessor, LogicalEntityProcessor> {
+		EntityRealizationProposalProcessor<ConceptualComposableElement, LogicalComposableElement, 
+			ConceptualEntity, LogicalEntity, 
+			ConceptualCharacteristic, LogicalCharacteristic, 
+			ConceptualComposition, LogicalComposition, 
+			ConceptualParticipant, LogicalParticipant, 
+			ConceptualAssociation, LogicalAssociation, 
+			CLRealizationProcessor, ConceptualEntityProcessor, LogicalEntityProcessor> {
 
 	final public static String OBSERVABLE_REALIZATION_ERR = "Observable {0} is not realized by any AbstractMeasurment or LogicalEntity";
 	final public static String OBSERVABLE_REALIZATION_MANY = "Observable {0} is realized by multiple AbstractMeasurments / LogicalEntities - picking one";
@@ -72,13 +78,12 @@ public class CLRealizationProposalProcessor extends
 		 */
 		// com.epistimis.uddl.ModelFilters.getValueTypeUnit(PlatformDataType pdt)
 		// handles the opposite case
-		EObject ce = rezProc.getRealizingType(bc.getType(), OBSERVABLE_REALIZATION_ERR,
-				OBSERVABLE_REALIZATION_MANY);
+		EObject ce = rezProc.getRealizingType(bc.getType(), OBSERVABLE_REALIZATION_ERR, OBSERVABLE_REALIZATION_MANY);
 		if (ce != null) {
 			typeName = qnp.minimalReferenceString(ce, bc); //qnp.relativeQualifiedName(ce, bc).toString();
 		}
 
-		return String.format(indent + typeName + COMPOSITION_FMT_STRING, bc.getRolename(), bc.getLowerBound(),
+		return String.format(COMPOSITION_FMT_STRING,indent, typeName, bc.getRolename(), bc.getLowerBound(),
 				bc.getUpperBound(), bc.getDescription(), qnp.getFullyQualifiedName(bc).toString());
 	}
 
@@ -89,7 +94,7 @@ public class CLRealizationProposalProcessor extends
 		if (ce != null) {
 			typeName = qnp.minimalReferenceString(ce, bc); //qnp.relativeQualifiedName(ce, bc).toString();
 		}
-		return String.format(indent + typeName + PARTICIPANT_FMT_STRING, bc.getRolename(), bc.getLowerBound(),
+		return String.format(PARTICIPANT_FMT_STRING,indent, typeName, bc.getRolename(), bc.getLowerBound(),
 				bc.getUpperBound(), bc.getDescription(), qnp.getFullyQualifiedName(bc).toString(),
 				bc.getSourceLowerBound(), bc.getSourceUpperBound());
 	}

@@ -42,15 +42,20 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 
 	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
-	protected static String COMPOSITION_FMT_STRING 	= " %s[%d:%d] \"%s\" -> %s;\n";
-	protected static String PARTICIPANT_FMT_STRING 	= " %s[%d:%d] \"%s\" -> %s { source: [ %s : %d ] };\n";
+	protected static String COMPOSITION_FMT_STRING 	= "%s%s %s[%d:%d] \"%s\" -> %s;\n";
+	protected static String PARTICIPANT_PREFIX 		= "\n%sparticipants: [\n" ;
+	protected static String PARTICIPANT_SUFFIX 		= "%s]" ;
+	protected static String PARTICIPANT_FMT_STRING 	= "%s\t%s %s[%d:%d] \"%s\" -> %s { source: [ %s : %d ] };\n";
 	protected static String DUMMY_TYPE 				= "__ReplaceMe__";
-	protected static String DEFAULT_CMT 			= "// Replace " + DUMMY_TYPE + " with the ComposableElement type for each composition\n";
+	protected static String DEFAULT_CMT 			= "%s// Replace " + DUMMY_TYPE + " with the ComposableElement type for each composition\n";
 	protected static String PROPOSAL_PREFIX 		= "(Default) ";
 	protected static String PROPOSAL_SUFFIX 		= "";
 	protected static String REALIZE_ALL 			= "<<Default Realize All>>";
 	protected static String REALIZE_REMAINING 		= "<<Default Realize Remaining>>";
 
+	protected static String ASSOC_REALIZATIION_ERR	= "Associtation {0} realizes {1} which is not an Association";
+	
+	
 	@Inject	UddlQNP qnp;
 	@Inject PropUtils pu;
 	
@@ -217,6 +222,15 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 		return PropUtils.indent(qnp.getFullyQualifiedName(object).getSegmentCount());
 
 	}
+	/**
+	 * Complates compositions - and participants too!
+	 * @param pp
+	 * @param rproc
+	 * @param rentity
+	 * @param ruleCall
+	 * @param context
+	 * @param acceptor
+	 */
 	public void complete_Composition(UddlProposalProvider pp, RezProcessor rproc, RealizingEntity rentity,
 			RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		// Get all the standard stuff first
@@ -231,7 +245,10 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 		List<BaseParticipant> realizedParticipants = rproc.getRealizedParticipants(rentity);
 		Collection<BaseParticipant> unrealizedParticipants = rproc.getUnrealizedParticipants(rentity);
 
-		String result = DEFAULT_CMT;
+		String result = "";
+		if (!unrealized.isEmpty()) {
+			result += String.format(DEFAULT_CMT, indent); // Add the comment if we will also add some unrealized compositions
+		}
 		for (BaseComposition cc : unrealized) {
 			// If this one isn't already realized, then add it to the proposal
 			String oneRealizedCC = compositionInsertionString(cc,indent);
@@ -240,17 +257,22 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 			result += oneRealizedCC;
 		}
 		if (!unrealizedParticipants.isEmpty()) {
-			result += "\n participants: [";
+			result += String.format(PARTICIPANT_PREFIX, indent); //"\n participants: [";
 
 			for (BaseParticipant cp : unrealizedParticipants) {
 				// If this one isn't already realized, then add it to the proposal
 				String insertionString = participantInsertionString(cp,indent);
-				String displayString = proposalDisplayString(cp);
-				ICompletionProposal prop = pp.createCompletionProposal(insertionString,displayString, null, context);
-				acceptor.accept(prop);
+				/** 
+				 * Since we are completing compositions, we can't propose individual participants - so we don't add them 
+				 * to the acceptor here. However, we can build up the result to propose adding everything that remains (including participants)
+				 */
+				//String displayString = proposalDisplayString(cp);
+				//ICompletionProposal prop = pp.createCompletionProposal(insertionString,displayString, null, context);
+				//acceptor.accept(prop);
+				
 				result += insertionString;
 			}
-			result += "]";
+			result += String.format(PARTICIPANT_SUFFIX, indent); //]";
 		}
 		/**
 		 * Only do the "all" if nothing has been done yet
@@ -263,7 +285,7 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 
 	}
 
-	private Collection<EObject> getRealizingTypes(BaseComposition bcomp) {
+	private Collection<EObject> getRealizingCTypes(BaseComposition bcomp) {
 		BaseComposableElement baseType = bProc.getCompositionType(bcomp);
 		if (baseType != null) {
 			return rezProc.getRealizingTypes(baseType);
@@ -295,7 +317,7 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 			BaseEntity bentity = rezProc.getRealizedEntity(rentity);
 			Collection<BaseComposition> bcomps = bProc.allCompositions(bentity).values();
 			for (BaseComposition bc : bcomps) {
-				realizingTypes.addAll(getRealizingTypes(bc));
+				realizingTypes.addAll(getRealizingCTypes(bc));
 			}
 //		}
 		/*
@@ -339,4 +361,103 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 
 	}
 
+	public void complete_Participant(UddlProposalProvider pp, RezProcessor rproc, RealizingEntity rentity,
+			RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+
+		String indent = contentIndent(rentity);
+		// Now add customization here
+		// When doing this, propose that all ConceptualCompositions be realized - but
+		// only those that
+		List<BaseParticipant> realizedParticipants = rproc.getRealizedParticipants(rentity);
+		Collection<BaseParticipant> unrealizedParticipants = rproc.getUnrealizedParticipants(rentity);
+
+		String result = DEFAULT_CMT;
+		if (!unrealizedParticipants.isEmpty()) {
+			/**
+			 * We don't use the participant prefix/ suffix here because those must already be in place to create the context 
+			 * that triggers this method.
+			 */
+			//result += String.format(PARTICIPANT_PREFIX, indent); //"\n participants: [";
+
+			for (BaseParticipant cp : unrealizedParticipants) {
+				// If this one isn't already realized, then add it to the proposal
+				String insertionString = participantInsertionString(cp,indent);
+				String displayString = proposalDisplayString(cp);
+				ICompletionProposal prop = pp.createCompletionProposal(insertionString,displayString, null, context);
+				acceptor.accept(prop);
+				result += insertionString;
+			}
+			//result += String.format(PARTICIPANT_SUFFIX, indent); //]";
+		}
+		/**
+		 * Only do the "all" if nothing has been done yet
+		 */
+		if (realizedParticipants.isEmpty()) {
+			acceptor.accept(pp.createCompletionProposal(result, REALIZE_ALL, null, context));
+		} else if ( !unrealizedParticipants.isEmpty()) {
+			acceptor.accept(pp.createCompletionProposal(result, REALIZE_REMAINING, null, context));
+		}
+
+	}
+
+	private Collection<EObject> getRealizingPTypes(BaseParticipant bcomp) {
+		BaseComposableElement baseType = bProc.getParticipantType(bcomp);
+		if (baseType != null) {
+			return rezProc.getRealizingTypes(baseType);
+		}
+		return new HashSet<>();
+	}
+	
+	/**
+	 * The type must be a type that realizes the BaseParticipant, if it has been
+	 * specified. If not, then it must be a type that realizes one of the
+	 * BaseParticipants from the BaseAssociation realized by the containing
+	 * RealizingAssociation.
+	 * 
+	 * @param pp
+	 * @param rassoc
+	 * @param assignment
+	 * @param context
+	 * @param acceptor
+	 */
+	public void completeParticipant_Type(UddlProposalProvider pp,  RealizingAssociation rassoc, 
+					Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		BaseComposition bcomp = rezProc.getRealizedComposition(rcomp);
+//		BaseComposableElement baseType = bProc.getCompositionType(bcomp);
+		Set<EObject> realizingTypes = new HashSet<EObject>();
+//		if (baseType != null) {
+//			realizingTypes = rezProc.getRealizingTypes(baseType);
+//		}
+//		else {
+			// Get the types for all the composition elements in the realized Entity
+			BaseEntity bentity = rezProc.getRealizedEntity(rassoc);
+			// The base entity must be a base association. If not, there is an error
+			if (!bProc.isAssociation(bentity)) {
+				logger.error(MessageFormat.format(ASSOC_REALIZATIION_ERR,qnp.getFullyQualifiedName(rassoc).toString(),qnp.getFullyQualifiedName(bentity).toString()));
+				return;
+			}
+			BaseAssociation bAssoc = bProc.conv2Association(bentity);
+			
+			Collection<BaseParticipant> parts = bProc.allParticipants(bAssoc).values();
+			for (BaseParticipant bp : parts) {
+				realizingTypes.addAll(getRealizingPTypes(bp));
+			}
+//		}
+		/*
+		 * If there are **no** realizing types, then we've got a lot of work to do
+		 */
+		if (realizingTypes.isEmpty()) {
+			String msg = MessageFormat.format("No realizing types found for any participant elements of {0}",qnp.getFullyQualifiedName(rassoc));
+			logger.info(msg);
+		}
+		for (EObject rce: realizingTypes) {
+			String insertionString = qnp.minimalReferenceString( rce, rassoc);
+			String displayString = getRealizingTypeName(rce);
+			ICompletionProposal prop = pp.createCompletionProposal(insertionString,displayString, null, context);
+			prop = pu.modifyConfigurableCompletionProposal(prop, context, getCompositionTypeReference(), ((UddlElement)rce).getDescription());
+			acceptor.accept(prop);
+		}
+	}
+
+	
 }

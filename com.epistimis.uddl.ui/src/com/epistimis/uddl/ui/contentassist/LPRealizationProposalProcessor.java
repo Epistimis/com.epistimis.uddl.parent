@@ -33,9 +33,13 @@ import com.epistimis.uddl.uddl.UddlPackage;
  * 
  */
 public class LPRealizationProposalProcessor extends
-		EntityRealizationProposalProcessor<LogicalComposableElement, PlatformComposableElement, LogicalEntity, PlatformEntity, LogicalCharacteristic, PlatformCharacteristic, 
-		LogicalComposition, PlatformComposition, LogicalParticipant, PlatformParticipant, 
-		LogicalAssociation, PlatformAssociation, LPRealizationProcessor, LogicalEntityProcessor, PlatformEntityProcessor> {
+		EntityRealizationProposalProcessor<LogicalComposableElement, PlatformComposableElement, 
+			LogicalEntity, PlatformEntity, 
+			LogicalCharacteristic, PlatformCharacteristic, 
+			LogicalComposition, PlatformComposition, 
+			LogicalParticipant, PlatformParticipant, 
+			LogicalAssociation, PlatformAssociation, 
+			LPRealizationProcessor, LogicalEntityProcessor, PlatformEntityProcessor> {
 
 	final public static String ABS_MEAS_REALIZATION_ERR 	= "AbstractMeasurement {0} is not realized by any PlatformDataType";
 	final public static String ABS_MEAS_REALIZATION_MANY 	= "AbstractMeasurement {0} is realized by multiple PlatformDataTypes - picking one";
@@ -75,7 +79,7 @@ public class LPRealizationProposalProcessor extends
 		if (ce != null) {
 			typeName = qnp.relativeQualifiedName(ce,  bc).toString();
 		}
-		return String.format(indent + typeName + COMPOSITION_FMT_STRING, bc.getRolename(),
+		return String.format(COMPOSITION_FMT_STRING,indent, typeName, bc.getRolename(),
 				bc.getLowerBound(), bc.getUpperBound(), bc.getDescription(),
 				qnp.getFullyQualifiedName(bc).toString());
 	}
@@ -87,7 +91,7 @@ public class LPRealizationProposalProcessor extends
 		if (ce != null) {
 			typeName = qnp.relativeQualifiedName(ce,  bc).toString();
 		}
-		return String.format(indent + typeName + PARTICIPANT_FMT_STRING, bc.getRolename(),
+		return String.format(PARTICIPANT_FMT_STRING,indent, typeName, bc.getRolename(),
 				bc.getLowerBound(), bc.getUpperBound(), bc.getDescription(),
 				qnp.getFullyQualifiedName(bc).toString(), bc.getSourceLowerBound(), bc.getSourceUpperBound());
 	}
