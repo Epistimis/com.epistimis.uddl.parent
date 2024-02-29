@@ -1,6 +1,7 @@
 package com.epistimis.uddl.unrolled;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
@@ -83,7 +84,7 @@ public abstract class UnrolledEntity<ComposableElement extends UddlElement,
 		if (specializedEntity != null) {
 			compositionSoFar = processSpecializationForCompositions(specializedEntity);
 		} else {
-			compositionSoFar = new HashMap<String, UComposition>();
+			compositionSoFar = new LinkedHashMap<String, UComposition>();
 		}
 		setDescription(pe);
 		return processLocalCompositions(pe,compositionSoFar);
@@ -97,8 +98,10 @@ public abstract class UnrolledEntity<ComposableElement extends UddlElement,
 		 * or not, because we wouldn't know if the 'results' map entry was an updated version reusing a name. 
 		 * By keeping the maps separate, we we can do that safely. Then, at the very end, we merge what is left 
 		 * of compositionSoFar into results - everything we want to 'override' has already been removed from it.
+		 * 
+		 * NOTE: Using LinkedHashMap to get predictable ordering (ordered by insertion)
 		 */
-		Map<String,UComposition> results = new HashMap<>();
+		Map<String,UComposition> results = new LinkedHashMap<>();
 		for (Composition pc: getComposition(pe)) {
 			UComposition rc = null;			
 			@SuppressWarnings("unchecked") // OCL invariants say that compositions can only specialize compositions

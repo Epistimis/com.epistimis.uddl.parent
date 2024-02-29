@@ -30,14 +30,18 @@ import com.epistimis.uddl.LogicalEntityProcessor;
 import com.epistimis.uddl.PlatformEntityProcessor;
 import com.epistimis.uddl.UddlQNP;
 import com.epistimis.uddl.util.IndexUtilities;
+import com.epistimis.uddl.uddl.LogicalAssociation;
 import com.epistimis.uddl.uddl.LogicalComposition;
 import com.epistimis.uddl.uddl.LogicalEntity;
 import com.epistimis.uddl.uddl.LogicalMeasurement;
 import com.epistimis.uddl.uddl.LogicalMeasurementAttribute;
 import com.epistimis.uddl.uddl.LogicalMeasurementAxis;
+import com.epistimis.uddl.uddl.LogicalParticipant;
+import com.epistimis.uddl.uddl.PlatformAssociation;
 import com.epistimis.uddl.uddl.PlatformComposableElement;
 import com.epistimis.uddl.uddl.PlatformComposition;
 import com.epistimis.uddl.uddl.PlatformEntity;
+import com.epistimis.uddl.uddl.PlatformParticipant;
 import com.epistimis.uddl.uddl.PlatformStruct;
 import com.epistimis.uddl.uddl.UddlElement;
 import com.epistimis.uddl.uddl.UddlPackage;
@@ -58,7 +62,7 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	final static String INDENT 						= "\t";
 	final static String MEMBER_DISPLAY_FMT 			= "{0}" ;
 	final static String REALIZE_ALL 				= "<<Default Realize All>>";
-	final static String STRUCT_REALIZATION_ERR 		= "PlatformStruct {0} must realize a LogicalMeasurement with 2+ axes / attributes. {1} only has {2}";
+	final static String STRUCT_REALIZATION_ERR 		= "PlatformStruct {0} must realize a LogicalMeasurement with 2+ axes / attributes. {1} has {2}";
 	final static String STRUCT_AXIS_FMT 			= "{0} {1} ( {2} ) ;" ;
 	final static String STRUCT_ATTRIBUTE_FMT 		= "{0} {1} ( {2} ) -> {3} ;" ;
 	final static String GENERIC_REF_DISPLAY_FMT 	= "{0} - {1}";
@@ -186,12 +190,32 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 		clrpproc.complete_Composition(this,clrproc, ent, ruleCall, context, acceptor);		
 	}
 
+	@Override
+	public void complete_LogicalParticipant(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		LogicalAssociation assoc = null;
+		if (model instanceof LogicalAssociation) { assoc = (LogicalAssociation)model; }
+		else if (model instanceof LogicalParticipant) { assoc = (LogicalAssociation)model.eContainer(); }
+		else {
+			throw new RuntimeException("Can't cast to LogicalAssociation:" + model.eClass().toString());
+		}
+		clrpproc.complete_Participant(this,clrproc, assoc, ruleCall, context, acceptor);		
+		
+	}
 //	@Override
-//	public void completeLogicalComposition_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-////		lookupCrossReference(((CrossReference)assignment.getTerminal()), context, acceptor);
-//		clrpproc.completeComposition_Type(this, (LogicalEntity)model,  assignment, context, acceptor);
-//		
+//	public void completeLogicalEntity_Composition(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		completeRuleCall(((RuleCall)assignment.getTerminal()), context, acceptor);
 //	}
+//	@Override
+//	public void completeLogicalAssociation_Composition(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		completeRuleCall(((RuleCall)assignment.getTerminal()), context, acceptor);
+//	}
+
+	@Override
+	public void completeLogicalComposition_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		lookupCrossReference(((CrossReference)assignment.getTerminal()), context, acceptor);
+		clrpproc.completeComposition_Type(this, (LogicalEntity)model,  assignment, context, acceptor);
+		
+	}
 	/**
 	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
 	 * be used by clrpproc to force the call to the super class method
@@ -217,6 +241,13 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 	}
 
 	@Override
+	public void completeLogicalParticipant_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		lookupCrossReference(((CrossReference)assignment.getTerminal()), context, acceptor);
+		clrpproc.completeParticipant_Type(this, (LogicalAssociation)model,  assignment, context, acceptor);
+		
+	}
+
+	@Override
 	public void completeLogicalMeasurement_Realizes(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		// Do I need to call super? Don't think so
 //		super.completeLogicalMeasurement_Realizes(model,assignment,context,acceptor);
@@ -227,6 +258,7 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 
 	/** Platform -> Logical */
 
+	/** Rule methods */
 	/**
 	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
 	 * be used by clrpproc to force the call to the super class method
@@ -252,12 +284,36 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 
 	}
 
+	@Override
+	public void complete_PlatformParticipant(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		PlatformAssociation assoc = null;
+		if (model instanceof PlatformAssociation) { assoc = (PlatformAssociation)model; }
+		else if (model instanceof PlatformParticipant) { assoc = (PlatformAssociation)model.eContainer(); }
+		else {
+			throw new RuntimeException("Can't cast to PlatformAssociation:" + model.eClass().toString());
+		}
+		lprpproc.complete_Participant(this,lprproc, assoc, ruleCall, context, acceptor);		
+		
+	}
+
+	/** Feature Methods */
+	
 //	@Override
-//	public void completePlatformComposition_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-////		lookupCrossReference(((CrossReference)assignment.getTerminal()), context, acceptor);
-//		lprpproc.completeComposition_Type(this, (PlatformEntity)model,  assignment, context, acceptor);
-//		
+//	public void completePlatformEntity_Composition(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		completeRuleCall(((RuleCall)assignment.getTerminal()), context, acceptor);
 //	}
+	
+//	@Override
+//	public void completePlatformAssociation_Composition(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		completeRuleCall(((RuleCall)assignment.getTerminal()), context, acceptor);
+//	}
+
+	@Override
+	public void completePlatformComposition_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		lookupCrossReference(((CrossReference)assignment.getTerminal()), context, acceptor);
+		lprpproc.completeComposition_Type(this, (PlatformEntity)model,  assignment, context, acceptor);
+		
+	}
 	/**
 	 * The only way to force calling a super class method is by calling from the derived class. So we create this callback to 
 	 * be used by clrpproc to force the call to the super class method
@@ -284,6 +340,12 @@ public class UddlProposalProvider extends AbstractUddlProposalProvider {
 
 	}
 
+	@Override
+	public void completePlatformParticipant_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		lookupCrossReference(((CrossReference)assignment.getTerminal()), context, acceptor);
+		lprpproc.completeParticipant_Type(this, (PlatformAssociation)model,  assignment, context, acceptor);
+		
+	}
 	
 	@Override
 	public void completePlatformStruct_Member(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {

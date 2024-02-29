@@ -522,7 +522,8 @@ LogicalCharacteristic:
 	LogicalParticipant
 ;
 
-/** A logical Entity “realizes” a conceptual Entity in terms of Measurements and other logical Entities. Since a logical Entity is built from 
+/** 
+ * A logical Entity “realizes” a conceptual Entity in terms of Measurements and other logical Entities. Since a logical Entity is built from 
  * logical Measurements, it is independent of any specific platform data representation. A logical Entity's composition hierarchy is consistent 
  * with the composition hierarchy of the conceptual Entity that it realizes. The logical Entity’s composed Entities realize one to one the conceptual 
  * Entity’s composed Entities; the logical Entity’s composed Measurements realize many to one the conceptual Entity’s composed Observables.
