@@ -138,7 +138,7 @@ class DefaultValue {
 	def dispatch String	getDefaultValueAsString( PlatformEnumeration value, EObject ctx) 	
 	{
 		val LogicalEnumeratedBase leb = getEnumValue(value);
-		return  (leb === null) ? QualifiedName.EMPTY.toString():  MessageFormat.format(EXPLAINED_VALUE_FMT,qnp.minimalReferenceString(leb,ctx),leb.description);
+		return  (leb === null) ? QualifiedName.EMPTY.toString():  MessageFormat.format(EXPLAINED_VALUE_FMT,qnp.minimalReferenceString(leb,ctx),leb.description !== null? leb.description: "");
 	}
 	
 }
