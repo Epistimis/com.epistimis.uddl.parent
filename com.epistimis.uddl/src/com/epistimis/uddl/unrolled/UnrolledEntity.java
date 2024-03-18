@@ -1,15 +1,14 @@
 package com.epistimis.uddl.unrolled;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
-import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.uddl.UddlElement;
 //import com.google.common.base.Optional;
+import com.epistimis.uddl.util.IndexUtilities;
 
 
 public abstract class UnrolledEntity<ComposableElement extends UddlElement, 

@@ -304,7 +304,7 @@ LogicalEnumerated:
 /**EXTENSION: The foundation for every taxonomic type hierarchy. Override and extend as needed */
 Taxonomy:
 	LogicalEnumeratedBase
-	| LogicalEnumerated
+//	| LogicalEnumerated
 ;
 /**EXTENSION: Creates the foundation for a hierarchy of enumerated values. LogicalEnumerated is kept separate because we need to make a
  * distinction between LogicalEnumerated and LogicalEnumerationLabel - otherwise, we end up with too many choices when selected LogicalElement values.
@@ -312,7 +312,7 @@ Taxonomy:
 LogicalEnumeratedBase:
 	LogicalEnumeratedSet 
 	| LogicalEnumerationLabel 
-	//| LogicalEnumerated
+	| LogicalEnumerated
 ;
 
 /**EXTENSION: allowing label to be a LogicalEnumeratedSet enables taxonomy definitions via enumerations  */
