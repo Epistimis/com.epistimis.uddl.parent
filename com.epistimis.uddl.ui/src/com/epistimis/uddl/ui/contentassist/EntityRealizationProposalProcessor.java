@@ -371,7 +371,7 @@ abstract class EntityRealizationProposalProcessor<BaseComposableElement extends 
 		List<BaseParticipant> realizedParticipants = rproc.getRealizedParticipants(rentity);
 		Collection<BaseParticipant> unrealizedParticipants = rproc.getUnrealizedParticipants(rentity);
 
-		String result = DEFAULT_CMT;
+		String result = String.format(DEFAULT_CMT, indent); 
 		if (!unrealizedParticipants.isEmpty()) {
 			/**
 			 * We don't use the participant prefix/ suffix here because those must already be in place to create the context 

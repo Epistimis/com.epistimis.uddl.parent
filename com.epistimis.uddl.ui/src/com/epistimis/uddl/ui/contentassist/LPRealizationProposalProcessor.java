@@ -77,7 +77,8 @@ public class LPRealizationProposalProcessor extends
 			
 		}
 		if (ce != null) {
-			typeName = qnp.relativeQualifiedName(ce,  bc).toString();
+			typeName = qnp.minimalReferenceString(ce,  bc);
+
 		}
 		return String.format(COMPOSITION_FMT_STRING,indent, typeName, bc.getRolename(),
 				bc.getLowerBound(), bc.getUpperBound(), bc.getDescription(),
@@ -89,7 +90,7 @@ public class LPRealizationProposalProcessor extends
 		String typeName = DUMMY_TYPE;
 		PlatformEntity ce = (PlatformEntity) rezProc.getRealizingType(bc.getType(),ENTITY_REALIZATION_ERR,ENTITY_REALIZATION_MANY);
 		if (ce != null) {
-			typeName = qnp.relativeQualifiedName(ce,  bc).toString();
+			typeName = qnp.minimalReferenceString(ce,  bc);
 		}
 		return String.format(PARTICIPANT_FMT_STRING,indent, typeName, bc.getRolename(),
 				bc.getLowerBound(), bc.getUpperBound(), bc.getDescription(),
