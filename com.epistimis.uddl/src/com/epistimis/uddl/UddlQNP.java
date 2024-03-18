@@ -2,19 +2,25 @@ package com.epistimis.uddl;
 
 import static java.util.Objects.requireNonNull;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.xtext.conversion.impl.QualifiedNameValueConverter;
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.QualifiedName;
 //import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider;
+import org.eclipse.emf.ecore.util.EContentsEList;
 
 import com.epistimis.uddl.util.IndexUtilities;
 import com.epistimis.uddl.uddl.ConceptualCharacteristic;
@@ -37,6 +43,8 @@ import com.google.inject.Inject;
 
 public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // XbaseQualifiedNameProvider
 	
+	private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+
 	@Inject IndexUtilities ndxUtils;
 	// Because the base class one is private
 	@Inject protected IQualifiedNameConverter converter = new IQualifiedNameConverter.DefaultImpl();
@@ -46,6 +54,19 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 	public QualifiedNameValueConverter getQualifiedNameValueConverter() { return qualifiedNameValueConverter; }
 	
 	/**
+	 * Check for null name - and log an error if it occurs
+	 * @param <T>
+	 * @param name
+	 * @param obj
+	 */
+	private <T extends EObject> void maybeLogAndThrow(QualifiedName name, T obj) {
+		if (name == null) {
+			String msg = "getFullyQualifiedName not properly implemented for: "+ obj.getClass().getCanonicalName();
+			logger.error(msg);
+			throw new NullPointerException(msg);
+		}
+	}
+	/**
 	 * Determine the QualifiedName of obj relative to ctx
 	 * @param obj
 	 * @param ctx
@@ -53,23 +74,26 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 	 */
 	public <T extends EObject,U extends EObject> QualifiedName relativeQualifiedName(@NonNull T obj, U ctx) {
 		requireNonNull(obj,"You must specify the EObject you want an RQN for");
-		EObject o = IndexUtilities.unProxiedEObject(obj,ctx);
+		T o =  IndexUtilities.unProxiedEObject(obj,ctx);
 		QualifiedName oName = getFullyQualifiedName(o);
+		maybeLogAndThrow(oName,o);
 		if (ctx == null) {
 			return oName;
 		}
 		// TODO: Is it possibly this one is a proxy as well?
-		EObject c = IndexUtilities.unProxiedEObject(ctx,obj);
+		U c =  IndexUtilities.unProxiedEObject(ctx,obj);
 		QualifiedName ctxName = getFullyQualifiedName(c);
-		
-		int maxSegsToCompare = Math.min(oName.getSegmentCount(), ctxName.getSegmentCount());
+		maybeLogAndThrow(ctxName,c);
+
 		int skipSegs = -1;
+		// If we get here, we didn't throw, so neither name is null
+		int maxSegsToCompare = Math.min(oName.getSegmentCount(), ctxName.getSegmentCount());
 		for (int i = 0; i < maxSegsToCompare; i++) {
 			if (!oName.getSegment(i).equals(ctxName.getSegment(i))) {
 				skipSegs = i;
 				break;
 			}
-		}
+		}			
 		if (skipSegs > 0) {
 			// Return only the name back to the common ancestor 
 			return oName.skipFirst(skipSegs);
@@ -137,8 +161,8 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put("self", content.get(0));
 
-		// This works because all grammars use the same 'includes' feature name
-		// including.
+		// This works because all grammars use the same 'includes' feature name in the top level/ 
+		// starter rule.
 		Collection<EObject> importedNamespaces = ndxUtils.processAQL(res.getResourceSet(), variables,
 				"self.eGet('includes').eGet('importedNamespace')");
 
@@ -216,6 +240,35 @@ public class UddlQNP  extends  DefaultDeclarativeQualifiedNameProvider  { // Xba
 			return false; // it can't possibly match
 		}
 	
+	}
+
+	/**
+	 * Containers with multiple values must create names that include indices to make the names unique. This
+	 * is a general approach to do that.
+	 * @param obj The object we need the index name for
+	 * @param elemList The list containing the object.
+	 * @return A string with the container name + the index, or null if obj isn't in the list
+	 */
+	protected <T extends EObject> String containerIndexAsString(T obj) { //,EObjectContainmentEList<T> elemList ) {
+		// TODO: Is it possible to have the same data flowing over multiple endpoints?
+		// If so, we then need to using indexing into the input list as part of the name
+		EStructuralFeature feature = obj.eContainingFeature();
+		EObject container = obj.eContainer();
+		Object content = container.eGet(feature);
+		try {
+			BasicEList<T> list = (BasicEList<T>)content;
+			int ndx = list.indexOf(obj); // returns -1 if not found in the list
+			if (ndx == -1) {
+				return null; // This should never happen
+			}
+			return  feature.getName()+Integer.toString(ndx);
+			
+		} catch (ClassCastException excp) {
+			// Must be single valued
+			return feature.getName(); // single valued
+		}
+//		EContentsEList<EObject>contents = (EContentsEList<EObject>) feature.eContents();
+		
 	}
 
 	/* Conceptual */
