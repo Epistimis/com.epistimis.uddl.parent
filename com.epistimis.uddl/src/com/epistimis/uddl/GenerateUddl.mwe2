@@ -3,7 +3,8 @@ module com.epistimis.uddl.GenerateUddl
 import org.eclipse.xtext.xtext.generator.*
 import org.eclipse.xtext.xtext.generator.model.project.*
 import org.eclipse.xtext.xtext.generator.ui.*
-
+import com.epistimis.xtextdocs.xtext.fragment.*
+import com.epistimis.xtextdocs.xtext.formatter.*
 var rootPath = ".."
 
 Workflow {
@@ -43,10 +44,10 @@ Workflow {
 			name = "com.epistimis.uddl.Uddl"
 			fileExtensions = "uddl"
 
-			// Only enable this when we need to regenerate langium
-		    fragment = io.typefox.xtext2langium.Xtext2LangiumFragment {
-		        outputPath = './langium'
-		    }
+//			// Only enable this when we need to regenerate langium
+//		    fragment = io.typefox.xtext2langium.Xtext2LangiumFragment {
+//		        outputPath = './langium'
+//		    }
 			// Enable this when we figure out what to do with it. It will add to dependencies, thus making builds more complicated - so 
 			// don't do it before that.
 			//fragment = org.eclipse.xtext.xtext.generator.ui.codemining.CodeMiningFragment {}
@@ -82,6 +83,19 @@ Workflow {
 			scopeProvider = scoping.ImportNamespacesScopingFragment2 {
 				generateXtendStub = false
 			}
+
+		 	// xtext-docs-gen
+		 	fragment = DocsGeneratorFragment auto-inject {
+		 		outputFileName = "uddl-syntax"
+		 		formatter = HTMLDocsFormatter {
+		 			includeToc = true
+		 			includeSimplifiedGrammar = true
+		 			mainTitle = "UDDL Grammar Doc" // optional
+		 			includeDotReferenceGraph = true
+		 		}
+		 	}
+
+
 		}
 	}
 }

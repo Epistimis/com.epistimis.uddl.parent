@@ -10,7 +10,12 @@ ModelFile:
 	dataModel=DataModel
 ;
 
-/** A DataModel is a container for ConceptualDataModels, LogicalDataModels, and PlatformDataModels */
+/**
+ * <b>Defined:</b> UDDL v1.1, Section  5.2.1
+ * <p>
+ *  
+ * A DataModel is a container for ConceptualDataModels, LogicalDataModels, and PlatformDataModels
+ */
 DataModel:
 	'dm' name=ID (description=STRING)? '{'
 		(cdm+=ConceptualDataModel |
@@ -55,7 +60,12 @@ ElementAttrs:
 	name=ID (description=STRING)?
 ;
  
-/** An Element is the root type for defining all named elements in the DataModel. The “name” attribute captures the name of the Element in the model. The “description” attribute captures a description for the Element. */
+/** 
+ * <b>Defined:</b> UDDL v1.1, Section 5.2.2
+ * <p>
+ * 
+ * An Element is the root type for defining all named elements in the DataModel. The “name” attribute captures the name of the Element in the model. The “description” attribute captures a description for the Element.
+ */
 UddlElement:  // This is datamodel.Element but it's too much hassle to fix after the fact.
 	DataModel |
 	ConceptualDataModel | LogicalDataModel | PlatformDataModel|
@@ -67,28 +77,48 @@ UddlElement:  // This is datamodel.Element but it's too much hassle to fix after
 	LogicalConstraint
 ;
 
-/** A ConceptualDataModel is a container for CDM Elements. */
+/** 
+ * <b>Defined:</b> UDDL v1.1, Section 5.2.3
+ * <p>
+ * 
+ * A ConceptualDataModel is a container for CDM Elements.
+ */
 ConceptualDataModel:
 	'cdm'	name=ID (description=STRING)? '{'
 		(element+=ConceptualElement | cdm+=ConceptualDataModel)*
 	'}'
 ;
 
-/** A LogicalDataModel is a container for LDM Elements. */
+/** 
+ * <b>Defined:</b> UDDL v1.1, Section 5.2.4
+ * <p>
+ * 
+ * A LogicalDataModel is a container for LDM Elements.
+ */
 LogicalDataModel:
 	'ldm'	name=ID (description=STRING)? '{'
 		(element+=LogicalElement | ldm+=LogicalDataModel)*
 	'}'
 ;
 
-/** A PlatformDataModel is a container for platform Data Model elements. */
+/**
+ * <b>Defined:</b> UDDL v1.1, Section 5.2.5
+ * <p>
+ * 
+ * A PlatformDataModel is a container for platform Data Model elements.
+ */
 PlatformDataModel:
 	'pdm'	name=ID (description=STRING)? '{'
 		(element+=PlatformElement | pdm+=PlatformDataModel)*
 	'}'
 ;
 
-/** A conceptual Element is the root type for defining the conceptual elements of a Data Model. */
+/** 
+ * <b>Defined:</b> UDDL v1.1, Section 5.3.1
+ * <p>
+ * 
+ * A conceptual Element is the root type for defining the conceptual elements of a Data Model.
+ */
 ConceptualElement:
 	ConceptualDomain |
 	ConceptualBasisEntity |
